@@ -1,41 +1,41 @@
 .io-modules {
-	position: relative;
+  position: relative;
     padding: 5px;
     background-color: #3e3e3e;
 
-	.io-module {
-		position: relative;
-		background-color: #747577;
-		margin-bottom: 10px;
-		padding: 5px;
-		min-height: 50px;
+  .io-module {
+    position: relative;
+    background-color: #747577;
+    margin-bottom: 10px;
+    padding: 5px;
+    min-height: 50px;
 
-		.io-module-name {
-			margin-bottom: 5px;
-			display: inline-block;
-    		font-weight: bold;
-		}
+    .io-module-name {
+      margin-bottom: 5px;
+      display: inline-block;
+        font-weight: bold;
+    }
 
-		.remove {
-			position: absolute;
-			right: 5px;
-			top: 5px;
-			display: none;
-		}
-		&:hover {
-			.remove {
-				display: inline-block;
-			}
-		}
-	}
+    .remove {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      display: none;
+    }
+    &:hover {
+      .remove {
+        display: inline-block;
+      }
+    }
+  }
 
-	.add-io-module {
-		position: absolute;
-		border: 1px solid black;
-		display: none;
+  .add-io-module {
+    position: absolute;
+    border: 1px solid black;
+    display: none;
 
-		&.active {
-			display: block;
-		}
-	}
+    &.active {
+      display: block;
+    }
+  }
 }

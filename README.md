@@ -1,7 +1,7 @@
 Piano-web
 ===========
 
-Simple React web app to assist in learning the piano. Reads a MIDI file and displays generated sheet music. Click Play to play the file and highlight played notes. Still very much WIP.
+Simple React web app to assist in learning the piano. Reads a MIDI file and displays generated sheet music. Click Play to play the file and highlight notes. Still very much WIP.
 
 Input and output is handled through React components:
 - Piano sheet music output: Uses Midi Sheet Music (http://midisheetmusic.com/) to parse .mid files and generate sheet music. Compiled from C# to JavaScript using Bridge.NET
