@@ -1,0 +1,7 @@
+obj
+packages
+*.csproj.user
+.vs
+*.dll
+*.pdb
+Debug

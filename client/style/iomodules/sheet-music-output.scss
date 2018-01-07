@@ -1,0 +1,15 @@
+.sheet-music-output {
+	.canvas-container {
+		position: relative;
+		> canvas {
+			position: absolute;
+		}
+	}
+
+	.canvas-scroll {
+		background-color: transparent;
+		position: absolute;
+		overflow-y: auto;
+		z-index: 1;
+	}
+}
