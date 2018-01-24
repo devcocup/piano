@@ -3,7 +3,7 @@ import Controls from './components/Controls';
 import IoModuleForm from './components/IoModuleForm';
 import './style/main';
 import Player from './Player';
-import * as IoModules from './ioModules';
+import * as IoModules from './iomodules';
 import ParsedMidiFile from './util/ParsedMidiFile';
 
 export default class App extends React.Component {

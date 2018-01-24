@@ -1,7 +1,7 @@
 import React from 'react';
 import IoModuleList from './IoModuleList';
 import classNames from 'classnames';
-import * as IoModules from '../ioModules';
+import * as IoModules from '../iomodules';
 import '../style/iomodule';
 
 
