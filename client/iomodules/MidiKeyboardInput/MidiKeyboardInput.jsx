@@ -119,12 +119,11 @@ export default class MidiKeyboardInput extends React.Component {
   }
 
   handleToggleWaitForInput() {
-    const newState = this.state.waitForInput;
-    if (!newState) {
-      this.notesRequired = [];
-    }
+    this.clearNotesRequired();
+
+    const newState = !this.state.waitForInput;
     this.setState({
-      waitForInput: !newState,
+      waitForInput: newState,
     });
   }
 

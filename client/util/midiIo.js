@@ -4,10 +4,6 @@ class MidiIo {
   }
 
   get() {
-    if (this.inputs && this.outputs) {
-      return Promise.resolve({ inputs: this.inputs, outputs: this.outputs });
-    }
-
     return this.promise || (this.promise = navigator.requestMIDIAccess({ sysex: true }).then(midi => {
       const inputs = [];
       midi.inputs.forEach(input => {
@@ -21,7 +17,6 @@ class MidiIo {
 
       this.inputs = inputs;
       this.outputs = outputs;
-      this.promise = null;
       
       return Promise.resolve({ inputs, outputs });
     }));
