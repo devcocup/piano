@@ -1,16 +1,23 @@
 .io-modules {
   position: relative;
-    padding: 5px;
+  padding: 5px;
 
   .io-module {
     position: relative;
-    background-color: #747577;
     margin-bottom: 10px;
     padding: 5px;
-    min-height: 50px;
 
     .io-module-name {
       display: none;
+    }
+
+    .label {
+      width: 160px;
+      display: inline-block;
+    }
+
+    .section {
+      margin-right: 20px;
     }
 
     .remove {

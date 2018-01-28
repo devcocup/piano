@@ -136,18 +136,18 @@ export default class MidiKeyboardInput extends React.Component {
     return (
        <div>
          <div>
-          <span>MIDI input device</span>
-          <span>
+          <label className="section">
+            <span className="label">MIDI input device</span>
             <select>
               { this.state.availableMidiInputs.map(input =>
                 <option key={input.id} value={input.id}>{input.name}</option>
               ) }
             </select>
-            <input type='checkbox' value={this.state.waitForInput} onClick={this.handleToggleWaitForInput} /> Wait for correct input
-          </span>
-        </div>
-        <div>
-          { this.state.notesPressed.join(',') || '...' }
+          </label>
+          <label className="section">
+            <input type="checkbox" value={this.state.waitForInput} onClick={this.handleToggleWaitForInput} /> Wait for correct input
+          </label>
+          { this.state.notesPressed.join(',') }
         </div>
       </div>
     );

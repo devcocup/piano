@@ -12,24 +12,23 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
 
-    
     this.state = { 
       ioModules: [{
         id: 1,
-        module: IoModules.SheetMusicOutput,
-        name: 'SheetMusicOutput',
-      }, {
-        id: 2,
-        module: IoModules.LedStripOutput,
-        name: 'LedStripOutput',
-      }, {
-        id: 3,
         module: IoModules.SoundfontOutput,
         name: 'SoundfontOutput',
       }, {
-        id: 4,
+        id: 2,
         module: IoModules.MidiKeyboardInput,
         name: 'MidiKeyboardInput',
+      }, {
+        id: 3,
+        module: IoModules.LedStripOutput,
+        name: 'LedStripOutput',
+      }, {
+        id: 4,
+        module: IoModules.SheetMusicOutput,
+        name: 'SheetMusicOutput',
       }],
     };
 
@@ -121,6 +120,9 @@ export default class App extends React.Component {
   }
 
   readFile(file, fileName) {
+    this.handleSetPlaying(null, false);
+    this.player.setCurrentTimeMillis(0);
+
     const reader = new FileReader();
     reader.onload = e => {
       this.fileLoaded(e.target.result);
@@ -134,9 +136,7 @@ export default class App extends React.Component {
 
   handleLoadFile(evt) {
     const file = evt.target.files[0];
-    const fileName = file.name;
-
-    readFile(file, fileName);
+    this.readFile(file, file.name);
   }
 
   handlePlayPause() {
@@ -162,7 +162,7 @@ export default class App extends React.Component {
             loadFile={this.handleLoadFile} 
             playPause={this.handlePlayPause}
             isPlaying={this.state.isPlaying}
-        />
+          />
           <IoModuleForm 
             ioModules={this.state.ioModules}
             removeIoModule={this.handleRemoveIoModule}

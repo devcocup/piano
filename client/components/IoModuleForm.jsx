@@ -35,7 +35,7 @@ export default class IoModuleForm extends React.Component {
 
   render() {
     return (
-      <div className="io-modules">
+      <div className="io-modules piano-content">
         <IoModuleList 
           ioModules={this.props.ioModules}
           remove={this.removeIoModule} 
@@ -44,7 +44,7 @@ export default class IoModuleForm extends React.Component {
           setCurrentMs={this.props.setCurrentMs}
           setPlaying={this.props.setPlaying}
         />
-        <button type="button" onClick={this.handleClickAddIoModule}>add</button>
+        <button type="button" onClick={this.handleClickAddIoModule} className="hidden">add</button>
         <div className={classNames("add-io-module", { active: this.state.isAddActive })}>
           <ul>
             {this.state.availableIoModules.map(ioModuleName => (

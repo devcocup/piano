@@ -37,30 +37,6 @@ export default class LedStripOutput extends React.Component {
     });
   }
 
-  animate(playerTimeMillis, parsedMidiFile) {
-    /*const notes = parsedMidiFile.getNotes(playerTimeMillis, playerTimeMillis);
-    const newActiveMidiNotes = new Array(midiConstants.NOTE_COUNT);
-    notes.forEach(note => {
-      if (!newActiveMidiNotes[note.noteNumber]) {
-        this.activeMidiOutput && this.activeMidiOutput.send && this.activeMidiOutput.send([
-          midiConstants.NOTE_ON, note.noteNumber, midiConstants.DEFAULT_VELOCITY 
-        ]);
-        console.log(midiConstants.NOTE_ON, note.noteNumber, midiConstants.DEFAULT_VELOCITY);
-      }
-      newActiveMidiNotes[note.noteNumber] = true;
-    });
-    this.activeMidiNotes.filter(note => note).forEach((note,index) => {
-      if (!newActiveMidiNotes[index]) {
-        this.activeMidiOutput && this.activeMidiOutput.send && this.activeMidiOutput.send([
-          midiConstants.NOTE_OFF, index, midiConstants.DEFAULT_VELOCITY 
-        ]);   
-        console.log(midiConstants.NOTE_OFF, index, midiConstants.DEFAULT_VELOCITY);
-      }
-    }); 
-
-    this.activeMidiNotes = newActiveMidiNotes;*/
-  }
-
   sendMidiMessage(msg) {
     this.activeMidiOutput && this.activeMidiOutput.send && this.activeMidiOutput.send(msg);
   }
@@ -98,14 +74,14 @@ export default class LedStripOutput extends React.Component {
   render() {
     return (
       <div>
-        <span>MIDI output device</span>
-        <span>
+        <label>
+          <span className="label">MIDI output device</span>
           <select onChange={this.handleChangeOutput}>
-            { Object.values(this.state.availableMidiOutputs).map(output =>
-              <option key={output.id} value={output.id}>{output.name}</option>
-            ) }
+          { Object.values(this.state.availableMidiOutputs).map(output =>
+            <option key={output.id} value={output.id}>{output.name}</option>
+          ) }
           </select>
-        </span>
+        </label>
       </div>
     );
   }

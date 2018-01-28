@@ -25,7 +25,7 @@ export default class IoModuleList extends React.Component {
                 />
               </div>
             </div>
-            <button className="remove" type="button" onClick={() => this.props.remove(ioModule)}>
+            <button className="hidden" type="button" onClick={() => this.props.remove(ioModule)}>
               <FontAwesomeIcon icon={faTimes} />
             </button>
           </div>  
