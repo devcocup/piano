@@ -1,7 +1,6 @@
 .io-modules {
   position: relative;
     padding: 5px;
-    background-color: #3e3e3e;
 
   .io-module {
     position: relative;
@@ -11,9 +10,7 @@
     min-height: 50px;
 
     .io-module-name {
-      margin-bottom: 5px;
-      display: inline-block;
-        font-weight: bold;
+      display: none;
     }
 
     .remove {

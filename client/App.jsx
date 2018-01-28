@@ -6,6 +6,8 @@ import Player from './Player';
 import * as IoModules from './iomodules';
 import ParsedMidiFile from './util/ParsedMidiFile';
 
+import sampleSong from './external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -24,6 +26,10 @@ export default class App extends React.Component {
         id: 3,
         module: IoModules.SoundfontOutput,
         name: 'SoundfontOutput',
+      }, {
+        id: 4,
+        module: IoModules.MidiKeyboardInput,
+        name: 'MidiKeyboardInput',
       }],
     };
 
@@ -36,7 +42,10 @@ export default class App extends React.Component {
     this.animate = this.animate.bind(this);
     this.callIoModulesChildMethod = this.callIoModulesChildMethod.bind(this);
     this.handleSetCurrentMs = this.handleSetCurrentMs.bind(this);
-
+    this.loadSample = this.loadSample.bind(this);
+    this.readFile = this.readFile.bind(this);
+    this.handleSetPlaying = this.handleSetPlaying.bind(this);
+    
     this.ioModuleEvents = {
       noteOn: this.noteOn,
       noteOff: this.noteOff,
@@ -50,14 +59,22 @@ export default class App extends React.Component {
 
   componentDidMount() {
     window.requestAnimationFrame(this.animate);
+
+    this.loadSample();
   }
+
+  loadSample() {
+    fetch(sampleSong)
+      .then(response => response.blob())
+      .then(blob => this.readFile(blob, 'sample'));
+  };
 
   animate(timestamp) {
     window.requestAnimationFrame(this.animate);
 
     if (this.player && this.parsedMidiFile) {
       this.callIoModulesChildMethod('animate', 
-        this.player.getTimeMillis(), this.parsedMidiFile);
+        this.player.getTimeMillis(), this.parsedMidiFile, timestamp);
     }
   }
 
@@ -103,9 +120,7 @@ export default class App extends React.Component {
     this.player.loadMidiArrayBuffer(arrayBuffer);
   }
 
-  handleLoadFile(evt) {
-    const file = evt.target.files[0];
-    const fileName = file.name;
+  readFile(file, fileName) {
     const reader = new FileReader();
     reader.onload = e => {
       this.fileLoaded(e.target.result);
@@ -115,11 +130,21 @@ export default class App extends React.Component {
     };
 
     reader.readAsArrayBuffer(file);
+  }
 
+  handleLoadFile(evt) {
+    const file = evt.target.files[0];
+    const fileName = file.name;
+
+    readFile(file, fileName);
   }
 
   handlePlayPause() {
-    this.player.togglePlayPause();
+    this.handleSetPlaying(null, !this.player.isPlaying());
+  }
+
+  handleSetPlaying(ioModule, isPlaying) {
+    this.player.setIsPlaying(isPlaying);
     this.setState({
       isPlaying: this.player.isPlaying(),
     });
@@ -127,6 +152,7 @@ export default class App extends React.Component {
 
   handleSetCurrentMs(ioModule, ms) {
     this.player.setCurrentTimeMillis(ms);
+    this.callIoModulesChildMethod('currentMsChanged', ms);
   }
 
   render() {
@@ -143,6 +169,7 @@ export default class App extends React.Component {
             addIoModule={this.handleAddIoModule}
             ref={ ioModuleForm => this.ioModuleForm = ioModuleForm }
             setCurrentMs={this.handleSetCurrentMs}
+            setPlaying={this.handleSetPlaying}
           />
         </div>
       );

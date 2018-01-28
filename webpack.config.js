@@ -40,7 +40,7 @@ module.exports = {
         test: /\.js$/,
         parser: { system: false }
       }, {
-        test: /\.(png|jpg|gif)$/,
+        test: /\.(png|jpg|gif|mid)$/,
         use: [
           {
             loader: 'file-loader',

@@ -11,6 +11,9 @@ export default class SoundFontOutput extends React.Component {
     this.noteOn = this.noteOn.bind(this);
     this.noteOff = this.noteOff.bind(this);
     this.init = this.init.bind(this);
+    this.handleToggleMute = this.handleToggleMute.bind(this);
+
+    this.state = {};
 
     this.init({soundfont: 'acoustic_grand_piano'});
   }
@@ -23,7 +26,7 @@ export default class SoundFontOutput extends React.Component {
   }
 
   noteOn(note) {
-    if (this.instrument) {
+    if (!this.state.mute && this.instrument) {
       this.activeNotes[note.noteName] = this.instrument.play(note.noteName);
     }
   }
@@ -35,7 +38,13 @@ export default class SoundFontOutput extends React.Component {
     }
   }
 
+  handleToggleMute() {
+    this.setState({
+      mute: !this.state.mute
+    });
+  }
+
   render() {
-    return <div></div>;
+    return <div><input type='checkbox' value={this.state.mute} onClick={this.handleToggleMute} /> Mute</div>;
   }
 }

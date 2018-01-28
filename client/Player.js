@@ -13,6 +13,7 @@ export default class Player {
     this.ticksToMillis = this.ticksToMillis.bind(this);
     this.millisToTicks = this.millisToTicks.bind(this);
     this.isPlaying = this.isPlaying.bind(this);
+    this.setIsPlaying = this.setIsPlaying.bind(this);
 
     this.init();
   }
@@ -20,9 +21,9 @@ export default class Player {
   init() {
     this.player = new MidiPlayer.Player(event => {
       if (event.name === 'Note on') {
-        this.noteOn({ noteName: event.noteName, noteNumber: event.noteNumber });
+        this.noteOn({ noteName: event.noteName, noteNumber: event.noteNumber, velocity: event.velocity });
       } else if (event.name === 'Note off') {
-        this.noteOff({ noteName: event.noteName, noteNumber: event.noteNumber });
+        this.noteOff({ noteName: event.noteName, noteNumber: event.noteNumber, velocity: event.velocity });
       }
     });
   }
@@ -41,10 +42,14 @@ export default class Player {
   }
 
   togglePlayPause() {
-    if (this.player.isPlaying()) {
+    this.setIsPlaying(!this.player.isPlaying());
+  }
+
+  setIsPlaying(isPlaying) {
+    if (!isPlaying && this.player.isPlaying()) {
       this.player.pause();
       this.skipToTick = this.player.tick;
-    } else {
+    } else if (isPlaying && !this.player.isPlaying()) {
       this.player.play();
       if (this.skipToTick) {
         this.player.skipToTick(this.skipToTick);

@@ -25,7 +25,7 @@ export default class SheetMusicOutput extends React.Component {
   }
 
   componentDidMount() {
-    this.divCanvasScroll.addEventListener('scroll', throttle(this.paintSheetMusic, 10));
+    this.divCanvasScroll.addEventListener('scroll', throttle(this.paintSheetMusic, 100));
     window.addEventListener('resize', throttle(this.initSheetMusic, 100));
     this.canvasScrollContents.addEventListener('click', this.click)
   }
