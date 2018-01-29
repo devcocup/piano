@@ -7,6 +7,7 @@ import * as IoModules from './iomodules';
 import ParsedMidiFile from './util/ParsedMidiFile';
 
 import sampleSong from './external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
+const SAMPLE_SONG_NAME = 'Beethoven__Moonlight_Sonata.mid';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -30,6 +31,7 @@ export default class App extends React.Component {
         module: IoModules.SheetMusicOutput,
         name: 'SheetMusicOutput',
       }],
+      tempo: 0,
     };
 
     this.handleLoadFile = this.handleLoadFile.bind(this);
@@ -44,6 +46,7 @@ export default class App extends React.Component {
     this.loadSample = this.loadSample.bind(this);
     this.readFile = this.readFile.bind(this);
     this.handleSetPlaying = this.handleSetPlaying.bind(this);
+    this.handleTempoChanged = this.handleTempoChanged.bind(this);
     
     this.ioModuleEvents = {
       noteOn: this.noteOn,
@@ -65,7 +68,7 @@ export default class App extends React.Component {
   loadSample() {
     fetch(sampleSong)
       .then(response => response.blob())
-      .then(blob => this.readFile(blob, 'sample'));
+      .then(blob => this.readFile(blob, SAMPLE_SONG_NAME));
   };
 
   animate(timestamp) {
@@ -117,6 +120,9 @@ export default class App extends React.Component {
 
   fileLoaded(arrayBuffer) {
     this.player.loadMidiArrayBuffer(arrayBuffer);
+    this.setState({
+      tempo: this.player.getTempo(),
+    });
   }
 
   readFile(file, fileName) {
@@ -129,6 +135,9 @@ export default class App extends React.Component {
 
       this.parsedMidiFile = new ParsedMidiFile(e.target.result, fileName);
       this.callIoModulesChildMethod('loadMidiFile', e.target.result, fileName);
+      this.setState({
+        trackName: fileName,
+      })
     };
 
     reader.readAsArrayBuffer(file);
@@ -155,6 +164,14 @@ export default class App extends React.Component {
     this.callIoModulesChildMethod('currentMsChanged', ms);
   }
 
+  handleTempoChanged(evt) {
+    const newTempo = evt.target.value;
+    this.player.setTempo(parseInt(newTempo, 10));
+    this.setState({ 
+      tempo: newTempo 
+    });
+  }
+
   render() {
       return (
         <div>
@@ -162,6 +179,9 @@ export default class App extends React.Component {
             loadFile={this.handleLoadFile} 
             playPause={this.handlePlayPause}
             isPlaying={this.state.isPlaying}
+            tempoChanged={this.handleTempoChanged}
+            tempo={this.state.tempo}
+            trackName={this.state.trackName}
           />
           <IoModuleForm 
             ioModules={this.state.ioModules}

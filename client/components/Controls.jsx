@@ -19,17 +19,28 @@ export default class Controls extends React.Component {
     return (
       <div className="controls">
         <div className="piano-content">
-          <button type="button" onClick={this.props.playPause}>
-            <FontAwesomeIcon icon={ this.props.isPlaying ? faPause : faPlay} />
-          </button>
-          <button type="button" onClick={this.load}>Load MIDI track...</button>
-          <input 
-            type="file" 
-            ref={input => this.midiFileInput = input} 
-            style={{display: 'none'}} 
-            onChange={this.props.loadFile} 
-            accept=".mid"
-          />
+          <div className="track-name-container" onClick={ this.load }>
+            <span className="track-name">{ this.props.trackName }</span>
+            <button type="button">
+              <FontAwesomeIcon icon="upload" />
+            </button>
+            <input 
+              type="file" 
+              ref={input => this.midiFileInput = input} 
+              style={ {display: 'none'} } 
+              onChange={ this.props.loadFile } 
+              accept=".mid"
+            />
+          </div>
+          <div>
+            <button type="button" onClick={ this.props.playPause }>
+              <FontAwesomeIcon icon={ this.props.isPlaying ? faPause : faPlay} />
+            </button>
+            <label>
+              <span className="label">Tempo</span>
+              <input type="number" value={ this.props.tempo } onChange={ this.props.tempoChanged } className="tempo" />
+            </label>
+          </div>
         </div>
       </div>
     );

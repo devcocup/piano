@@ -14,6 +14,8 @@ export default class Player {
     this.millisToTicks = this.millisToTicks.bind(this);
     this.isPlaying = this.isPlaying.bind(this);
     this.setIsPlaying = this.setIsPlaying.bind(this);
+    this.getTempo = this.getTempo.bind(this);
+    this.setTempo = this.setTempo.bind(this);
 
     this.init();
   }
@@ -82,5 +84,18 @@ export default class Player {
 
   getTimeMillis() {
     return this.ticksToMillis(this.player.tick);
+  }
+
+  getTempo() {
+    return this.player.tempo;
+  }
+
+  setTempo(tempo) {
+    const wasPlaying = this.player.isPlaying();
+    this.setIsPlaying(false);
+    this.player.tempo = tempo;
+    if (wasPlaying) {
+      this.setIsPlaying(true);
+    }
   }
 }

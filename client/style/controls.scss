@@ -1,22 +1,61 @@
 .controls {
-  padding: 5px;
+  $hover-color: #fff;
+
   background-color: #24292e;
   width: 100%;
-  height: 40px;
-  color: #fff;
+  height: 70px;
   display: flex;
   align-items: center;
+  color: rgba(255,255,255,0.75);
+
+  .track-name-container {
+    margin-bottom: 6px;
+    cursor: pointer;
+
+    > button {
+      visibility: hidden;
+      color: $hover-color;
+    }
+
+    &:hover {
+      color: $hover-color;
+      > button {
+        visibility: visible;
+      }
+    }
+
+    .track-name {
+      margin-right: 5px;
+    }  
+  }
+
+  label {
+    margin-right: 20px;
+
+    &:hover {
+      color: $hover-color;
+    }
+
+    .label {
+      margin-right: 10px;
+    }
+
+    .tempo {
+      width: 50px;
+      text-align: right;
+    }
+  }
 
   button {
     cursor: pointer;
     background: transparent;
     border: none;
-    color: rgba(255,255,255,0.75);
     font-size: 18px;
     margin-right: 20px;
+    color: rgba(255,255,255,0.75);
 
     &:hover {
-      color: #fff;
+      color: $hover-color;
     }
   }
 }
