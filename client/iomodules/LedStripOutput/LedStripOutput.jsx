@@ -18,6 +18,9 @@ export default class LedStripOutput extends React.Component {
     };
 
     this.activeMidiNotes = new Array(midiConstants.NOTE_COUNT);
+    for (let i=0; i < this.activeMidiNotes.length; i++) {
+      this.activeMidiNotes[i] = new Set();
+    }
     this.init();
   }
 
@@ -42,13 +45,17 @@ export default class LedStripOutput extends React.Component {
   }
 
   noteOn(note) {
-    this.activeMidiNotes[note.noteNumber] = true;
-    this.sendMidiMessage([ midiConstants.NOTE_ON, note.noteNumber, note.velocity ]);
+    if (!this.activeMidiNotes[note.noteNumber].size) {
+      this.sendMidiMessage([ midiConstants.NOTE_ON, note.noteNumber, note.velocity ]);
+    }
+    this.activeMidiNotes[note.noteNumber].add(note.track);
   }
 
   noteOff(note) {
-    this.activeMidiNotes[note.noteNumber] = false;
-    this.sendMidiMessage([ midiConstants.NOTE_OFF, note.noteNumber, note.velocity ]);
+    this.activeMidiNotes[note.noteNumber].delete(note.track);
+    if (!this.activeMidiNotes[note.noteNumber].size) {
+      this.sendMidiMessage([ midiConstants.NOTE_OFF, note.noteNumber, note.velocity ]);
+    }
   }
 
   setOutput(output) {
@@ -64,10 +71,10 @@ export default class LedStripOutput extends React.Component {
 
   currentMsChanged() {
     for (let i=0; i < this.activeMidiNotes.length; i++) {
-      if (this.activeMidiNotes[i]) {
+      if (this.activeMidiNotes[i] && this.activeMidiNotes[i].size) {
         this.sendMidiMessage([ midiConstants.NOTE_OFF, i, 0 ]);
       }
-      this.activeMidiNotes[i] = false;
+      this.activeMidiNotes[i] = new Set();
     }
   }
 

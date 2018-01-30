@@ -21,6 +21,7 @@ export default class PlayerAlt {
     this.setIsPlaying = this.setIsPlaying.bind(this);
     this.getTempo = this.getTempo.bind(this);
     this.setTempo = this.setTempo.bind(this);
+    this.getTempoPercentage = this.getTempoPercentage.bind(this);
 
     this.currentTimeMs = 0;
     this.tempo = 100;
@@ -42,6 +43,7 @@ export default class PlayerAlt {
           noteNumber: note.notenumber,
           startTime: note.starttime / this.pulsesPerMs,
           duration: note.duration / this.pulsesPerMs,
+          track: i,
         });
       }
     }
@@ -62,19 +64,30 @@ export default class PlayerAlt {
     this.events = [];
   }
 
+  getTempoPercentage() {
+    return this.tempo / 100;
+  }
+
   enqueueEvents() {
     this.events = flatten(this.notes
-      .filter(n => n.startTime >= this.currentTimeMs)
       .map(n => {
         const note = { 
           noteNumber: n.noteNumber, 
           noteName: midiKeyNumberToName(n.noteNumber), 
-          velocity: midiConstants.DEFAULT_VELOCITY 
+          velocity: midiConstants.DEFAULT_VELOCITY,
+          duration: n.duration, 
+          track: n.track,
         };
-        return [
-          setTimeout(() => this.noteOn(note), (n.startTime - this.currentTimeMs) / (this.tempo / 100)),
-          setTimeout(() => this.noteOff(note), (n.startTime + n.duration - this.currentTimeMs) / (this.tempo / 100))
-        ] 
+        const noteOnTime = (n.startTime - this.currentTimeMs) / this.getTempoPercentage();
+        const noteOffTime = (n.startTime + n.duration - this.currentTimeMs) / this.getTempoPercentage();
+        const evts = [];
+        if (noteOnTime>=0) {
+          evts.push(setTimeout(() => this.noteOn(note), noteOnTime));
+        }
+        if (noteOffTime>=0) {
+          evts.push(setTimeout(() => this.noteOff(note), noteOffTime));
+        }
+        return evts;
       })
     );
   }
@@ -86,7 +99,7 @@ export default class PlayerAlt {
       this.enqueueEvents();
     } else if (!isPlaying && this.playing) {
       this.playing = false;
-      this.currentTimeMs = this.currentTimeMs + (performance.now() - this.startTimeMs) * (this.tempo / 100);
+      this.currentTimeMs = this.currentTimeMs + (performance.now() - this.startTimeMs) * this.getTempoPercentage();
       this.clearEvents();
     }
   }
@@ -102,7 +115,7 @@ export default class PlayerAlt {
 
   getTimeMillis() {
     if (this.playing) {
-      return this.currentTimeMs + (performance.now() - this.startTimeMs) * (this.tempo / 100);
+      return this.currentTimeMs + (performance.now() - this.startTimeMs) * this.getTempoPercentage();
     } else {
       return this.currentTimeMs;
     }

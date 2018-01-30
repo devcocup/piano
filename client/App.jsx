@@ -111,10 +111,12 @@ export default class App extends React.Component {
   }
 
   noteOn(note) {
+    console.log('on', note);
     this.callIoModulesChildMethod('noteOn', note);
   }
 
   noteOff(note) {
+    console.log('off', note);
     this.callIoModulesChildMethod('noteOff', note);
   }
 

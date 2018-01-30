@@ -9,7 +9,7 @@ export default class MidiKeyboardInput extends React.Component {
     this.LIMIT_MS = 100;
     
     this.state = {
-      availableMidiInputs: [],
+      availableMidiInputs: {},
       notesPressed: [],
     };
 
@@ -22,6 +22,7 @@ export default class MidiKeyboardInput extends React.Component {
     this.checkInput = this.checkInput.bind(this);
     this.clearNotesRequired = this.clearNotesRequired.bind(this);
     this.currentMsChanged = this.currentMsChanged.bind(this);
+    this.handleChangeInput = this.handleChangeInput.bind(this);
     
     this.keyBuffer = [];
     this.notesRequired = [];
@@ -31,9 +32,9 @@ export default class MidiKeyboardInput extends React.Component {
 
   init() {
     midiIo.get().then(midi => {
-      const availableMidiInputs = [];
+      const availableMidiInputs = {};
       midi.inputs.forEach(input => {
-        availableMidiInputs.push(input);
+        availableMidiInputs[input.id] = input;
         if (!this.activeMidiInput) {
           this.setActiveMidiInput(input);
         }
@@ -131,14 +132,18 @@ export default class MidiKeyboardInput extends React.Component {
     this.clearNotesRequired();
   }
 
+  handleChangeInput(evt) {
+    this.setActiveMidiInput(this.state.availableMidiInputs[evt.target.value]);
+  }
+
   render() {
     return (
        <div>
          <div>
           <label className="section">
             <span className="label">MIDI input device</span>
-            <select>
-              { this.state.availableMidiInputs.map(input =>
+            <select onChange={this.handleChangeInput}>
+              { Object.values(this.state.availableMidiInputs).map(input =>
                 <option key={input.id} value={input.id}>{input.name}</option>
               ) }
             </select>

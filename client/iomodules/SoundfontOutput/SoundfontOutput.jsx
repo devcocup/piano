@@ -27,14 +27,14 @@ export default class SoundFontOutput extends React.Component {
 
   noteOn(note) {
     if (!this.state.mute && this.instrument) {
-      this.activeNotes[note.noteName] = this.instrument.play(note.noteName);
+      this.activeNotes[note.noteName + note.track] = this.instrument.play(note.noteName);
     }
   }
 
   noteOff(note) {
-    if (this.activeNotes[note.noteName]) {
-      this.activeNotes[note.noteName].stop();
-      this.activeNotes[note.noteName] = null;
+    if (this.activeNotes[note.noteName + note.track]) {
+      this.activeNotes[note.noteName + note.track].stop();
+      this.activeNotes[note.noteName + note.track] = null;
     }
   }
 
