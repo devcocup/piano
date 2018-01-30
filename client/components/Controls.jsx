@@ -38,7 +38,14 @@ export default class Controls extends React.Component {
             </button>
             <label>
               <span className="label">Tempo</span>
-              <input type="number" value={ this.props.tempo } onChange={ this.props.tempoChanged } className="tempo" />
+              <input 
+                type="number"
+                value={ this.props.tempo }
+                onChange={ this.props.tempoChanged }
+                className="tempo"
+                step="10"
+                min="0"
+                max="1000" />
             </label>
           </div>
         </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import Controls from './components/Controls';
 import IoModuleForm from './components/IoModuleForm';
 import './style/main';
-import Player from './Player';
+import Player from './PlayerAlt';
 import * as IoModules from './iomodules';
 import ParsedMidiFile from './util/ParsedMidiFile';
 

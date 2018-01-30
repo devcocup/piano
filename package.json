@@ -8,6 +8,10 @@
     "start": "node ./node_modules/webpack/bin/webpack.js && node server.js",
     "dev": "webpack-dev-server --host 0.0.0.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/djiaak/piano-web.git"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -16,7 +20,6 @@
     "@fortawesome/react-fontawesome": "0.0.17",
     "classnames": "^2.2.5",
     "lodash": "^4.17.4",
-    "midi-player-js": "^1.1.2",
     "path": "^0.12.7",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
