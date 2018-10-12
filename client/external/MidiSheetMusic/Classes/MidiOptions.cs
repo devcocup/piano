@@ -100,7 +100,7 @@ public class MidiOptions {
         key = -1;
         time = midifile.Time;
         colors = null;
-        shadeColor = Color.FromArgb(210, 205, 220);
+        shadeColor = Color.FromArgb(100, 53, 123, 255);
         shade2Color = Color.FromArgb(80, 100, 250);
         combineInterval = 40;
         tempo = midifile.Time.Tempo;
@@ -147,112 +147,6 @@ public class MidiOptions {
     static string ColorToString(Color c) {
         return "" + c.R + " " + c.G + " " + c.B;
     }
-
-    /* Convert this MidiOptions object into a INI formatted section.
-     * [title]
-     * filename=C:/path/to/file.mid
-     * version=2.5
-     * tracks=true,false,true
-     * mute=true,false,true
-     * instruments=24,1,52
-     * useDefaultInstruments=true
-     * time=3,4,720,10000    // numerator,denominator,quarter,tempo
-     * scrollVert=true
-     * largeNoteSize=false
-     * showLyrics=true
-     * twoStaffs=true
-     * showNoteLetters=true
-     * transpose=-2
-     * key=1               // Key signature (NoteScale.N)
-     * combineInterval=80
-     * showMeasures=true
-     * playMeasuresInLoop=false
-     * playMeasuresInLoopStart=2
-     * playMeasuresInLoopEnd=10
-     * shadeColor=244 159 24   // R G B
-     * shade2Color=244 159 24   // R G B
-     * colors=244 159 24, 253 92 143, ...
-     */
-    /*public SectionINI ToINI() {
-        SectionINI section = new SectionINI();
-        section.Section = title;
-        try {
-            section.Properties["filename"] = filename;
-            section.Properties["version"] = "2.6.0";
-            section.Properties["tracks"] = Join(tracks);
-            section.Properties["mute"] = Join(mute);
-            section.Properties["instruments"] = Join(instruments);
-            section.Properties["useDefaultInstruments"] = useDefaultInstruments.ToString();
-            if (time != null) {
-                int[] values = { time.Numerator, time.Denominator, time.Quarter, time.Tempo };
-                section.Properties["time"] = Join(values);
-            }
-            section.Properties["scrollVert"] = scrollVert.ToString();
-            section.Properties["largeNoteSize"] = largeNoteSize.ToString();
-            section.Properties["showLyrics"] = showLyrics.ToString();
-            section.Properties["twoStaffs"] = twoStaffs.ToString();
-            section.Properties["showNoteLetters"] = showNoteLetters.ToString();
-            section.Properties["transpose"] = transpose.ToString();
-            section.Properties["key"] = key.ToString();
-            section.Properties["combineInterval"] = combineInterval.ToString();
-            section.Properties["shadeColor"] = ColorToString(shadeColor);
-            section.Properties["shade2Color"] = ColorToString(shade2Color);
-            if (colors != null) {
-                section.Properties["colors"] = Join(colors);
-            }
-            section.Properties["showMeasures"] = showMeasures.ToString();
-            section.Properties["playMeasuresInLoop"] = playMeasuresInLoop.ToString();
-            section.Properties["playMeasuresInLoopStart"] = playMeasuresInLoopStart.ToString();
-            section.Properties["playMeasuresInLoopEnd"] = playMeasuresInLoopEnd.ToString();
-        }
-        catch (Exception e) {
-        }
-        return section;
-    }*/
-
-
-    /* Initialize a MidiOptions from the section properties of an INI text file */
-    /*public MidiOptions(SectionINI section) {
-        title = section.Section;
-        filename = section.GetString("filename");
-        tracks = section.GetBoolArray("tracks");
-        mute = section.GetBoolArray("mute");
-        if (mute  != null && section.Properties["version"] == "2.5.0") {
-            // MidiSheetMusic 2.5 stored the mute value incorrectly
-            for (int i = 0; i < mute.Length; i++) {
-                mute[i] = false;
-            }
-        }
-
-        instruments = section.GetIntArray("instruments");
-        int[] timesig = section.GetIntArray("time");
-        if (timesig != null && timesig.Length == 4) {
-            time = new TimeSignature(timesig[0], timesig[1], timesig[2], timesig[3]);
-        }
-        useDefaultInstruments = section.GetBool("useDefaultInstruments");
-        scrollVert = section.GetBool("scrollVert");
-        largeNoteSize = section.GetBool("largeNoteSize");
-        showLyrics = section.GetBool("showLyrics");
-        twoStaffs = section.GetBool("twoStaffs");
-        showNoteLetters = section.GetInt("showNoteLetters");
-        transpose = section.GetInt("transpose");
-        key = section.GetInt("key");
-        combineInterval = section.GetInt("combineInterval");
-        showMeasures = section.GetBool("showMeasures");
-        playMeasuresInLoop = section.GetBool("playMeasuresInLoop");
-        playMeasuresInLoopStart = section.GetInt("playMeasuresInLoopStart");
-        playMeasuresInLoopEnd = section.GetInt("playMeasuresInLoopEnd");
-
-        Color color = section.GetColor("shadeColor");
-        if (color != Color.White) {
-            shadeColor = color;
-        }
-        color = section.GetColor("shade2Color");
-        if (color != Color.White) {
-            shade2Color = color;
-        }
-        colors = section.GetColorArray("colors");
-    }*/
 
     
     /* Merge in the saved options to this MidiOptions.*/

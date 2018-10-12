@@ -5,9 +5,14 @@ import './style/main';
 import Player from './PlayerAlt';
 import * as IoModules from './iomodules';
 import ParsedMidiFile from './util/ParsedMidiFile';
+import localStorageDataAccess from './localStorageDataAccess';
+import arrayBufferToBase64 from './util/arrayBufferToBase64';
+import base64ToArrayBuffer from './util/base64ToArrayBuffer';
 
 import sampleSong from './external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
 const SAMPLE_SONG_NAME = 'Beethoven__Moonlight_Sonata.mid';
+
+const STORAGE_KEY = 'piano';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -57,12 +62,27 @@ export default class App extends React.Component {
       noteOn: this.noteOn,
       noteOff: this.noteOff,
     });
+
+  }
+
+  componentDidUpdate() {
+    localStorageDataAccess.save(STORAGE_KEY, this.userData);
   }
 
   componentDidMount() {
-    window.requestAnimationFrame(this.animate);
+    localStorageDataAccess.load(STORAGE_KEY).then(userData=>{
+      this.userData = userData || {};
 
-    this.loadSample();
+      if (this.userData.midiArrayBuffer) {
+        this.fileLoaded(base64ToArrayBuffer(this.userData.midiArrayBuffer), 
+          this.userData.midiFileName);
+      } else {
+        this.loadSample();
+      }
+
+      window.requestAnimationFrame(this.animate);
+
+    });
   }
 
   loadSample() {
@@ -111,35 +131,36 @@ export default class App extends React.Component {
   }
 
   noteOn(note) {
-    console.log('on', note);
     this.callIoModulesChildMethod('noteOn', note);
   }
 
   noteOff(note) {
-    console.log('off', note);
     this.callIoModulesChildMethod('noteOff', note);
   }
 
-  fileLoaded(arrayBuffer) {
+  fileLoaded(arrayBuffer, fileName) {
+    this.handleSetPlaying(null, false);
+    this.player.setCurrentTimeMillis(0);
+
     this.player.loadMidiArrayBuffer(arrayBuffer);
     this.setState({
       tempo: this.player.getTempo(),
     });
+
+    this.parsedMidiFile = new ParsedMidiFile(arrayBuffer, fileName);
+    this.callIoModulesChildMethod('loadMidiFile', arrayBuffer, fileName);
+
+    this.userData.midiArrayBuffer = arrayBufferToBase64(arrayBuffer);
+    this.userData.midiFileName = fileName;
+    this.setState({
+      trackName: fileName,
+    });
   }
 
   readFile(file, fileName) {
-    this.handleSetPlaying(null, false);
-    this.player.setCurrentTimeMillis(0);
-
     const reader = new FileReader();
     reader.onload = e => {
-      this.fileLoaded(e.target.result);
-
-      this.parsedMidiFile = new ParsedMidiFile(e.target.result, fileName);
-      this.callIoModulesChildMethod('loadMidiFile', e.target.result, fileName);
-      this.setState({
-        trackName: fileName,
-      })
+      this.fileLoaded(e.target.result, fileName);
     };
 
     reader.readAsArrayBuffer(file);

@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\AccidSymbol.cs" />
-    <Compile Include="Classes\Adler.cs" />
     <Compile Include="Classes\BarSymbol.cs" />
     <Compile Include="Classes\BlankSymbol.cs" />
     <Compile Include="Classes\ChordSymbol.cs" />
