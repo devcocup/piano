@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../external/MidiSheetMusic/build/bridge';
 import '../../external/MidiSheetMusic/build/MidiSheetMusicBridge'; 
-import throttle from 'lodash/throttle';
+import debounce from 'lodash/debounce';
 import '../../bridgeUtil';
 import ParsedMidiFile from '../../util/ParsedMidiFile';
 
@@ -14,12 +14,13 @@ export default class SheetMusicOutput extends React.Component {
     this.initSheetMusic = this.initSheetMusic.bind(this);
     this.paintSheetMusic = this.paintSheetMusic.bind(this);
     this.clearShadeNotes = this.clearShadeNotes.bind(this);
-    this.getOffset = this.getOffset.bind(this);
+    this.getScrollOffset = this.getScrollOffset.bind(this);
     this.paintSheetMusic = this.paintSheetMusic.bind(this);
     this.shadeNotes = this.shadeNotes.bind(this);
     this.loadMidiFile = this.loadMidiFile.bind(this);
     this.click = this.click.bind(this);
     this.setSelection = this.setSelection.bind(this);
+    this.scroll = this.scroll.bind(this);
 
     this.state = {
       selectionStartMs: -1,
@@ -32,8 +33,8 @@ export default class SheetMusicOutput extends React.Component {
   }
 
   componentDidMount() {
-    this.divCanvasScroll.addEventListener('scroll', throttle(() => this.paintSheetMusic(), 100));
-    window.addEventListener('resize', throttle(this.initSheetMusic, 100));
+    this.divCanvasScroll.addEventListener('scroll', debounce(this.scroll, 100));
+    window.addEventListener('resize', debounce(this.initSheetMusic, 100));
     this.canvasScrollContents.addEventListener('click', this.click)
   }
 
@@ -60,11 +61,11 @@ export default class SheetMusicOutput extends React.Component {
       return;
     }
     
-    const canvasHeight = 800;
-    [ this.canvasMain, this.canvasShadeNotes ].forEach(canvas => {
-      canvas.width = this.sheetMusic.Width;
-      canvas.height = canvasHeight;
-    });
+    const canvasHeight = window.innerHeight - this.divCanvasScroll.getBoundingClientRect().top;
+    this.canvasShadeNotes.width = this.sheetMusic.Width;
+    this.canvasShadeNotes.height = canvasHeight;
+
+    this.canvasMain.width = this.sheetMusic.Width;
 
     this.divCanvasScroll.style.width = this.sheetMusic.Width + 20 + 'px';
     this.divCanvasScroll.style.height = canvasHeight + 'px';
@@ -94,7 +95,7 @@ export default class SheetMusicOutput extends React.Component {
     ctx.clearRect(0,0, this.canvasShadeNotes.width, this.canvasShadeNotes.height);
   }
 
-  getOffset() {
+  getScrollOffset() {
     return this.divCanvasScroll.scrollTop;
   }
 
@@ -103,19 +104,22 @@ export default class SheetMusicOutput extends React.Component {
       return;
     }
 
-    this.clearShadeNotes();
-    const offset = this.getOffset();
+    this.canvasMain.height = this.sheetMusic.Height;
     const args = new MidiSheetMusic.PaintEventArgs();
-    clipRectangle = clipRectangle || [0, offset, this.sheetMusic.Width, this.sheetMusic.Height];
-    args.ClipRectangle = new MidiSheetMusic.Rectangle(...clipRectangle);
+    clipRectangle = [0, 0, this.sheetMusic.Width, this.sheetMusic.Height];
+    args.ClipRectangle = new MidiSheetMusic.Rectangle(0, 0, this.sheetMusic.Width, this.sheetMusic.Height);
     const ctx = this.canvasMain.getContext('2d');
     ctx.fillStyle = '#fff';
     ctx.fillRect(0,0, this.canvasMain.width, this.canvasMain.height);
-    ctx.translate(0, -offset);
     this.sheetMusic.OnPaint(args);
-    ctx.translate(0, offset);
-
+    
+    this.clearShadeNotes();
     this.shadeNotes(this.currentPulseTime, this.currentPulseTime - this.measure);
+  }
+
+  scroll() {
+   this.clearShadeNotes();
+   this.shadeNotes(this.currentPulseTime, this.currentPulseTime - this.measure); 
   }
 
   shadeNotes(currentPulseTime, prevPulseTime) {
@@ -123,7 +127,7 @@ export default class SheetMusicOutput extends React.Component {
       return;
     }
 
-    const offset = this.getOffset();
+    const offset = this.getScrollOffset();
     const ctx = this.canvasShadeNotes.getContext('2d');
     ctx.translate(0, -offset);
     this.sheetMusic.ShadeNotes(currentPulseTime, prevPulseTime, true);
@@ -184,14 +188,16 @@ export default class SheetMusicOutput extends React.Component {
             <div 
               className="canvas-scroll-contents" 
               ref={ el => this.canvasScrollContents = el } 
+            >
+            <canvas 
+              className="canvas-main"
+              ref={ el => this.canvasMain = el } 
+              {...defaultCanvasSize}
             />
+            </div>
           </div>
-          <canvas 
-            className="canvas-main"
-            ref={ el => this.canvasMain = el } 
-            {...defaultCanvasSize}
-          />
           <canvas
+            style={{zIndex: 1, pointerEvents: 'none'}}
             className="canvas-shadeNotes"
             ref={ el => this.canvasShadeNotes = el } 
             {...defaultCanvasSize}

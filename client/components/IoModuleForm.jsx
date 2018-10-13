@@ -35,7 +35,7 @@ export default class IoModuleForm extends React.Component {
 
   render() {
     return (
-      <div className="io-modules piano-content">
+      <div>
         <IoModuleList 
           ioModules={this.props.ioModules}
           remove={this.removeIoModule} 

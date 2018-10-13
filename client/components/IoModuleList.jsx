@@ -12,7 +12,7 @@ export default class IoModuleList extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="io-modules piano-content">
         { this.props.ioModules.map(ioModule => (
           <div key={ioModule.id} className="io-module">
             <div className="io-module-main">
