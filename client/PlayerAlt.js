@@ -14,7 +14,6 @@ export default class PlayerAlt {
     this.playing = false;
     this.events = [];
 
-    this.loadMidiArrayBuffer = this.loadMidiArrayBuffer.bind(this);
     this.togglePlayPause = this.togglePlayPause.bind(this);
     this.getTimeMillis = this.getTimeMillis.bind(this);
     this.isPlaying = this.isPlaying.bind(this);
@@ -22,12 +21,18 @@ export default class PlayerAlt {
     this.getTempo = this.getTempo.bind(this);
     this.setTempo = this.setTempo.bind(this);
     this.getTempoPercentage = this.getTempoPercentage.bind(this);
+    this.loadParsedMidiFile = this.loadParsedMidiFile.bind(this);
 
     this.currentTimeMs = 0;
     this.tempo = 100;
   }
 
-  loadMidiArrayBuffer(midiArrayBuffer) {
+  loadParsedMidiFile(parsedMidiFile) {
+    this.pulsesPerMs = parsedMidiFile.getPulsesPerMsec();
+    this.notes = parsedMidiFile.getNotes();
+  }
+
+  /*loadMidiArrayBuffer(midiArrayBuffer) {
     const fileArray = new Uint8Array(midiArrayBuffer);
     const midiFile = new MidiSheetMusic.MidiFile(fileArray, 'midi');
     const midiOptions = new MidiSheetMusic.MidiOptions.$ctor1(midiFile);
@@ -44,10 +49,11 @@ export default class PlayerAlt {
           startTime: note.starttime / this.pulsesPerMs,
           duration: note.duration / this.pulsesPerMs,
           track: i,
+          channel: i,
         });
       }
     }
-  }
+  }*/
 
   isPlaying() {
     return this.playing;
@@ -77,9 +83,10 @@ export default class PlayerAlt {
           velocity: midiConstants.DEFAULT_VELOCITY,
           duration: n.duration, 
           track: n.track,
+          channel: n.channel,
         };
-        const noteOnTime = (n.startTime - this.currentTimeMs) / this.getTempoPercentage();
-        const noteOffTime = (n.startTime + n.duration - this.currentTimeMs) / this.getTempoPercentage();
+        const noteOnTime = (n.startTimeMs - this.currentTimeMs) / this.getTempoPercentage();
+        const noteOffTime = (n.startTimeMs + n.durationMs - this.currentTimeMs) / this.getTempoPercentage();
         const evts = [];
         if (noteOnTime>=0) {
           evts.push(setTimeout(() => this.noteOn(note), noteOnTime));

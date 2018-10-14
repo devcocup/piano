@@ -8,9 +8,14 @@ export default class MidiKeyboardInput extends React.Component {
 
     this.LIMIT_MS = 100;
     
+    this.hands = [{track: 0, name: 'Right hand'},
+      {track: 1, name: 'Left hand'},
+      {track: -1, name: 'Both'}];
+
     this.state = {
       availableMidiInputs: {},
       notesPressed: [],
+      track: this.hands[this.hands.length-1].track,
     };
 
     this.init = this.init.bind(this);
@@ -23,6 +28,7 @@ export default class MidiKeyboardInput extends React.Component {
     this.clearNotesRequired = this.clearNotesRequired.bind(this);
     this.currentMsChanged = this.currentMsChanged.bind(this);
     this.handleChangeInput = this.handleChangeInput.bind(this);
+    this.handleChangeTrack = this.handleChangeTrack.bind(this);
     
     this.keyBuffer = [];
     this.notesRequired = [];
@@ -114,7 +120,7 @@ export default class MidiKeyboardInput extends React.Component {
   }
 
   noteOn(note) {
-    if (this.state.waitForInput) {
+    if (this.state.waitForInput && (this.state.track === -1 || this.state.track === note.track)) {
       this.notesRequired.push(note.noteNumber);
     }
   }
@@ -136,23 +142,39 @@ export default class MidiKeyboardInput extends React.Component {
     this.setActiveMidiInput(this.state.availableMidiInputs[evt.target.value]);
   }
 
+  handleChangeTrack(evt) {
+    this.setState({
+      track: parseInt(evt.target.value, 10),
+    });
+  }
+
   render() {
     return (
        <div>
-         <div>
-          <label className="section">
-            <span className="label">MIDI input device</span>
-            <select onChange={this.handleChangeInput}>
-              { Object.values(this.state.availableMidiInputs).map(input =>
-                <option key={input.id} value={input.id}>{input.name}</option>
-              ) }
-            </select>
-          </label>
-          <label className="section">
-            <input type="checkbox" value={this.state.waitForInput} onClick={this.handleToggleWaitForInput} /> Wait for correct input
-          </label>
-          { this.state.notesPressed.join(',') }
-        </div>
+        <label className="section">
+          <span className="label">MIDI input device</span>
+          <select onChange={this.handleChangeInput}>
+            { Object.values(this.state.availableMidiInputs).map(input =>
+              <option key={input.id} value={input.id}>{input.name}</option>
+            ) }
+          </select>
+        </label>
+        <label className="section">
+          <input type="checkbox" value={this.state.waitForInput} onClick={this.handleToggleWaitForInput} /> Wait for correct input
+        </label>
+        <span className="section">
+          {this.hands.map(hand => 
+              <label className="section" key={hand.track}>
+                <input 
+                  type="radio"
+                  name="hand"
+                  disabled={!this.state.waitForInput} 
+                  value={hand.track}
+                  checked={this.state.track === hand.track}
+                  onChange={this.handleChangeTrack} /> {hand.name}
+              </label>)}
+        </span>
+        { this.state.notesPressed.join(',') }
       </div>
     );
   }

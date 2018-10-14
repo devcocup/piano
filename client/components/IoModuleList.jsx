@@ -16,7 +16,6 @@ export default class IoModuleList extends React.Component {
         { this.props.ioModules.map(ioModule => (
           <div key={ioModule.id} className="io-module">
             <div className="io-module-main">
-              <span className="io-module-name">{ioModule.name}</span>
               <div className="io-module-content">
                 <ioModule.module 
                   ref={ ioModuleInstance => this.ioModuleInstances[ioModule.id] = ioModuleInstance }

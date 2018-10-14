@@ -1,6 +1,7 @@
 import React from 'react';
 import Controls from './components/Controls';
 import IoModuleForm from './components/IoModuleForm';
+import Config from './components/Config';
 import './style/main';
 import Player from './PlayerAlt';
 import * as IoModules from './iomodules';
@@ -142,18 +143,20 @@ export default class App extends React.Component {
     this.handleSetPlaying(null, false);
     this.player.setCurrentTimeMillis(0);
 
-    this.player.loadMidiArrayBuffer(arrayBuffer);
+    this.parsedMidiFile = new ParsedMidiFile(arrayBuffer, fileName);
+    this.player.loadParsedMidiFile(this.parsedMidiFile);
     this.setState({
       tempo: this.player.getTempo(),
     });
-
-    this.parsedMidiFile = new ParsedMidiFile(arrayBuffer, fileName);
     this.callIoModulesChildMethod('loadMidiFile', arrayBuffer, fileName);
 
     this.userData.midiArrayBuffer = arrayBufferToBase64(arrayBuffer);
     this.userData.midiFileName = fileName;
     this.setState({
       trackName: fileName,
+      config: {
+        tracks: this.parsedMidiFile.getTracks(),
+      }
     });
   }
 
@@ -206,6 +209,9 @@ export default class App extends React.Component {
             tempo={this.state.tempo}
             trackName={this.state.trackName}
           />
+          <Config 
+            key={this.state.config}
+            config={this.state.config} />
           <IoModuleForm 
             ioModules={this.state.ioModules}
             removeIoModule={this.handleRemoveIoModule}
