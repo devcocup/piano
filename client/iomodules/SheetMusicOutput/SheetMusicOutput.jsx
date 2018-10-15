@@ -2,8 +2,9 @@ import React from 'react';
 import '../../external/MidiSheetMusic/build/bridge';
 import '../../external/MidiSheetMusic/build/MidiSheetMusicBridge'; 
 import debounce from 'lodash/debounce';
-import '../../bridgeUtil';
 import ParsedMidiFile from '../../util/ParsedMidiFile';
+import '../../bridgeUtil';
+import Easing from 'easing';
 
 import '../../style/iomodules/sheet-music-output';
 
@@ -21,6 +22,8 @@ export default class SheetMusicOutput extends React.Component {
     this.click = this.click.bind(this);
     this.setSelection = this.setSelection.bind(this);
     this.scroll = this.scroll.bind(this);
+    this.handleAutoScrollClick = this.handleAutoScrollClick.bind(this);
+    this.scrollTo = this.scrollTo.bind(this);
 
     this.state = {
       selectionStartMs: -1,
@@ -30,6 +33,7 @@ export default class SheetMusicOutput extends React.Component {
     };
 
     this.prevPlayerTimeMillis = 0;
+    this.lastScrollPos = -1;
   }
 
   componentDidMount() {
@@ -119,7 +123,13 @@ export default class SheetMusicOutput extends React.Component {
 
   scroll() {
    this.clearShadeNotes();
-   this.shadeNotes(this.currentPulseTime, this.currentPulseTime - this.measure); 
+   this.shadeNotes(this.currentPulseTime, this.currentPulseTime - this.measure);
+   if (this.state.autoScroll && !this.isProgrammaticScrolling) {
+    this.setState({
+      autoScroll: false,
+    });
+   }
+   this.isProgrammaticScrolling = false;
   }
 
   shadeNotes(currentPulseTime, prevPulseTime) {
@@ -130,8 +140,26 @@ export default class SheetMusicOutput extends React.Component {
     const offset = this.getScrollOffset();
     const ctx = this.canvasShadeNotes.getContext('2d');
     ctx.translate(0, -offset);
-    this.sheetMusic.ShadeNotes(currentPulseTime, prevPulseTime, true);
+    const scrollPos = this.sheetMusic.ShadeNotes(currentPulseTime, prevPulseTime, true);
+    this.scrollTo(scrollPos);
     ctx.translate(0, offset);
+  }
+  
+  lerp(v0, v1, t) {
+    return (1 - t) * v0 + t * v1;
+  }
+
+  scrollTo(scrollPos) {
+    if (scrollPos >= 0 && scrollPos !== this.lastScrollPos && this.state.autoScroll) {
+      this.lastScrollPos = scrollPos;
+      const start = this.divCanvasScroll.scrollTop;
+      this.isScrolling = true;
+      Easing.event(20, 'sinusoidal', { duration: 200 })
+        .on('data', data => {
+          this.isProgrammaticScrolling = true;
+          this.divCanvasScroll.scrollTop = this.lerp(start, scrollPos, data)
+        });
+    }
   }
 
   animate(playerTimeMillis, parsedMidiFile) {
@@ -169,27 +197,40 @@ export default class SheetMusicOutput extends React.Component {
     };
   }
 
+  handleAutoScrollClick(evt) {
+    this.setState({ autoScroll: evt.target.checked });
+  }
+
   render() {
     const defaultCanvasSize = { width: 1, height: 1 };
     return (
       <div className="sheet-music-output">
-        { this.state.isSelecting && 
           <div className="sheet-music-controls">
-            <button type="button" onClick={ this.setSelection(false) }>
-              Selection start
-            </button>
-            <button type="button" onClick={ this.setSelection(true) }>
-              Selection end
-            </button>
+          { this.state.isSelecting && 
+            <span>
+              <button type="button" onClick={ this.setSelection(false) }>
+                Selection start
+              </button>
+              <button type="button" onClick={ this.setSelection(true) }>
+                Selection end
+              </button>
+            </span> }
+            <label>
+              <input 
+                type="checkbox"
+                checked={ !!this.state.autoScroll }
+                onClick={ this.handleAutoScrollClick } 
+              /> Auto scroll
+            </label>
           </div>
-        }
+        
         <div className="canvas-container" ref={ el => this.canvasContainer = el }>
           <div className="canvas-scroll" ref={ el => this.divCanvasScroll = el }>
             <div 
               className="canvas-scroll-contents" 
               ref={ el => this.canvasScrollContents = el } 
             >
-            <canvas 
+            <canvas
               className="canvas-main"
               ref={ el => this.canvasMain = el } 
               {...defaultCanvasSize}

@@ -1102,9 +1102,9 @@ namespace MidiSheetMusic
         /** Shade all the chords played at the given pulse time.
          *  Loop through all the staffs and call staff.Shade().
          *  If scrollGradually is true, scroll gradually (smooth scrolling)
-         *  to the shaded notes.
+         *  to the shaded notes. Returns the minimum y-coordinate of the shaded chord (for scrolling purposes)
          */
-        public void ShadeNotes(int currentPulseTime, int prevPulseTime, bool scrollGradually)
+        public int ShadeNotes(int currentPulseTime, int prevPulseTime, bool scrollGradually)
         {
             Graphics g = CreateGraphics("shadeNotes");
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -1114,11 +1114,15 @@ namespace MidiSheetMusic
             int x_shade = 0;
             int y_shade = 0;
 
+            int shadedYPos = -1;
             foreach (Staff staff in staffs)
             {
                 g.TranslateTransform(0, ypos);
-                staff.ShadeNotes(g, shadeBrush, pen,
-                                 currentPulseTime, prevPulseTime, ref x_shade);
+                if (staff.ShadeNotes(g, shadeBrush, pen,
+                                 currentPulseTime, prevPulseTime, ref x_shade))
+                {
+                    shadedYPos = shadedYPos == -1 ? ypos : shadedYPos;
+                }
                 g.TranslateTransform(0, -ypos);
                 ypos += staff.Height;
                 if (currentPulseTime >= staff.EndTime)
@@ -1135,6 +1139,7 @@ namespace MidiSheetMusic
             {
                 ScrollToShadedNotes(x_shade, y_shade, scrollGradually);
             }
+            return shadedYPos == -1 ? -1 : (int)(shadedYPos * zoom);
         }
 
         /** Scroll the sheet music so that the shaded notes are visible.
