@@ -6,14 +6,12 @@ import './style/main';
 import Player from './PlayerAlt';
 import * as IoModules from './iomodules';
 import ParsedMidiFile from './util/ParsedMidiFile';
-import localStorageDataAccess from './localStorageDataAccess';
+import storage from './util/storage';
 import arrayBufferToBase64 from './util/arrayBufferToBase64';
 import base64ToArrayBuffer from './util/base64ToArrayBuffer';
-
 import sampleSong from './external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
 const SAMPLE_SONG_NAME = 'Beethoven__Moonlight_Sonata.mid';
 
-const STORAGE_KEY = 'piano';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -53,7 +51,9 @@ export default class App extends React.Component {
     this.readFile = this.readFile.bind(this);
     this.handleSetPlaying = this.handleSetPlaying.bind(this);
     this.handleTempoChanged = this.handleTempoChanged.bind(this);
-    
+    this.handleSaveFileData = this.handleSaveFileData.bind(this);
+    this.loadFileData = this.loadFileData.bind(this);
+
     this.ioModuleEvents = {
       noteOn: this.noteOn,
       noteOff: this.noteOff,
@@ -67,16 +67,18 @@ export default class App extends React.Component {
   }
 
   componentDidUpdate() {
-    localStorageDataAccess.save(STORAGE_KEY, this.userData);
+    /*if (this.state.trackName) {
+      storage.save(this.state.trackName, this.userData);
+    }*/
   }
 
   componentDidMount() {
-    localStorageDataAccess.load(STORAGE_KEY).then(userData=>{
-      this.userData = userData || {};
+    storage.loadGlobalData().then(globalData => {
+      this.globalData = globalData || {};
 
-      if (this.userData.midiArrayBuffer) {
-        this.fileLoaded(base64ToArrayBuffer(this.userData.midiArrayBuffer), 
-          this.userData.midiFileName);
+      if (this.globalData.midiArrayBuffer) {
+        this.fileLoaded(base64ToArrayBuffer(this.globalData.midiArrayBuffer), 
+          this.globalData.midiFileName);
       } else {
         this.loadSample();
       }
@@ -139,6 +141,18 @@ export default class App extends React.Component {
     this.callIoModulesChildMethod('noteOff', note);
   }
 
+  loadFileData(fileName) {
+    storage.loadFileData(fileName).then(data => {
+      this.fileData = data;
+      Object.keys(this.fileData).forEach(key => {
+        const module = this.ioModuleForm.ioModuleList.ioModuleInstances[key];
+        if (module && module.loadData) {
+          module.loadData(this.fileData[key]);
+        }
+      });
+    });
+  }
+
   fileLoaded(arrayBuffer, fileName) {
     this.handleSetPlaying(null, false);
     this.player.setCurrentTimeMillis(0);
@@ -150,14 +164,19 @@ export default class App extends React.Component {
     });
     this.callIoModulesChildMethod('loadMidiFile', arrayBuffer, fileName);
 
-    this.userData.midiArrayBuffer = arrayBufferToBase64(arrayBuffer);
-    this.userData.midiFileName = fileName;
+    this.globalData.midiArrayBuffer = arrayBufferToBase64(arrayBuffer);
+    this.globalData.midiFileName = fileName;
+    storage.saveGlobalData(this.globalData);
+    this.loadFileData(fileName);
+
     this.setState({
       trackName: fileName,
       config: {
         tracks: this.parsedMidiFile.getTracks(),
       }
     });
+
+
   }
 
   readFile(file, fileName) {
@@ -198,6 +217,11 @@ export default class App extends React.Component {
     });
   }
 
+  handleSaveFileData(ioModule, data) {
+    (this.fileData || (this.fileData = {}))[ioModule.name] = data;
+    storage.saveFileData(this.state.trackName, this.fileData);
+  }
+
   render() {
       return (
         <div>
@@ -219,6 +243,7 @@ export default class App extends React.Component {
             ref={ ioModuleForm => this.ioModuleForm = ioModuleForm }
             setCurrentMs={this.handleSetCurrentMs}
             setPlaying={this.handleSetPlaying}
+            saveData={this.handleSaveFileData}
           />
         </div>
       );

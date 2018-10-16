@@ -24,6 +24,7 @@ export default class SheetMusicOutput extends React.Component {
     this.scroll = this.scroll.bind(this);
     this.handleAutoScrollClick = this.handleAutoScrollClick.bind(this);
     this.scrollTo = this.scrollTo.bind(this);
+    this.loadData = this.loadData.bind(this);
 
     this.state = {
       selectionStartMs: -1,
@@ -76,7 +77,7 @@ export default class SheetMusicOutput extends React.Component {
     this.canvasContainer.style.height = canvasHeight + 'px';
     this.canvasScrollContents.style.height = this.sheetMusic.Height + 'px';
 
-    this.paintSheetMusic();
+    this.updateSelection(this.state);
   }
 
   loadMidiFile(file, fileName) {
@@ -177,28 +178,43 @@ export default class SheetMusicOutput extends React.Component {
     }
   }
 
-  setSelection(isEnd) {
+  setSelection(prop) {
     return () => {
       const currentSelection = {
-        selectionStartMs: this.state.selectionStartMs,
-        selectionEndMs: this.state.selectionEndMs,
-        selectionStartPulse: this.state.selectionStartPulse,
-        selectionEndPulse: this.state.selectionEndPulse,
+        selectionStartMs: prop ? this.state.selectionStartMs : -1,
+        selectionEndMs: prop ? this.state.selectionEndMs : -1,
+        selectionStartPulse: prop ? this.state.selectionStartPulse : 0,
+        selectionEndPulse: prop ? this.state.selectionEndPulse: 0,
       };
-      currentSelection[isEnd ? 'selectionEndMs' : 'selectionStartMs'] =
-        this.state.lastClickMs;
-      currentSelection[isEnd ? 'selectionEndPulse' : 'selectionStartPulse'] =
-        this.state.lastClickPulse;
+      if (prop) {
+        currentSelection[`${prop}Ms`] =
+          this.state.lastClickMs;
+        currentSelection[`${prop}Pulse`] =
+          this.state.lastClickPulse;
+      }
 
-      this.sheetMusic.SelectionStartPulse = currentSelection.selectionStartPulse;
-      this.sheetMusic.SelectionEndPulse = currentSelection.selectionEndPulse;
-      this.paintSheetMusic();
       this.setState(currentSelection);
+      this.updateSelection(currentSelection);
+      this.props.saveData && this.props.saveData(currentSelection);
     };
+  }
+
+  updateSelection(currentSelection) {
+    if (!this.sheetMusic) return;
+
+    this.sheetMusic.SelectionStartPulse = currentSelection.selectionStartPulse;
+    this.sheetMusic.SelectionEndPulse = currentSelection.selectionEndPulse;
+    this.props.setCurrentMs(this.state.selectionStartMs);
+    this.paintSheetMusic();
   }
 
   handleAutoScrollClick(evt) {
     this.setState({ autoScroll: evt.target.checked });
+  }
+
+  loadData(data) {
+    this.setState(data);
+    this.updateSelection(data);
   }
 
   render() {
@@ -208,10 +224,13 @@ export default class SheetMusicOutput extends React.Component {
           <div className="sheet-music-controls">
           { this.state.isSelecting && 
             <span>
-              <button type="button" onClick={ this.setSelection(false) }>
+              <button type="button" onClick={ this.setSelection(null) }>
+                Clear selection
+              </button>
+              <button type="button" onClick={ this.setSelection('selectionStart') }>
                 Selection start
               </button>
-              <button type="button" onClick={ this.setSelection(true) }>
+              <button type="button" onClick={ this.setSelection('selectionEnd') }>
                 Selection end
               </button>
             </span> }

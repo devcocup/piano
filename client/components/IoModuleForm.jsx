@@ -43,6 +43,7 @@ export default class IoModuleForm extends React.Component {
           ref={ ioModuleList => this.ioModuleList = ioModuleList }
           setCurrentMs={this.props.setCurrentMs}
           setPlaying={this.props.setPlaying}
+          saveData={this.props.saveData}
         />
         <button type="button" onClick={this.handleClickAddIoModule} className="hidden">add</button>
         <div className={classNames("add-io-module", { active: this.state.isAddActive })}>
