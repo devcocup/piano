@@ -25,6 +25,7 @@ export default class SheetMusicOutput extends React.Component {
     this.handleAutoScrollClick = this.handleAutoScrollClick.bind(this);
     this.scrollTo = this.scrollTo.bind(this);
     this.loadData = this.loadData.bind(this);
+    this.saveData = this.saveData.bind(this);
 
     this.state = {
       selectionStartMs: -1,
@@ -155,7 +156,7 @@ export default class SheetMusicOutput extends React.Component {
       this.lastScrollPos = scrollPos;
       const start = this.divCanvasScroll.scrollTop;
       this.isScrolling = true;
-      Easing.event(20, 'sinusoidal', { duration: 200 })
+      Easing.event(10, 'sinusoidal', { duration: 200 })
         .on('data', data => {
           this.isProgrammaticScrolling = true;
           this.divCanvasScroll.scrollTop = this.lerp(start, scrollPos, data)
@@ -195,8 +196,20 @@ export default class SheetMusicOutput extends React.Component {
 
       this.setState(currentSelection);
       this.updateSelection(currentSelection);
+      this.saveData(currentSelection);
       this.props.saveData && this.props.saveData(currentSelection);
     };
+  }
+
+  saveData(toMerge) {
+    this.props.saveData && this.props.saveData({
+      selectionStartMs: this.state.selectionStartMs,
+      selectionEndMs: this.state.selectionEndMs,
+      selectionStartPulse: this.state.selectionStartPulse,
+      selectionEndPulse: this.state.selectionEndPulse,
+      autoScroll: this.state.autoScroll,
+      ...toMerge,
+    });
   }
 
   updateSelection(currentSelection) {
@@ -209,7 +222,9 @@ export default class SheetMusicOutput extends React.Component {
   }
 
   handleAutoScrollClick(evt) {
-    this.setState({ autoScroll: evt.target.checked });
+    const updatedState = { autoScroll: evt.target.checked };
+    this.setState(updatedState);
+    this.saveData(updatedState);
   }
 
   loadData(data) {
@@ -222,11 +237,13 @@ export default class SheetMusicOutput extends React.Component {
     return (
       <div className="sheet-music-output">
           <div className="sheet-music-controls">
-          { this.state.isSelecting && 
-            <span>
+            { !!(this.state.selectionStartPulse || this.state.selectionEndPulse) && 
               <button type="button" onClick={ this.setSelection(null) }>
                 Clear selection
               </button>
+            }
+            { this.state.isSelecting && 
+            <span>
               <button type="button" onClick={ this.setSelection('selectionStart') }>
                 Selection start
               </button>

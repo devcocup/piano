@@ -11,6 +11,7 @@ import arrayBufferToBase64 from './util/arrayBufferToBase64';
 import base64ToArrayBuffer from './util/base64ToArrayBuffer';
 import sampleSong from './external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
 const SAMPLE_SONG_NAME = 'Beethoven__Moonlight_Sonata.mid';
+const MAIN_FILE_NAME = 'main';
 
 
 export default class App extends React.Component {
@@ -53,6 +54,8 @@ export default class App extends React.Component {
     this.handleTempoChanged = this.handleTempoChanged.bind(this);
     this.handleSaveFileData = this.handleSaveFileData.bind(this);
     this.loadFileData = this.loadFileData.bind(this);
+    this.saveData = this.saveData.bind(this);
+    this.loadData = this.loadData.bind(this);
 
     this.ioModuleEvents = {
       noteOn: this.noteOn,
@@ -64,12 +67,6 @@ export default class App extends React.Component {
       noteOff: this.noteOff,
     });
 
-  }
-
-  componentDidUpdate() {
-    /*if (this.state.trackName) {
-      storage.save(this.state.trackName, this.userData);
-    }*/
   }
 
   componentDidMount() {
@@ -148,6 +145,8 @@ export default class App extends React.Component {
         const module = this.ioModuleForm.ioModuleList.ioModuleInstances[key];
         if (module && module.loadData) {
           module.loadData(this.fileData[key]);
+        } else if (key === MAIN_FILE_NAME) {
+          this.loadData(this.fileData[key])
         }
       });
     });
@@ -210,15 +209,27 @@ export default class App extends React.Component {
   }
 
   handleTempoChanged(evt) {
-    const newTempo = evt.target.value;
-    this.player.setTempo(parseInt(newTempo, 10));
-    this.setState({ 
-      tempo: newTempo 
+    const newTempo = parseInt(evt.target.value, 10);
+    this.player.setTempo(newTempo);
+    const updatedState = { tempo: newTempo };
+    this.setState(updatedState);
+    this.saveData(updatedState);
+  }
+
+  saveData(toMerge) {
+    this.handleSaveFileData(MAIN_FILE_NAME, {
+      tempo: this.state.tempo,
+      ...toMerge,
     });
   }
 
-  handleSaveFileData(ioModule, data) {
-    (this.fileData || (this.fileData = {}))[ioModule.name] = data;
+  loadData(data) {
+    this.setState(data);
+    this.player.setTempo(data.tempo || 100);
+  }
+
+  handleSaveFileData(ioModuleName, data) {
+    (this.fileData || (this.fileData = {}))[ioModuleName] = data;
     storage.saveFileData(this.state.trackName, this.fileData);
   }
 

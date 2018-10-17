@@ -16,6 +16,7 @@ export default class MidiKeyboardInput extends React.Component {
       availableMidiInputs: {},
       notesPressed: [],
       track: this.hands[this.hands.length-1].track,
+      waitForInput: false,
     };
 
     this.init = this.init.bind(this);
@@ -29,6 +30,8 @@ export default class MidiKeyboardInput extends React.Component {
     this.currentMsChanged = this.currentMsChanged.bind(this);
     this.handleChangeInput = this.handleChangeInput.bind(this);
     this.handleChangeTrack = this.handleChangeTrack.bind(this);
+    this.loadData = this.loadData.bind(this);
+    this.saveData = this.saveData.bind(this);
     
     this.keyBuffer = [];
     this.notesRequired = [];
@@ -128,10 +131,9 @@ export default class MidiKeyboardInput extends React.Component {
   handleToggleWaitForInput() {
     this.clearNotesRequired();
 
-    const newState = !this.state.waitForInput;
-    this.setState({
-      waitForInput: newState,
-    });
+    const newState = { waitForInput: !this.state.waitForInput };
+    this.setState(newState);
+    this.saveData(newState);
   }
 
   currentMsChanged() {
@@ -143,10 +145,23 @@ export default class MidiKeyboardInput extends React.Component {
   }
 
   handleChangeTrack(evt) {
-    this.setState({
-      track: parseInt(evt.target.value, 10),
+    const newState = { track: parseInt(evt.target.value, 10) };
+    this.setState(newState);
+    this.saveData(newState);
+  }
+
+  loadData(data) {
+    this.setState(data);
+  }
+
+  saveData(toMerge) {
+    this.props.saveData && this.props.saveData({
+      waitForInput: this.state.waitForInput,
+      track: this.state.track,
+      ...toMerge,
     });
   }
+
 
   render() {
     return (
@@ -160,7 +175,7 @@ export default class MidiKeyboardInput extends React.Component {
           </select>
         </label>
         <label className="section">
-          <input type="checkbox" value={this.state.waitForInput} onClick={this.handleToggleWaitForInput} /> Wait for correct input
+          <input type="checkbox" checked={this.state.waitForInput} onClick={this.handleToggleWaitForInput} /> Wait for correct input
         </label>
         <span className="section">
           {this.hands.map(hand => 

@@ -21,7 +21,7 @@ export default class IoModuleList extends React.Component {
                   ref={ ioModuleInstance => this.ioModuleInstances[ioModule.name] = ioModuleInstance }
                   setCurrentMs={ ms => this.props.setCurrentMs(ioModule, ms) }
                   setPlaying={ isPlaying => this.props.setPlaying(ioModule, isPlaying) }
-                  saveData={ data => this.props.saveData(ioModule, data) }
+                  saveData={ data => this.props.saveData(ioModule.name, data) }
                 />
               </div>
             </div>
