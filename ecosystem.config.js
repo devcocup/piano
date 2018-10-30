@@ -1,7 +1,8 @@
 module.exports = {
   apps: [{
     name: 'piano-web',
-    script: './server.js'
+    script: 'npm',
+    args: 'start'
   }],
   deploy: {
     production: {
