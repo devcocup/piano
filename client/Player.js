@@ -6,7 +6,7 @@ import flatten from 'lodash/flatten';
 import ParsedMidiFile from './util/ParsedMidiFile';
 
 
-export default class PlayerAlt {
+export default class Player {
   constructor(config) {
     this.noteOn = config.noteOn;
     this.noteOff = config.noteOff;
@@ -31,29 +31,6 @@ export default class PlayerAlt {
     this.pulsesPerMs = parsedMidiFile.getPulsesPerMsec();
     this.notes = parsedMidiFile.getNotes();
   }
-
-  /*loadMidiArrayBuffer(midiArrayBuffer) {
-    const fileArray = new Uint8Array(midiArrayBuffer);
-    const midiFile = new MidiSheetMusic.MidiFile(fileArray, 'midi');
-    const midiOptions = new MidiSheetMusic.MidiOptions.$ctor1(midiFile);
-
-    this.pulsesPerMs = new ParsedMidiFile(midiArrayBuffer, 'midi').getPulsesPerMsec();
-
-    this.notes = [];
-    for (let i=0; i < midiFile.tracks.Count; i++) {
-      const track = midiFile.tracks.getItem(i);
-      for (let j=0; j<track.notes.Count; j++) {
-        const note = track.notes.getItem(j);
-        this.notes.push({
-          noteNumber: note.notenumber,
-          startTime: note.starttime / this.pulsesPerMs,
-          duration: note.duration / this.pulsesPerMs,
-          track: i,
-          channel: i,
-        });
-      }
-    }
-  }*/
 
   isPlaying() {
     return this.playing;

@@ -2,7 +2,7 @@ import React from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import { faPlay, faPause } from '@fortawesome/fontawesome-free-solid';
 import TrackSettings from './TrackSettings';
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { play, pause, setTempo, loadFile } from '../actions';
 
@@ -25,8 +25,7 @@ class Controls extends React.Component {
   }
 
   handleLoadFile(evt) {
-    const file = evt.target.files[0];
-    this.props.loadFile(file);
+    this.props.loadFile(evt.target.files[0]);
   }
 
   handleSettingsClick(evt) {
@@ -49,7 +48,7 @@ class Controls extends React.Component {
       <div className="controls">
         <div className="piano-content">
           <span className="track-name-container" onClick={ this.handleLoadClick }>
-            <span className="track-name">{ this.props.trackName }</span>
+            <span className="track-name">{ this.props.midiFileName }</span>
             <span className="track-name-icon">
               <FontAwesomeIcon icon="upload" />
             </span>
@@ -92,13 +91,13 @@ class Controls extends React.Component {
 Controls.propTypes = {
   isPlaying: PropTypes.bool,
   tempo: PropTypes.number,
-  trackName: PropTypes.string,
+  midiFileName: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
   isPlaying: state.player.isPlaying,
   tempo: state.player.tempo,
-  trackName: state.player.trackName,
+  midiFileName: state.player.midiFileName,
 });
 
 const mapDispatchToProps = dispatch => ({

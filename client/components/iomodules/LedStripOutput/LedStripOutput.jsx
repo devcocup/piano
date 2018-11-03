@@ -1,6 +1,6 @@
 import React from 'react';
-import midiConstants from '../../util/midiConstants';
-import midiIo from '../../util/midiIo';
+import midiConstants from '../../../util/midiConstants';
+import midiIo from '../../../util/midiIo';
 
 export default class LedStripOutput extends React.Component {
   constructor(props) {

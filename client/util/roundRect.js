@@ -1,5 +1,5 @@
 //http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
-function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+const roundRect = (ctx, x, y, width, height, radius, fill, stroke) => {
   if (typeof stroke == "undefined" ) {
     stroke = true;
   }

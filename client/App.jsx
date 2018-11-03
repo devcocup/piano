@@ -3,14 +3,15 @@ import { connect } from "react-redux";
 import PropTypes from 'prop-types';
 import Controls from './components/Controls';
 import IoModuleForm from './components/IoModuleForm';
-import './style/main';
-import Player from './PlayerAlt';
-import * as IoModules from './iomodules';
-import ParsedMidiFile from './util/ParsedMidiFile';
-import storage from './util/storage';
+import Player from './Player';
+import * as IoModules from './components/iomodules';
 import arrayBufferToBase64 from './util/arrayBufferToBase64';
 import base64ToArrayBuffer from './util/base64ToArrayBuffer';
 import sampleSong from './external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
+import { setTempo, loadGlobalData } from './actions';
+
+import './style/main';
+
 const SAMPLE_SONG_NAME = 'Beethoven__Moonlight_Sonata.mid';
 const MAIN_FILE_NAME = 'main';
 
@@ -19,126 +20,74 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { 
-      ioModules: [{
-        id: 1,
-        module: IoModules.SoundfontOutput,
-        name: 'SoundfontOutput',
-      }, {
-        id: 2,
-        module: IoModules.MidiKeyboardInput,
-        name: 'MidiKeyboardInput',
-      }, {
-        id: 3,
-        module: IoModules.LedStripOutput,
-        name: 'LedStripOutput',
-      }, {
-        id: 4,
-        module: IoModules.SheetMusicOutput,
-        name: 'SheetMusicOutput',
-      }],
-      tempo: 0,
-    };
-
-    this.handleAddIoModule = this.handleAddIoModule.bind(this);
-    this.handleRemoveIoModule = this.handleRemoveIoModule.bind(this);
     this.noteOn = this.noteOn.bind(this);
     this.noteOff = this.noteOff.bind(this);
     this.animate = this.animate.bind(this);
     this.callIoModulesChildMethod = this.callIoModulesChildMethod.bind(this);
     this.handleSetCurrentMs = this.handleSetCurrentMs.bind(this);
-    this.loadSample = this.loadSample.bind(this);
-    this.readFile = this.readFile.bind(this);
-    this.handleSetPlaying = this.handleSetPlaying.bind(this);
+    this.setPlaying = this.setPlaying.bind(this);
     this.handleSaveFileData = this.handleSaveFileData.bind(this);
-    this.loadFileData = this.loadFileData.bind(this);
     this.saveData = this.saveData.bind(this);
     this.loadData = this.loadData.bind(this);
+    this.setTempo = this.setTempo.bind(this);
+    this.setIoModuleInstance = this.setIoModuleInstance.bind(this);
 
-    this.ioModuleEvents = {
-      noteOn: this.noteOn,
-      noteOff: this.noteOff,
-    };
+    this.ioModuleInstances = [];
 
     this.player = new Player({
       noteOn: this.noteOn,
       noteOff: this.noteOff,
     });
 
+    this.state = {
+      ioModules: [
+        IoModules.SoundfontOutput,
+        IoModules.MidiKeyboardInput,
+        IoModules.LedStripOutput,
+        IoModules.SheetMusicOutput,
+      ],
+    };
+
+    this.ioModuleCallbacks = {
+      setCurrentMs: this.handleSetCurrentMs,
+    };
   }
 
   componentDidMount() {
-    storage.loadGlobalData().then(globalData => {
-      this.globalData = globalData || {};
-
-      if (this.globalData.midiArrayBuffer) {
-        this.fileLoaded(base64ToArrayBuffer(this.globalData.midiArrayBuffer), 
-          this.globalData.midiFileName);
-      } else {
-        this.loadSample();
-      }
-
-      window.requestAnimationFrame(this.animate);
-
-    });
+    this.props.loadGlobalData();
+    window.requestAnimationFrame(this.animate);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.file !== prevProps.file) {
-      this.readFile(this.props.file, this.props.file.name);
-    }
-
     if (this.props.tempo !== prevProps.tempo) {
-      this.player.setTempo(this.props.tempo);
-      const updatedState = { tempo: this.props.tempo };
-      this.setState(updatedState);
-      this.saveData(updatedState);
+      this.setTempo(this.props.tempo);
     }
 
     if (this.props.isPlaying !== prevProps.isPlaying) {
-      this.handleSetPlaying(null, !this.player.isPlaying());
+      this.setPlaying(null, this.props.isPlaying);
+    }
+
+    if (this.props.parsedMidiFile !== prevProps.parsedMidiFile) {
+      this.fileLoaded(this.props.parsedMidiFile);
     }
   }
 
-  loadSample() {
-    fetch(sampleSong)
-      .then(response => response.blob())
-      .then(blob => this.readFile(blob, SAMPLE_SONG_NAME));
-  };
+  setTempo(tempo) {
+    this.player.setTempo(tempo);
+    this.saveData(updatedState);
+  }
 
   animate(timestamp) {
     window.requestAnimationFrame(this.animate);
 
-    if (this.player && this.parsedMidiFile) {
+    if (this.player && this.props.parsedMidiFile) {
       this.callIoModulesChildMethod('animate', 
-        this.player.getTimeMillis(), this.parsedMidiFile, timestamp);
+        this.player.getTimeMillis(), timestamp);
     }
   }
-
-  handleAddIoModule(ioModuleName) {
-    const newIoModule = {
-      id: Math.max(...this.state.ioModules.map(ioModule => ioModule.id)) + 1,
-      name: ioModuleName,
-    };
-    this.setState({
-      ioModules: [ 
-        ...this.state.ioModules, 
-        newIoModule,
-      ],
-      isAddActive: false,
-    });
-  }
-
-  handleRemoveIoModule(ioModule) {
-    const remainder = this.state.ioModules.filter(m => m.id !== ioModule.id);
-
-    this.setState({
-      ioModules: remainder,
-    });
-  }
-
+  
   callIoModulesChildMethod(method, ...args) {
-    Object.values(this.ioModuleForm.ioModuleList.ioModuleInstances).forEach(ioModuleInstance => {
+    this.ioModuleInstances.forEach(ioModuleInstance => {
       if (ioModuleInstance && ioModuleInstance[method]) {
         ioModuleInstance[method].apply(ioModuleInstance, args);
       }
@@ -153,63 +102,18 @@ class App extends React.Component {
     this.callIoModulesChildMethod('noteOff', note);
   }
 
-  loadFileData(fileName) {
-    storage.loadFileData(fileName).then(data => {
-      this.fileData = data;
-      this.fileData && Object.keys(this.fileData).forEach(key => {
-        const module = this.ioModuleForm.ioModuleList.ioModuleInstances[key];
-        if (module && module.loadData) {
-          module.loadData(this.fileData[key]);
-        } else if (key === MAIN_FILE_NAME) {
-          this.loadData(this.fileData[key])
-        }
-      });
-    });
-  }
-
-  fileLoaded(arrayBuffer, fileName) {
-    this.handleSetPlaying(null, false);
+  fileLoaded(parsedMidiFile) {
+    this.setPlaying(null, false);
     this.player.setCurrentTimeMillis(0);
-
-    this.parsedMidiFile = new ParsedMidiFile(arrayBuffer, fileName);
-    this.player.loadParsedMidiFile(this.parsedMidiFile);
-    this.setState({
-      tempo: this.player.getTempo(),
-    });
-    this.callIoModulesChildMethod('loadMidiFile', this.parsedMidiFile);
-
-    this.globalData.midiArrayBuffer = arrayBufferToBase64(arrayBuffer);
-    this.globalData.midiFileName = fileName;
-    storage.saveGlobalData(this.globalData);
-    this.loadFileData(fileName);
-
-    this.setState({
-      trackName: fileName,
-      config: {
-        tracks: this.parsedMidiFile.getTracks(),
-      }
-    });
-
-
+    this.player.loadParsedMidiFile(parsedMidiFile);
+    this.props.setTempo(this.player.getTempo());
   }
 
-  readFile(file, fileName) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      this.fileLoaded(e.target.result, fileName);
-    };
-
-    reader.readAsArrayBuffer(file);
-  }
-
-  handleSetPlaying(ioModule, isPlaying) {
+  setPlaying(ioModule, isPlaying) {
     this.player.setIsPlaying(isPlaying);
-    this.setState({
-      isPlaying: this.player.isPlaying(),
-    });
   }
 
-  handleSetCurrentMs(ioModule, ms) {
+  handleSetCurrentMs(ms) {
     this.player.setCurrentTimeMillis(ms);
     this.callIoModulesChildMethod('currentMsChanged', ms);
   }
@@ -231,19 +135,18 @@ class App extends React.Component {
     storage.saveFileData(this.state.trackName, this.fileData);
   }
 
+  setIoModuleInstance(index, instance) {
+    this.ioModuleInstances[index] = instance;
+  }
+
   render() {
       return (
         <div>
           <Controls />
           <IoModuleForm 
             ioModules={this.state.ioModules}
-            removeIoModule={this.handleRemoveIoModule}
-            addIoModule={this.handleAddIoModule}
-            ref={ ioModuleForm => this.ioModuleForm = ioModuleForm }
-            setCurrentMs={this.handleSetCurrentMs}
-            setPlaying={this.handleSetPlaying}
-            saveData={this.handleSaveFileData}
-          />
+            setIoModuleInstance={this.setIoModuleInstance}
+            ioModuleCallbacks={this.ioModuleCallbacks} />
         </div>
       );
     }
@@ -252,17 +155,22 @@ class App extends React.Component {
 App.propTypes = {
   isPlaying: PropTypes.bool,
   tempo: PropTypes.number,
-  trackName: PropTypes.string,
+  midiFileName: PropTypes.string,
   file: PropTypes.object,
+  parsedMidiFile: PropTypes.object,
 };
 
 const mapStateToProps = state => ({
   isPlaying: state.player.isPlaying,
   tempo: state.player.tempo,
-  trackName: state.player.trackName,
+  midiFileName: state.player.midiFileName,
   file: state.player.file,
+  parsedMidiFile: state.player.parsedMidiFile,
 });
 
+const mapDispatchToProps = dispatch => ({
+  setTempo: tempo => dispatch(setTempo(tempo)),
+  loadGlobalData: () => dispatch(loadGlobalData()),
+});
 
-
-export default connect(mapStateToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

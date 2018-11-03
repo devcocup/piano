@@ -1,14 +1,16 @@
 import React from 'react';
-import '../../external/MidiSheetMusic/build/bridge';
-import '../../external/MidiSheetMusic/build/MidiSheetMusicBridge'; 
+import '../../../external/MidiSheetMusic/build/bridge';
+import '../../../external/MidiSheetMusic/build/MidiSheetMusicBridge'; 
 import debounce from 'lodash/debounce';
-import ParsedMidiFile from '../../util/ParsedMidiFile';
-import '../../bridgeUtil';
+import '../../../bridgeUtil';
 import Easing from 'easing';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import lerp from '../../../util/lerp';
 
-import '../../style/iomodules/sheet-music-output';
+import '../../../style/iomodules/sheet-music-output';
 
-export default class SheetMusicOutput extends React.Component {
+class SheetMusicOutput extends React.Component {
   constructor(props) {
     super(props);
 
@@ -44,6 +46,12 @@ export default class SheetMusicOutput extends React.Component {
     this.canvasScrollContents.addEventListener('click', this.click)
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.parsedMidiFile !== prevProps.parsedMidiFile) {
+      this.loadMidiFile(this.props.parsedMidiFile);
+    }
+  }
+
   click(evt) {
     this.clearShadeNotes();
     this.currentPulseTime = this.sheetMusic.PulseTimeForPoint({ X: evt.offsetX, Y: evt.offsetY });
@@ -53,7 +61,7 @@ export default class SheetMusicOutput extends React.Component {
     }
     
     const lastClickMs = this.currentPulseTime / this.pulsesPerMs;
-    this.props.setCurrentMs && this.props.setCurrentMs(lastClickMs);
+    this.props.callbacks.setCurrentMs(lastClickMs);
     this.shadeNotes(this.currentPulseTime, this.prevPulseTime);
     this.setState({
       isSelecting: true,
@@ -143,10 +151,6 @@ export default class SheetMusicOutput extends React.Component {
     ctx.translate(0, offset);
   }
   
-  lerp(v0, v1, t) {
-    return (1 - t) * v0 + t * v1;
-  }
-
   scrollTo(scrollPos) {
     if (scrollPos >= 0 && scrollPos !== this.lastScrollPos && this.state.autoScroll) {
       this.lastScrollPos = scrollPos;
@@ -155,12 +159,12 @@ export default class SheetMusicOutput extends React.Component {
       Easing.event(10, 'sinusoidal', { duration: 200 })
         .on('data', data => {
           this.isProgrammaticScrolling = true;
-          this.divCanvasScroll.scrollTop = this.lerp(start, scrollPos, data)
+          this.divCanvasScroll.scrollTop = lerp(start, scrollPos, data)
         });
     }
   }
 
-  animate(playerTimeMillis, parsedMidiFile) {
+  animate(playerTimeMillis) {
     this.currentPulseTime = playerTimeMillis * this.pulsesPerMs;
     this.shadeNotes(this.currentPulseTime, this.prevPulseTime);
     this.prevPulseTime = this.currentPulseTime;
@@ -170,7 +174,7 @@ export default class SheetMusicOutput extends React.Component {
     if (this.state.selectionStartMs >= 0 && 
       this.state.selectionEndMs >= 0) {
       if (this.currentPulseTime / this.pulsesPerMs > this.state.selectionEndMs) {
-        this.props.setCurrentMs && this.props.setCurrentMs(this.state.selectionStartMs);
+        this.props.callbacks.setCurrentMs(this.state.selectionStartMs);
       }
     }
   }
@@ -213,7 +217,7 @@ export default class SheetMusicOutput extends React.Component {
 
     this.sheetMusic.SelectionStartPulse = currentSelection.selectionStartPulse;
     this.sheetMusic.SelectionEndPulse = currentSelection.selectionEndPulse;
-    this.props.setCurrentMs(this.state.selectionStartMs);
+    this.props.callbacks.setCurrentMs(this.state.selectionStartMs);
     this.paintSheetMusic();
   }
 
@@ -280,3 +284,13 @@ export default class SheetMusicOutput extends React.Component {
     );
   }
 }
+
+SheetMusicOutput.propTypes = {
+  callbacks: PropTypes.object,
+};
+
+const mapStateToProps = state => ({
+  parsedMidiFile: state.player.parsedMidiFile,
+});
+
+export default connect(mapStateToProps, null, null, { withRef: true })(SheetMusicOutput);

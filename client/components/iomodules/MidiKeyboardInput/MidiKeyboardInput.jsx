@@ -1,6 +1,6 @@
 import React from 'react';
-import midiIo from '../../util/midiIo';
-import midiConstants from '../../util/midiConstants';
+import midiIo from '../../../util/midiIo';
+import midiConstants from '../../../util/midiConstants';
 
 export default class MidiKeyboardInput extends React.Component {
   constructor(props) {

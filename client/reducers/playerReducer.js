@@ -2,7 +2,7 @@ import {
   PLAY,
   PAUSE,
   SET_TEMPO,
-  LOAD_FILE,
+  LOAD_FILE_SUCCESS,
 } from '../constants/actionTypes';
 
 const initialState = {
@@ -19,8 +19,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, isPlaying: false };
     case SET_TEMPO:
       return { ...state, tempo: action.payload };
-    case LOAD_FILE:
-      return { ...state, file: action.payload };
+    case LOAD_FILE_SUCCESS:
+      return { ...state, ...action.payload };
   }
   return state;
 };
