@@ -141,7 +141,7 @@ export default class App extends React.Component {
   loadFileData(fileName) {
     storage.loadFileData(fileName).then(data => {
       this.fileData = data;
-      Object.keys(this.fileData).forEach(key => {
+      this.fileData && Object.keys(this.fileData).forEach(key => {
         const module = this.ioModuleForm.ioModuleList.ioModuleInstances[key];
         if (module && module.loadData) {
           module.loadData(this.fileData[key]);
@@ -161,7 +161,7 @@ export default class App extends React.Component {
     this.setState({
       tempo: this.player.getTempo(),
     });
-    this.callIoModulesChildMethod('loadMidiFile', arrayBuffer, fileName);
+    this.callIoModulesChildMethod('loadMidiFile', this.parsedMidiFile);
 
     this.globalData.midiArrayBuffer = arrayBufferToBase64(arrayBuffer);
     this.globalData.midiFileName = fileName;

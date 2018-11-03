@@ -1,26 +1,31 @@
 .controls {
   $hover-color: #fff;
+  $text-color: rgba(255,255,255,0.75);
 
   background-color: #24292e;
   width: 100%;
-  height: 70px;
   display: flex;
   align-items: center;
-  color: rgba(255,255,255,0.75);
+  color: $text-color;
 
   .track-name-container {
     margin-bottom: 6px;
     cursor: pointer;
 
-    > button {
+    > .track-name-icon {
       visibility: hidden;
       color: $hover-color;
     }
 
     &:hover {
       color: $hover-color;
-      > button {
+      > .track-name-icon {
+        color: $text-color;
         visibility: visible;
+
+        &:hover {
+          color: $hover-color;
+        }
       }
     }
 

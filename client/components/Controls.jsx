@@ -1,6 +1,7 @@
 import React from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import { faPlay, faPause } from '@fortawesome/fontawesome-free-solid';
+import TrackSettings from './TrackSettings';
 
 import '../style/controls';
 
@@ -8,28 +9,44 @@ export default class Controls extends React.Component {
   constructor(props) {
     super(props);
 
-    this.load = this.load.bind(this);
+    this.state = { showSettings: false };
+    this.handleLoad = this.handleLoad.bind(this);
+    this.handleSettingsClick = this.handleSettingsClick.bind(this);
   }
 
-  load() {
+  handleLoad() {
     this.midiFileInput.click();
+  }
+
+  handleSettingsClick(evt) {
+    evt.stopPropagation();
+    this.setState({ showSettings: !this.state.showSettings })
   }
 
   render() {
     return (
       <div className="controls">
         <div className="piano-content">
-          <div className="track-name-container" onClick={ this.load }>
+          <span className="track-name-container" onClick={ this.handleLoad }>
             <span className="track-name">{ this.props.trackName }</span>
-            <button type="button">
+            <span className="track-name-icon">
               <FontAwesomeIcon icon="upload" />
-            </button>
+            </span>
             <input 
               type="file" 
               ref={input => this.midiFileInput = input} 
               style={ {display: 'none'} } 
               onChange={ this.props.loadFile } 
               accept=".mid"
+            />
+            <button type="button" className="track-name-icon" onClick={ this.handleSettingsClick }>
+              <FontAwesomeIcon icon="cogs" />
+            </button>
+          </span>
+          <div className={this.state.showSettings ? '' : 'hidden'}>
+            <TrackSettings
+              trackSettings={ this.props.trackSettings }
+              settingsUpdated={ this.props.settingsUpdated }
             />
           </div>
           <div>

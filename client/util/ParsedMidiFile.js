@@ -12,6 +12,10 @@ export default class ParsedMidiFile {
     this.getNotes = this.getNotes.bind(this);
     this.getPulsesPerMsec = this.getPulsesPerMsec.bind(this);
     this.getTracks = this.getTracks.bind(this);
+    this.getMeasure = this.getMeasure.bind(this);
+    this.getTotalPulses = this.getTotalPulses.bind(this);
+    this.getMidiFile = this.getMidiFile.bind(this);
+    this.getMidiOptions = this.getMidiOptions.bind(this);
 
     this.parseFile(file, fileName);
   }
@@ -20,13 +24,20 @@ export default class ParsedMidiFile {
     const fileArray = new Uint8Array(file);
     const midiFile = new MidiSheetMusic.MidiFile(fileArray, fileName);
     const midiOptions = new MidiSheetMusic.MidiOptions.$ctor1(midiFile);
+    midiOptions.twoStaffs = true;
     const tracks = midiFile.ChangeMidiNotes(midiOptions);
+
+    this.midiFile = midiFile;
+    this.midiOptions = midiOptions;
 
     this.populateNotes(midiFile, midiOptions, tracks);
   }
 
   populateNotes(midiFile, midiOptions, tracks) {
     this.pulsesPerMsec = midiFile.Time.Quarter * (1000 / midiOptions.tempo);
+    this.totalPulses = midiFile.TotalPulses;
+    this.measure = midiFile.Time.Measure;
+
     let minNote = midiConstants.NOTE_COUNT, maxNote = 0;
  
     for (let i=0; i < tracks.Count; i++) {
@@ -52,6 +63,22 @@ export default class ParsedMidiFile {
 
   getPulsesPerMsec() {
     return this.pulsesPerMsec;
+  }
+
+  getTotalPulses() {
+    return this.totalPulses;
+  }
+
+  getMeasure() {
+    return this.measure;
+  }
+
+  getMidiFile() {
+    return this.midiFile;
+  }
+
+  getMidiOptions() {
+    return this.midiOptions;
   }
 
   getNotes(fromMs, toMs) {

@@ -81,16 +81,12 @@ export default class SheetMusicOutput extends React.Component {
     this.updateSelection(this.state);
   }
 
-  loadMidiFile(file, fileName) {
+  loadMidiFile(parsedMidiFile) {
     window.bridgeUtil.image.preloadImages().then(() => {
-      const fileArray = new Uint8Array(file);
-      const midiFile = new MidiSheetMusic.MidiFile(fileArray, fileName);
-      const midiOptions = new MidiSheetMusic.MidiOptions.$ctor1(midiFile);
-      this.pulsesPerMs = new ParsedMidiFile(file, fileName).getPulsesPerMsec();
-      this.totalPulses = midiFile.TotalPulses;
-      this.measure = midiFile.Time.Measure;
-      midiOptions.twoStaffs = true;
-      this.sheetMusic = new MidiSheetMusic.SheetMusic(midiFile, midiOptions);
+      this.pulsesPerMs = parsedMidiFile.getPulsesPerMsec();
+      this.totalPulses = parsedMidiFile.getTotalPulses();
+      this.measure = parsedMidiFile.getMeasure();
+      this.sheetMusic = new MidiSheetMusic.SheetMusic(parsedMidiFile.getMidiFile(), parsedMidiFile.getMidiOptions());
       this.sheetMusic.SetZoom(1.4);
       this.initSheetMusic();
     });
