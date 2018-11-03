@@ -24,8 +24,12 @@
     "easing": "^1.1.2",
     "lodash": "^4.17.11",
     "path": "^0.12.7",
+    "prop-types": "^15.6.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-redux": "^5.1.0",
+    "redux": "^4.0.1",
+    "redux-logger": "^3.0.6",
     "soundfont-player": "^0.10.6"
   },
   "devDependencies": {

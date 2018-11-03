@@ -1,7 +1,8 @@
 import React from 'react';
+import { connect } from "react-redux";
+import PropTypes from 'prop-types';
 import Controls from './components/Controls';
 import IoModuleForm from './components/IoModuleForm';
-import Config from './components/Config';
 import './style/main';
 import Player from './PlayerAlt';
 import * as IoModules from './iomodules';
@@ -14,7 +15,7 @@ const SAMPLE_SONG_NAME = 'Beethoven__Moonlight_Sonata.mid';
 const MAIN_FILE_NAME = 'main';
 
 
-export default class App extends React.Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
 
@@ -39,8 +40,6 @@ export default class App extends React.Component {
       tempo: 0,
     };
 
-    this.handleLoadFile = this.handleLoadFile.bind(this);
-    this.handlePlayPause = this.handlePlayPause.bind(this);
     this.handleAddIoModule = this.handleAddIoModule.bind(this);
     this.handleRemoveIoModule = this.handleRemoveIoModule.bind(this);
     this.noteOn = this.noteOn.bind(this);
@@ -51,7 +50,6 @@ export default class App extends React.Component {
     this.loadSample = this.loadSample.bind(this);
     this.readFile = this.readFile.bind(this);
     this.handleSetPlaying = this.handleSetPlaying.bind(this);
-    this.handleTempoChanged = this.handleTempoChanged.bind(this);
     this.handleSaveFileData = this.handleSaveFileData.bind(this);
     this.loadFileData = this.loadFileData.bind(this);
     this.saveData = this.saveData.bind(this);
@@ -83,6 +81,23 @@ export default class App extends React.Component {
       window.requestAnimationFrame(this.animate);
 
     });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.file !== prevProps.file) {
+      this.readFile(this.props.file, this.props.file.name);
+    }
+
+    if (this.props.tempo !== prevProps.tempo) {
+      this.player.setTempo(this.props.tempo);
+      const updatedState = { tempo: this.props.tempo };
+      this.setState(updatedState);
+      this.saveData(updatedState);
+    }
+
+    if (this.props.isPlaying !== prevProps.isPlaying) {
+      this.handleSetPlaying(null, !this.player.isPlaying());
+    }
   }
 
   loadSample() {
@@ -187,15 +202,6 @@ export default class App extends React.Component {
     reader.readAsArrayBuffer(file);
   }
 
-  handleLoadFile(evt) {
-    const file = evt.target.files[0];
-    this.readFile(file, file.name);
-  }
-
-  handlePlayPause() {
-    this.handleSetPlaying(null, !this.player.isPlaying());
-  }
-
   handleSetPlaying(ioModule, isPlaying) {
     this.player.setIsPlaying(isPlaying);
     this.setState({
@@ -206,14 +212,6 @@ export default class App extends React.Component {
   handleSetCurrentMs(ioModule, ms) {
     this.player.setCurrentTimeMillis(ms);
     this.callIoModulesChildMethod('currentMsChanged', ms);
-  }
-
-  handleTempoChanged(evt) {
-    const newTempo = parseInt(evt.target.value, 10);
-    this.player.setTempo(newTempo);
-    const updatedState = { tempo: newTempo };
-    this.setState(updatedState);
-    this.saveData(updatedState);
   }
 
   saveData(toMerge) {
@@ -236,17 +234,7 @@ export default class App extends React.Component {
   render() {
       return (
         <div>
-          <Controls 
-            loadFile={this.handleLoadFile} 
-            playPause={this.handlePlayPause}
-            isPlaying={this.state.isPlaying}
-            tempoChanged={this.handleTempoChanged}
-            tempo={this.state.tempo}
-            trackName={this.state.trackName}
-          />
-          <Config 
-            key={this.state.config}
-            config={this.state.config} />
+          <Controls />
           <IoModuleForm 
             ioModules={this.state.ioModules}
             removeIoModule={this.handleRemoveIoModule}
@@ -260,3 +248,21 @@ export default class App extends React.Component {
       );
     }
 }
+
+App.propTypes = {
+  isPlaying: PropTypes.bool,
+  tempo: PropTypes.number,
+  trackName: PropTypes.string,
+  file: PropTypes.object,
+};
+
+const mapStateToProps = state => ({
+  isPlaying: state.player.isPlaying,
+  tempo: state.player.tempo,
+  trackName: state.player.trackName,
+  file: state.player.file,
+});
+
+
+
+export default connect(mapStateToProps)(App);

@@ -2,20 +2,31 @@ import React from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import { faPlay, faPause } from '@fortawesome/fontawesome-free-solid';
 import TrackSettings from './TrackSettings';
+import { connect } from "react-redux";
+import PropTypes from 'prop-types';
+import { play, pause, setTempo, loadFile } from '../actions';
 
 import '../style/controls';
 
-export default class Controls extends React.Component {
+class Controls extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = { showSettings: false };
-    this.handleLoad = this.handleLoad.bind(this);
+    this.handleLoadClick = this.handleLoadClick.bind(this);
+    this.handleLoadFile = this.handleLoadFile.bind(this);
     this.handleSettingsClick = this.handleSettingsClick.bind(this);
+    this.handlePlayPauseClick = this.handlePlayPauseClick.bind(this);
+    this.handleTempoChange = this.handleTempoChange.bind(this);
   }
 
-  handleLoad() {
+  handleLoadClick() {
     this.midiFileInput.click();
+  }
+
+  handleLoadFile(evt) {
+    const file = evt.target.files[0];
+    this.props.loadFile(file);
   }
 
   handleSettingsClick(evt) {
@@ -23,11 +34,21 @@ export default class Controls extends React.Component {
     this.setState({ showSettings: !this.state.showSettings })
   }
 
+  handlePlayPauseClick() {
+    this.props.isPlaying 
+      ? this.props.pause()
+      : this.props.play();
+  }
+
+  handleTempoChange(evt) {
+    this.props.setTempo(parseInt(evt.target.value, 10));
+  }
+
   render() {
     return (
       <div className="controls">
         <div className="piano-content">
-          <span className="track-name-container" onClick={ this.handleLoad }>
+          <span className="track-name-container" onClick={ this.handleLoadClick }>
             <span className="track-name">{ this.props.trackName }</span>
             <span className="track-name-icon">
               <FontAwesomeIcon icon="upload" />
@@ -36,7 +57,7 @@ export default class Controls extends React.Component {
               type="file" 
               ref={input => this.midiFileInput = input} 
               style={ {display: 'none'} } 
-              onChange={ this.props.loadFile } 
+              onChange={ this.handleLoadFile } 
               accept=".mid"
             />
             <button type="button" className="track-name-icon" onClick={ this.handleSettingsClick }>
@@ -44,13 +65,10 @@ export default class Controls extends React.Component {
             </button>
           </span>
           <div className={this.state.showSettings ? '' : 'hidden'}>
-            <TrackSettings
-              trackSettings={ this.props.trackSettings }
-              settingsUpdated={ this.props.settingsUpdated }
-            />
+            dummy
           </div>
           <div>
-            <button type="button" onClick={ this.props.playPause }>
+            <button type="button" onClick={ this.handlePlayPauseClick }>
               <FontAwesomeIcon icon={ this.props.isPlaying ? faPause : faPlay} />
             </button>
             <label>
@@ -58,7 +76,7 @@ export default class Controls extends React.Component {
               <input 
                 type="number"
                 value={ this.props.tempo }
-                onChange={ this.props.tempoChanged }
+                onChange={ this.handleTempoChange }
                 className="tempo"
                 step="10"
                 min="0"
@@ -70,3 +88,24 @@ export default class Controls extends React.Component {
     );
   }
 }
+
+Controls.propTypes = {
+  isPlaying: PropTypes.bool,
+  tempo: PropTypes.number,
+  trackName: PropTypes.string,
+};
+
+const mapStateToProps = state => ({
+  isPlaying: state.player.isPlaying,
+  tempo: state.player.tempo,
+  trackName: state.player.trackName,
+});
+
+const mapDispatchToProps = dispatch => ({
+  play: () => dispatch(play()),
+  pause: () => dispatch(pause()),
+  setTempo: tempo => dispatch(setTempo(tempo)),
+  loadFile: file => dispatch(loadFile(file))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Controls);
