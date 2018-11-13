@@ -1,3 +1,5 @@
+import storage from '../util/storage';
+
 import {
   PLAY,
   PAUSE,
@@ -11,6 +13,17 @@ const initialState = {
   file: null,
 };
 
+const playerStateToSave = state => ({
+  tempo: state.tempo,
+});
+
+const saveFileData = state => {
+  if (state.midiFileName) {
+    storage.saveFileData(state.midiFileName, playerStateToSave(state));
+  }
+  return state;
+};
+
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case PLAY:
@@ -18,7 +31,7 @@ const reducer = (state = initialState, action) => {
     case PAUSE:
       return { ...state, isPlaying: false };
     case SET_TEMPO:
-      return { ...state, tempo: action.payload };
+      return saveFileData({ ...state, tempo: action.payload });
     case LOAD_FILE_SUCCESS:
       return { ...state, ...action.payload };
   }

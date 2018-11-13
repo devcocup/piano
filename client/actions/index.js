@@ -21,10 +21,13 @@ export const pause = () => ({
   type: PAUSE,
 });
 
-export const setTempo = tempo => ({
-  type: SET_TEMPO,
-  payload: tempo,
-});
+export const setTempo = tempo => {
+  storage.save
+  return {
+    type: SET_TEMPO,
+    payload: tempo,
+  };
+};
 
 export const loadFile = file => dispatch =>
   readFile(file, file.name)

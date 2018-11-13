@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from 'prop-types';
 import Controls from './components/Controls';
 import IoModuleForm from './components/IoModuleForm';
-import Player from './Player';
+import Player from './util/Player';
 import * as IoModules from './components/iomodules';
 import arrayBufferToBase64 from './util/arrayBufferToBase64';
 import base64ToArrayBuffer from './util/base64ToArrayBuffer';
@@ -26,8 +26,6 @@ class App extends React.Component {
     this.callIoModulesChildMethod = this.callIoModulesChildMethod.bind(this);
     this.handleSetCurrentMs = this.handleSetCurrentMs.bind(this);
     this.setPlaying = this.setPlaying.bind(this);
-    this.handleSaveFileData = this.handleSaveFileData.bind(this);
-    this.saveData = this.saveData.bind(this);
     this.loadData = this.loadData.bind(this);
     this.setTempo = this.setTempo.bind(this);
     this.setIoModuleInstance = this.setIoModuleInstance.bind(this);
@@ -74,7 +72,6 @@ class App extends React.Component {
 
   setTempo(tempo) {
     this.player.setTempo(tempo);
-    this.saveData(updatedState);
   }
 
   animate(timestamp) {
@@ -118,21 +115,9 @@ class App extends React.Component {
     this.callIoModulesChildMethod('currentMsChanged', ms);
   }
 
-  saveData(toMerge) {
-    this.handleSaveFileData(MAIN_FILE_NAME, {
-      tempo: this.state.tempo,
-      ...toMerge,
-    });
-  }
-
   loadData(data) {
     this.setState(data);
     this.player.setTempo(data.tempo || 100);
-  }
-
-  handleSaveFileData(ioModuleName, data) {
-    (this.fileData || (this.fileData = {}))[ioModuleName] = data;
-    storage.saveFileData(this.state.trackName, this.fileData);
   }
 
   setIoModuleInstance(index, instance) {

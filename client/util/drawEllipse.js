@@ -1,11 +1,11 @@
-function drawEllipse(ctx, x, y, w, h, fill) {
-  var kappa = .5522848,
-  ox = (w / 2) * kappa, // control point offset horizontal
-  oy = (h / 2) * kappa, // control point offset vertical
-  xe = x + w,           // x-end
-  ye = y + h,           // y-end
-  xm = x + w / 2,       // x-middle
-  ym = y + h / 2;       // y-middle
+const drawEllipse = (ctx, x, y, w, h, fill) => {
+  const kappa = .5522848,
+    ox = (w / 2) * kappa, // control point offset horizontal
+    oy = (h / 2) * kappa, // control point offset vertical
+    xe = x + w,           // x-end
+    ye = y + h,           // y-end
+    xm = x + w / 2,       // x-middle
+    ym = y + h / 2;       // y-middle
 
   ctx.beginPath();
   ctx.moveTo(x, ym);
