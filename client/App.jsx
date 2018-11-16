@@ -8,7 +8,8 @@ import * as IoModules from './components/iomodules';
 import arrayBufferToBase64 from './util/arrayBufferToBase64';
 import base64ToArrayBuffer from './util/base64ToArrayBuffer';
 import sampleSong from './external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
-import { setTempo, loadGlobalData } from './actions/playerActions';
+import { setTempo } from './actions/playerActions';
+import { loadGlobalData } from './actions/pianoActions';
 
 import './style/main';
 

@@ -4,7 +4,8 @@ import { faPlay, faPause } from '@fortawesome/fontawesome-free-solid';
 import TrackSettings from './TrackSettings';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { play, pause, setTempo, loadFile } from '../actions/playerActions';
+import { play, pause, setTempo } from '../actions/playerActions';
+import { loadFile } from '../actions/pianoActions';
 
 import '../style/controls';
 
