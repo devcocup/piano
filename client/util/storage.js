@@ -9,8 +9,12 @@ class Storage {
     return localStorageDataAccess.load(this.fileKey(filename));
   }
 
-  saveFileData(filename, data) {
-   return localStorageDataAccess.save(this.fileKey(filename), data); 
+  saveFileData(filename, key, data) {
+    return this.loadFileData(filename).then(result => {
+      const updated = result || {};
+      updated[key] = data;
+      return localStorageDataAccess.save(this.fileKey(filename), updated);
+    });
   }
 
   loadGlobalData() {
@@ -20,7 +24,6 @@ class Storage {
   saveGlobalData(data) {
     return localStorageDataAccess.save('piano', data);
   }
-
 }
 
 const storage = new Storage();

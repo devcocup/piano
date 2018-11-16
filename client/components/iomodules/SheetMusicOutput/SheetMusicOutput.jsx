@@ -7,6 +7,7 @@ import Easing from 'easing';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import lerp from '../../../util/lerp';
+import { setSelection, setAutoScroll } from '../../../actions/sheetMusicOutputActions';
 
 import '../../../style/iomodules/sheet-music-output';
 
@@ -26,18 +27,12 @@ class SheetMusicOutput extends React.Component {
     this.scroll = this.scroll.bind(this);
     this.handleAutoScrollClick = this.handleAutoScrollClick.bind(this);
     this.scrollTo = this.scrollTo.bind(this);
-    this.loadData = this.loadData.bind(this);
-    this.saveData = this.saveData.bind(this);
-
-    this.state = {
-      selectionStartMs: -1,
-      selectionEndMs: -1,
-      selectionStartPulse: 0,
-      selectionEndPulse: 0,
-    };
+    this.updateSelectionFromProps = this.updateSelectionFromProps.bind(this);
 
     this.prevPlayerTimeMillis = 0;
     this.lastScrollPos = -1;
+
+    this.state = { isSelecting: false };
   }
 
   componentDidMount() {
@@ -49,6 +44,11 @@ class SheetMusicOutput extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.props.parsedMidiFile !== prevProps.parsedMidiFile) {
       this.loadMidiFile(this.props.parsedMidiFile);
+    }
+
+    if (this.props.selectionStartMs !== prevProps.selectionStartMs || 
+      this.props.selectionEndMs !== prevProps.selectionEndMs) {
+      this.updateSelectionFromProps();
     }
   }
 
@@ -86,7 +86,7 @@ class SheetMusicOutput extends React.Component {
     this.canvasContainer.style.height = canvasHeight + 'px';
     this.canvasScrollContents.style.height = this.sheetMusic.Height + 'px';
 
-    this.updateSelection(this.state);
+    this.paintSheetMusic();
   }
 
   loadMidiFile(parsedMidiFile) {
@@ -97,6 +97,7 @@ class SheetMusicOutput extends React.Component {
       this.sheetMusic = new MidiSheetMusic.SheetMusic(parsedMidiFile.getMidiFile(), parsedMidiFile.getMidiOptions());
       this.sheetMusic.SetZoom(1.4);
       this.initSheetMusic();
+      this.updateSelectionFromProps();
     });
   }
 
@@ -118,9 +119,11 @@ class SheetMusicOutput extends React.Component {
     const args = new MidiSheetMusic.PaintEventArgs();
     clipRectangle = [0, 0, this.sheetMusic.Width, this.sheetMusic.Height];
     args.ClipRectangle = new MidiSheetMusic.Rectangle(0, 0, this.sheetMusic.Width, this.sheetMusic.Height);
+
     const ctx = this.canvasMain.getContext('2d');
     ctx.fillStyle = '#fff';
     ctx.fillRect(0,0, this.canvasMain.width, this.canvasMain.height);
+
     this.sheetMusic.OnPaint(args);
     
     this.clearShadeNotes();
@@ -130,10 +133,8 @@ class SheetMusicOutput extends React.Component {
   scroll() {
    this.clearShadeNotes();
    this.shadeNotes(this.currentPulseTime, this.currentPulseTime - this.measure);
-   if (this.state.autoScroll && !this.isProgrammaticScrolling) {
-    this.setState({
-      autoScroll: false,
-    });
+   if (this.props.autoScroll && !this.isProgrammaticScrolling) {
+    this.props.setAutoScroll(false);
    }
    this.isProgrammaticScrolling = false;
   }
@@ -152,7 +153,7 @@ class SheetMusicOutput extends React.Component {
   }
   
   scrollTo(scrollPos) {
-    if (scrollPos >= 0 && scrollPos !== this.lastScrollPos && this.state.autoScroll) {
+    if (scrollPos >= 0 && scrollPos !== this.lastScrollPos && this.props.autoScroll) {
       this.lastScrollPos = scrollPos;
       const start = this.divCanvasScroll.scrollTop;
       this.isScrolling = true;
@@ -171,10 +172,10 @@ class SheetMusicOutput extends React.Component {
   }
 
   noteOff() {
-    if (this.state.selectionStartMs >= 0 && 
-      this.state.selectionEndMs >= 0) {
-      if (this.currentPulseTime / this.pulsesPerMs > this.state.selectionEndMs) {
-        this.props.callbacks.setCurrentMs(this.state.selectionStartMs);
+    if (this.props.selectionStartMs >= 0 && 
+      this.props.selectionEndMs >= 0) {
+      if (this.currentPulseTime / this.pulsesPerMs > this.props.selectionEndMs) {
+        this.props.callbacks.setCurrentMs(this.props.selectionStartMs);
       }
     }
   }
@@ -182,10 +183,10 @@ class SheetMusicOutput extends React.Component {
   setSelection(prop) {
     return () => {
       const currentSelection = {
-        selectionStartMs: prop ? this.state.selectionStartMs : -1,
-        selectionEndMs: prop ? this.state.selectionEndMs : -1,
-        selectionStartPulse: prop ? this.state.selectionStartPulse : 0,
-        selectionEndPulse: prop ? this.state.selectionEndPulse: 0,
+        selectionStartMs: prop ? this.props.selectionStartMs : -1,
+        selectionEndMs: prop ? this.props.selectionEndMs : -1,
+        selectionStartPulse: prop ? this.props.selectionStartPulse : 0,
+        selectionEndPulse: prop ? this.props.selectionEndPulse: 0,
       };
       if (prop) {
         currentSelection[`${prop}Ms`] =
@@ -194,42 +195,22 @@ class SheetMusicOutput extends React.Component {
           this.state.lastClickPulse;
       }
 
-      this.setState(currentSelection);
-      this.updateSelection(currentSelection);
-      this.saveData(currentSelection);
-      this.props.saveData && this.props.saveData(currentSelection);
+      this.props.setSelection(currentSelection);
     };
   }
 
-  saveData(toMerge) {
-    this.props.saveData && this.props.saveData({
-      selectionStartMs: this.state.selectionStartMs,
-      selectionEndMs: this.state.selectionEndMs,
-      selectionStartPulse: this.state.selectionStartPulse,
-      selectionEndPulse: this.state.selectionEndPulse,
-      autoScroll: this.state.autoScroll,
-      ...toMerge,
-    });
-  }
-
-  updateSelection(currentSelection) {
+  updateSelectionFromProps() {
     if (!this.sheetMusic) return;
 
-    this.sheetMusic.SelectionStartPulse = currentSelection.selectionStartPulse;
-    this.sheetMusic.SelectionEndPulse = currentSelection.selectionEndPulse;
-    this.props.callbacks.setCurrentMs(this.state.selectionStartMs);
+    this.sheetMusic.SelectionStartPulse = this.props.selectionStartPulse;
+    this.sheetMusic.SelectionEndPulse = this.props.selectionEndPulse;
+    this.props.callbacks.setCurrentMs(this.props.selectionStartMs);
+    
     this.paintSheetMusic();
   }
 
   handleAutoScrollClick(evt) {
-    const updatedState = { autoScroll: evt.target.checked };
-    this.setState(updatedState);
-    this.saveData(updatedState);
-  }
-
-  loadData(data) {
-    this.setState(data);
-    this.updateSelection(data);
+    this.props.setAutoScroll(evt.target.checked);
   }
 
   render() {
@@ -237,7 +218,7 @@ class SheetMusicOutput extends React.Component {
     return (
       <div className="sheet-music-output">
           <div className="sheet-music-controls">
-            { !!(this.state.selectionStartPulse || this.state.selectionEndPulse) && 
+            { !!(this.props.selectionStartPulse || this.props.selectionEndPulse) && 
               <button type="button" onClick={ this.setSelection(null) }>
                 Clear selection
               </button>
@@ -254,7 +235,7 @@ class SheetMusicOutput extends React.Component {
             <label>
               <input 
                 type="checkbox"
-                checked={ !!this.state.autoScroll }
+                checked={ !!this.props.autoScroll }
                 onClick={ this.handleAutoScrollClick } 
               /> Auto scroll
             </label>
@@ -287,10 +268,24 @@ class SheetMusicOutput extends React.Component {
 
 SheetMusicOutput.propTypes = {
   callbacks: PropTypes.object,
+  parsedMidiFile: PropTypes.object,
+  selectionStartMs: PropTypes.number,
+  selectionEndMs: PropTypes.number,
+  selectionStartPulse: PropTypes.number,
+  selectionEndPulse: PropTypes.number,
+  autoScroll: PropTypes.bool,
+  setSelection: PropTypes.func,
+  setAutoScroll: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
-  parsedMidiFile: state.player.parsedMidiFile,
+  parsedMidiFile: state.parsedMidiFile,
+  ...state.sheetMusicOutput,
 });
 
-export default connect(mapStateToProps, null, null, { withRef: true })(SheetMusicOutput);
+const mapDispatchToProps = dispatch => ({
+  setSelection: selection => dispatch(setSelection(selection)),
+  setAutoScroll: autoScroll => dispatch(setAutoScroll(autoScroll)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(SheetMusicOutput);

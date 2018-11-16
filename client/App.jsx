@@ -8,7 +8,7 @@ import * as IoModules from './components/iomodules';
 import arrayBufferToBase64 from './util/arrayBufferToBase64';
 import base64ToArrayBuffer from './util/base64ToArrayBuffer';
 import sampleSong from './external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
-import { setTempo, loadGlobalData } from './actions';
+import { setTempo, loadGlobalData } from './actions/playerActions';
 
 import './style/main';
 
@@ -26,7 +26,6 @@ class App extends React.Component {
     this.callIoModulesChildMethod = this.callIoModulesChildMethod.bind(this);
     this.handleSetCurrentMs = this.handleSetCurrentMs.bind(this);
     this.setPlaying = this.setPlaying.bind(this);
-    this.loadData = this.loadData.bind(this);
     this.setTempo = this.setTempo.bind(this);
     this.setIoModuleInstance = this.setIoModuleInstance.bind(this);
 
@@ -103,7 +102,6 @@ class App extends React.Component {
     this.setPlaying(null, false);
     this.player.setCurrentTimeMillis(0);
     this.player.loadParsedMidiFile(parsedMidiFile);
-    this.props.setTempo(this.player.getTempo());
   }
 
   setPlaying(ioModule, isPlaying) {
@@ -113,11 +111,6 @@ class App extends React.Component {
   handleSetCurrentMs(ms) {
     this.player.setCurrentTimeMillis(ms);
     this.callIoModulesChildMethod('currentMsChanged', ms);
-  }
-
-  loadData(data) {
-    this.setState(data);
-    this.player.setTempo(data.tempo || 100);
   }
 
   setIoModuleInstance(index, instance) {
@@ -141,21 +134,23 @@ App.propTypes = {
   isPlaying: PropTypes.bool,
   tempo: PropTypes.number,
   midiFileName: PropTypes.string,
-  file: PropTypes.object,
   parsedMidiFile: PropTypes.object,
+  setTempo: PropTypes.func,
+  loadGlobalData: PropTypes.func,
+  loadFileData: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
   isPlaying: state.player.isPlaying,
   tempo: state.player.tempo,
-  midiFileName: state.player.midiFileName,
-  file: state.player.file,
-  parsedMidiFile: state.player.parsedMidiFile,
+  midiFileName: state.midiFileName,
+  parsedMidiFile: state.parsedMidiFile,
 });
 
 const mapDispatchToProps = dispatch => ({
   setTempo: tempo => dispatch(setTempo(tempo)),
   loadGlobalData: () => dispatch(loadGlobalData()),
+  loadFileData: () => dispatch(loadFileData()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -4,7 +4,7 @@ import { faPlay, faPause } from '@fortawesome/fontawesome-free-solid';
 import TrackSettings from './TrackSettings';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { play, pause, setTempo, loadFile } from '../actions';
+import { play, pause, setTempo, loadFile } from '../actions/playerActions';
 
 import '../style/controls';
 
@@ -97,7 +97,7 @@ Controls.propTypes = {
 const mapStateToProps = state => ({
   isPlaying: state.player.isPlaying,
   tempo: state.player.tempo,
-  midiFileName: state.player.midiFileName,
+  midiFileName: state.midiFileName,
 });
 
 const mapDispatchToProps = dispatch => ({

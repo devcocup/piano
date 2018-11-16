@@ -4,6 +4,10 @@ import arrayBufferToBase64 from '../util/arrayBufferToBase64';
 import ParsedMidiFile from '../util/ParsedMidiFile';
 import sampleSong from '../external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
 
+import {
+  PLAYER,
+} from '../constants/reducerNames';
+
 const SAMPLE_SONG_NAME = 'Beethoven__Moonlight_Sonata.mid';
 
 import { 
@@ -11,6 +15,7 @@ import {
   PAUSE,
   SET_TEMPO,
   LOAD_FILE_SUCCESS,
+  LOAD_FILE_DATA_SUCCESS,
 } from '../constants/actionTypes';
 
 export const play = () => ({
@@ -21,17 +26,19 @@ export const pause = () => ({
   type: PAUSE,
 });
 
-export const setTempo = tempo => {
-  storage.save
-  return {
+export const setTempo = tempo => (dispatch, getState) => {
+  dispatch({
     type: SET_TEMPO,
-    payload: tempo,
-  };
+    payload: tempo,  
+  });
+
+  saveFileData(getState());
 };
 
 export const loadFile = file => dispatch =>
   readFile(file, file.name)
-    .then(result => dispatch(fileLoaded(result.arrayBuffer, result.filename)));
+    .then(result => dispatch(fileLoaded(result.arrayBuffer, result.filename)))
+    .then(result => dispatch(loadFileData(result.payload.midiFileName)));
 
 export const loadGlobalData = () => dispatch =>
   storage.loadGlobalData()
@@ -43,7 +50,23 @@ export const loadGlobalData = () => dispatch =>
 
       return loadSampleData()
         .then(result => dispatch(fileLoaded(result.arrayBuffer, result.filename)));
-    });
+    })
+    .then(result => dispatch(loadFileData(result.payload.midiFileName)));
+
+export const loadFileData = filename => dispatch => 
+  storage.loadFileData(filename)
+    .then(result => dispatch(fileDataLoaded(result)));
+
+const playerStateToSave = state => ({
+  tempo: state.tempo,
+});
+
+const saveFileData = state => {
+  if (state.midiFileName) {
+    storage.saveFileData(state.midiFileName, PLAYER, playerStateToSave(state[PLAYER]));
+  }
+  return state;
+};
 
 const loadSampleData = () =>
   fetch(sampleSong)
@@ -65,4 +88,11 @@ const fileLoaded = (arrayBuffer, filename) => ({
     midiArrayBuffer: arrayBufferToBase64(arrayBuffer),
     midiFileName: filename,
   }
+});
+
+const fileDataLoaded = data => ({
+  type: LOAD_FILE_DATA_SUCCESS,
+  payload: {
+    ...data,
+  },
 });
