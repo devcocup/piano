@@ -83,15 +83,25 @@ export const loadFileData = filename => dispatch =>
     .loadFileData(filename)
     .then(result => dispatch(fileDataLoaded(result)));
 
-export const updateTrackDisplay = (trackIndex, display) => {
-  return {
+export const updateTrackDisplay = (trackIndex, display) => (
+  dispatch,
+  getState,
+) => {
+  dispatch({
     type: TRACK_DISPLAY_UPDATE,
     payload: {
       trackIndex,
       display,
-    }
-  }
-}
+    },
+  });
+
+  const parsedMidiFile = getState().parsedMidiFile;
+  parsedMidiFile &&
+    songSettingsUtil.applyTrackSettings(
+      parsedMidiFile.getMidiOptions(),
+      getState().trackSettings,
+    );
+};
 
 export const updateTrackPlay = (trackIndex, play) => {
   return {
@@ -99,6 +109,6 @@ export const updateTrackPlay = (trackIndex, play) => {
     payload: {
       trackIndex,
       play,
-    }
-  }
-}
+    },
+  };
+};

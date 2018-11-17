@@ -11,6 +11,12 @@ class SongSettingsUtil {
       play: true,
     }));
   }
+
+  applyTrackSettings(midiOptions, trackSettings) {
+    trackSettings.forEach((track, i) => {
+      midiOptions.tracks[i] = track.display;
+    });
+  }
 }
 
 const songSettingsUtil = new SongSettingsUtil();
