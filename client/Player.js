@@ -1,10 +1,9 @@
-import './external/MidiSheetMusic/build/bridge';
-import './external/MidiSheetMusic/build/MidiSheetMusicBridge'; 
-import midiKeyNumberToName from './util/midiKeyNumberToName'
-import midiConstants from './util/midiConstants';
-import flatten from 'lodash/flatten';
-import ParsedMidiFile from './util/ParsedMidiFile';
-
+import "./external/MidiSheetMusic/build/bridge";
+import "./external/MidiSheetMusic/build/MidiSheetMusicBridge";
+import midiKeyNumberToName from "./util/midiKeyNumberToName";
+import midiConstants from "./util/midiConstants";
+import flatten from "lodash/flatten";
+import ParsedMidiFile from "./util/ParsedMidiFile";
 
 export default class Player {
   constructor(config) {
@@ -52,27 +51,30 @@ export default class Player {
   }
 
   enqueueEvents() {
-    this.events = flatten(this.notes
-      .map(n => {
-        const note = { 
-          noteNumber: n.noteNumber, 
-          noteName: midiKeyNumberToName(n.noteNumber), 
+    this.events = flatten(
+      this.notes.map(n => {
+        const note = {
+          noteNumber: n.noteNumber,
+          noteName: midiKeyNumberToName(n.noteNumber),
           velocity: midiConstants.DEFAULT_VELOCITY,
-          duration: n.duration, 
+          duration: n.duration,
           staff: n.staff,
           channel: n.channel,
         };
-        const noteOnTime = (n.startTimeMs - this.currentTimeMs) / this.getTempoPercentage();
-        const noteOffTime = (n.startTimeMs + n.durationMs - this.currentTimeMs) / this.getTempoPercentage();
+        const noteOnTime =
+          (n.startTimeMs - this.currentTimeMs) / this.getTempoPercentage();
+        const noteOffTime =
+          (n.startTimeMs + n.durationMs - this.currentTimeMs) /
+          this.getTempoPercentage();
         const evts = [];
-        if (noteOnTime>=0) {
+        if (noteOnTime >= 0) {
           evts.push(setTimeout(() => this.noteOn(note), noteOnTime));
         }
-        if (noteOffTime>=0) {
+        if (noteOffTime >= 0) {
           evts.push(setTimeout(() => this.noteOff(note), noteOffTime));
         }
         return evts;
-      })
+      }),
     );
   }
 
@@ -83,7 +85,9 @@ export default class Player {
       this.enqueueEvents();
     } else if (!isPlaying && this.playing) {
       this.playing = false;
-      this.currentTimeMs = this.currentTimeMs + (performance.now() - this.startTimeMs) * this.getTempoPercentage();
+      this.currentTimeMs =
+        this.currentTimeMs +
+        (performance.now() - this.startTimeMs) * this.getTempoPercentage();
       this.clearEvents();
     }
   }
@@ -99,7 +103,10 @@ export default class Player {
 
   getTimeMillis() {
     if (this.playing) {
-      return this.currentTimeMs + (performance.now() - this.startTimeMs) * this.getTempoPercentage();
+      return (
+        this.currentTimeMs +
+        (performance.now() - this.startTimeMs) * this.getTempoPercentage()
+      );
     } else {
       return this.currentTimeMs;
     }

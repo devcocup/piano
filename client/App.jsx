@@ -1,21 +1,20 @@
-import React from 'react';
+import React from "react";
 import { connect } from "react-redux";
-import PropTypes from 'prop-types';
-import Controls from './components/Controls';
-import IoModuleForm from './components/IoModuleForm';
-import Player from './util/Player';
-import * as IoModules from './components/iomodules';
-import arrayBufferToBase64 from './util/arrayBufferToBase64';
-import base64ToArrayBuffer from './util/base64ToArrayBuffer';
-import sampleSong from './external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
-import { setTempo } from './actions/playerActions';
-import { loadGlobalData } from './actions/pianoActions';
+import PropTypes from "prop-types";
+import Controls from "./components/Controls";
+import IoModuleForm from "./components/IoModuleForm";
+import Player from "./util/Player";
+import * as IoModules from "./components/iomodules";
+import arrayBufferToBase64 from "./util/arrayBufferToBase64";
+import base64ToArrayBuffer from "./util/base64ToArrayBuffer";
+import sampleSong from "./external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid";
+import { setTempo } from "./actions/playerActions";
+import { loadGlobalData } from "./actions/pianoActions";
 
-import './style/main';
+import "./style/main";
 
-const SAMPLE_SONG_NAME = 'Beethoven__Moonlight_Sonata.mid';
-const MAIN_FILE_NAME = 'main';
-
+const SAMPLE_SONG_NAME = "Beethoven__Moonlight_Sonata.mid";
+const MAIN_FILE_NAME = "main";
 
 class App extends React.Component {
   constructor(props) {
@@ -78,11 +77,14 @@ class App extends React.Component {
     window.requestAnimationFrame(this.animate);
 
     if (this.player && this.props.parsedMidiFile) {
-      this.callIoModulesChildMethod('animate', 
-        this.player.getTimeMillis(), timestamp);
+      this.callIoModulesChildMethod(
+        "animate",
+        this.player.getTimeMillis(),
+        timestamp,
+      );
     }
   }
-  
+
   callIoModulesChildMethod(method, ...args) {
     this.ioModuleInstances.forEach(ioModuleInstance => {
       if (ioModuleInstance && ioModuleInstance[method]) {
@@ -92,11 +94,11 @@ class App extends React.Component {
   }
 
   noteOn(note) {
-    this.callIoModulesChildMethod('noteOn', note);
+    this.callIoModulesChildMethod("noteOn", note);
   }
 
   noteOff(note) {
-    this.callIoModulesChildMethod('noteOff', note);
+    this.callIoModulesChildMethod("noteOff", note);
   }
 
   fileLoaded(parsedMidiFile) {
@@ -111,7 +113,7 @@ class App extends React.Component {
 
   handleSetCurrentMs(ms) {
     this.player.setCurrentTimeMillis(ms);
-    this.callIoModulesChildMethod('currentMsChanged', ms);
+    this.callIoModulesChildMethod("currentMsChanged", ms);
   }
 
   setIoModuleInstance(index, instance) {
@@ -119,16 +121,17 @@ class App extends React.Component {
   }
 
   render() {
-      return (
-        <div>
-          <Controls />
-          <IoModuleForm 
-            ioModules={this.state.ioModules}
-            setIoModuleInstance={this.setIoModuleInstance}
-            ioModuleCallbacks={this.ioModuleCallbacks} />
-        </div>
-      );
-    }
+    return (
+      <div>
+        <Controls />
+        <IoModuleForm
+          ioModules={this.state.ioModules}
+          setIoModuleInstance={this.setIoModuleInstance}
+          ioModuleCallbacks={this.ioModuleCallbacks}
+        />
+      </div>
+    );
+  }
 }
 
 App.propTypes = {
@@ -154,4 +157,7 @@ const mapDispatchToProps = dispatch => ({
   loadFileData: () => dispatch(loadFileData()),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(App);

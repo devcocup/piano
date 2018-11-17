@@ -1,5 +1,3 @@
-import storage from '../util/storage';
-
 import {
   SHEET_MUSIC_SELECTION_CHANGED,
   SHEET_MUSIC_AUTOSCROLL_CHANGED,
@@ -13,9 +11,7 @@ const initialState = {
   autoScroll: false,
 };
 
-
-
-const reducer = (state = initialState, action) => {
+export default (state = initialState, action) => {
   switch (action.type) {
     case SHEET_MUSIC_SELECTION_CHANGED:
       return { ...state, ...action.payload };
@@ -24,5 +20,3 @@ const reducer = (state = initialState, action) => {
   }
   return state;
 };
-
-export default reducer;

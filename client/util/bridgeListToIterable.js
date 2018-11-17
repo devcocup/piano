@@ -1,5 +1,4 @@
 export default list => ({
-  list,
   [Symbol.iterator]: () => ({
     index: 0,
     next() {

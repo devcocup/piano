@@ -65,7 +65,7 @@ class Controls extends React.Component {
             </button>
           </span>
           <div className={this.state.showSettings ? '' : 'hidden'}>
-            dummy
+            <SongSettings />
           </div>
           <div>
             <button type="button" onClick={ this.handlePlayPauseClick }>

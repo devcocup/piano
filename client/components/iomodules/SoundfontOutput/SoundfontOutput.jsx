@@ -44,14 +44,21 @@ class SoundFontOutput extends React.Component {
           Soundfont.instrument(
             this.audioContext,
             this.formatInstrumentName(t.instrumentName),
-            t.instrumentName === 'Percussion' ? { soundfont: 'FluidR3_GM' } : null,
+            t.instrumentName === 'Percussion'
+              ? { soundfont: 'FluidR3_GM' }
+              : null,
           ),
         ),
     ).then(instruments => (this.instruments = instruments));
   }
 
   noteOn(note) {
-    if (!this.state.mute && this.instruments && this.instruments[note.track]) {
+    const mute =
+      this.state.mute ||
+      (this.props.trackSettings &&
+        !this.props.trackSettings[note.track].play);
+    
+    if (!mute && this.instruments && this.instruments[note.track]) {
       this.activeNotes[note.noteName + note.channel] = this.instruments[
         note.track
       ].play(note.noteName, 0, {
@@ -90,10 +97,12 @@ class SoundFontOutput extends React.Component {
 
 const mapStateToProps = state => ({
   parsedMidiFile: state.parsedMidiFile,
+  trackSettings: state.trackSettings,
 });
 
 SoundFontOutput.propTypes = {
   parsedMidiFile: PropTypes.object,
+  trackSettings: PropTypes.array,
 };
 
 export default connect(
