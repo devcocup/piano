@@ -39,16 +39,18 @@ public class MidiNote : IComparer<MidiNote> {
     private int channel;     /** The channel */
     private int notenumber;  /** The note, from 0 to 127. Middle C is 60 */
     private int duration;    /** The duration, in pulses */
+    private int velocity;
 
 
     /* Create a new MidiNote.  This is called when a NoteOn event is
      * encountered in the MidiFile.
      */
-    public MidiNote(int starttime, int channel, int notenumber, int duration) {
+    public MidiNote(int starttime, int channel, int notenumber, int duration, int velocity) {
         this.starttime = starttime;
         this.channel = channel;
         this.notenumber = notenumber;
         this.duration = duration;
+        this.velocity = velocity;
     }
 
 
@@ -75,6 +77,12 @@ public class MidiNote : IComparer<MidiNote> {
         get { return duration; }
         set { duration = value; }
     }
+    
+    public int Velocity
+    {
+        get { return velocity; }
+        set { velocity = value; }
+    }
 
     /* A NoteOff event occurs for this note at the given time.
      * Calculate the note duration based on the noteoff event.
@@ -95,7 +103,7 @@ public class MidiNote : IComparer<MidiNote> {
 
 
     public MidiNote Clone() {
-        return new MidiNote(starttime, channel, notenumber, duration);
+        return new MidiNote(starttime, channel, notenumber, duration, velocity);
     }
 
     public override 

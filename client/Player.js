@@ -59,7 +59,7 @@ export default class Player {
           noteName: midiKeyNumberToName(n.noteNumber), 
           velocity: midiConstants.DEFAULT_VELOCITY,
           duration: n.duration, 
-          track: n.track,
+          staff: n.staff,
           channel: n.channel,
         };
         const noteOnTime = (n.startTimeMs - this.currentTimeMs) / this.getTempoPercentage();

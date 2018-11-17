@@ -8,14 +8,14 @@ export default class MidiKeyboardInput extends React.Component {
 
     this.LIMIT_MS = 100;
     
-    this.hands = [{track: 0, name: 'Right hand'},
-      {track: 1, name: 'Left hand'},
-      {track: -1, name: 'Both'}];
+    this.hands = [{staff: 0, name: 'Right hand'},
+      {staff: 1, name: 'Left hand'},
+      {staff: -1, name: 'Both'}];
 
     this.state = {
       availableMidiInputs: {},
       notesPressed: [],
-      track: this.hands[this.hands.length-1].track,
+      staff: this.hands[this.hands.length-1].staff,
       waitForInput: false,
     };
 
@@ -29,7 +29,7 @@ export default class MidiKeyboardInput extends React.Component {
     this.clearNotesRequired = this.clearNotesRequired.bind(this);
     this.currentMsChanged = this.currentMsChanged.bind(this);
     this.handleChangeInput = this.handleChangeInput.bind(this);
-    this.handleChangeTrack = this.handleChangeTrack.bind(this);
+    this.handleChangeStaff = this.handleChangeStaff.bind(this);
     this.loadData = this.loadData.bind(this);
     this.saveData = this.saveData.bind(this);
     
@@ -123,7 +123,7 @@ export default class MidiKeyboardInput extends React.Component {
   }
 
   noteOn(note) {
-    if (this.state.waitForInput && (this.state.track === -1 || this.state.track === note.track)) {
+    if (this.state.waitForInput && (this.state.staff === -1 || this.state.staff === note.staff)) {
       this.notesRequired.push(note.noteNumber);
     }
   }
@@ -144,8 +144,8 @@ export default class MidiKeyboardInput extends React.Component {
     this.setActiveMidiInput(this.state.availableMidiInputs[evt.target.value]);
   }
 
-  handleChangeTrack(evt) {
-    const newState = { track: parseInt(evt.target.value, 10) };
+  handleChangeStaff(evt) {
+    const newState = { staff: parseInt(evt.target.value, 10) };
     this.setState(newState);
     this.saveData(newState);
   }
@@ -157,7 +157,7 @@ export default class MidiKeyboardInput extends React.Component {
   saveData(toMerge) {
     this.props.saveData && this.props.saveData({
       waitForInput: this.state.waitForInput,
-      track: this.state.track,
+      staff: this.state.staff,
       ...toMerge,
     });
   }
@@ -179,13 +179,13 @@ export default class MidiKeyboardInput extends React.Component {
         </label>
         <span className="section">
           {this.hands.map(hand => 
-              <label className="section" key={hand.track}>
+              <label className="section" key={hand.staff}>
                 <input 
                   type="radio"
                   name="hand"
                   disabled={!this.state.waitForInput} 
-                  value={hand.track}
-                  checked={this.state.track === hand.track}
+                  value={hand.staff}
+                  checked={this.state.staff === hand.staff}
                   onChange={this.handleChangeTrack} /> {hand.name}
               </label>)}
         </span>

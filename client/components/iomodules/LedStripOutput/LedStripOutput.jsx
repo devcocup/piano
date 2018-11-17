@@ -48,11 +48,11 @@ export default class LedStripOutput extends React.Component {
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([ midiConstants.NOTE_ON, note.noteNumber, note.velocity ]);
     }
-    this.activeMidiNotes[note.noteNumber].add(note.track);
+    this.activeMidiNotes[note.noteNumber].add(note.staff);
   }
 
   noteOff(note) {
-    this.activeMidiNotes[note.noteNumber].delete(note.track);
+    this.activeMidiNotes[note.noteNumber].delete(note.staff);
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([ midiConstants.NOTE_OFF, note.noteNumber, note.velocity ]);
     }

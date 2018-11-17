@@ -52,7 +52,7 @@ public class MidiTrack {
  
         foreach (MidiEvent mevent in events) {
             if (mevent.EventFlag == MidiFile.EventNoteOn && mevent.Velocity > 0) {
-                MidiNote note = new MidiNote(mevent.StartTime, mevent.Channel, mevent.Notenumber, 0);
+                MidiNote note = new MidiNote(mevent.StartTime, mevent.Channel, mevent.Notenumber, 0, mevent.Velocity);
                 AddNote(note);
             }
             else if (mevent.EventFlag == MidiFile.EventNoteOn && mevent.Velocity == 0) {

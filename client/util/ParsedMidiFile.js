@@ -1,36 +1,31 @@
 import '../external/MidiSheetMusic/build/bridge';
 import '../external/MidiSheetMusic/build/MidiSheetMusicBridge';
 import midiConstants from './midiConstants';
+import bridgeListToIterable from './bridgeListToIterable';
 
 export default class ParsedMidiFile {
   constructor(file, fileName) {
     this.notes = [];
-    this.tracks = [];
 
     this.parseFile = this.parseFile.bind(this);
     this.populateNotes = this.populateNotes.bind(this);
     this.getNotes = this.getNotes.bind(this);
     this.getPulsesPerMsec = this.getPulsesPerMsec.bind(this);
-    this.getTracks = this.getTracks.bind(this);
     this.getMeasure = this.getMeasure.bind(this);
     this.getTotalPulses = this.getTotalPulses.bind(this);
     this.getMidiFile = this.getMidiFile.bind(this);
     this.getMidiOptions = this.getMidiOptions.bind(this);
+    this.getStaves = this.getStaves.bind(this);
 
     this.parseFile(file, fileName);
   }
 
   parseFile(file, fileName) {
     const fileArray = new Uint8Array(file);
-    const midiFile = new MidiSheetMusic.MidiFile(fileArray, fileName);
-    const midiOptions = new MidiSheetMusic.MidiOptions.$ctor1(midiFile);
-    midiOptions.twoStaffs = true;
-    const tracks = midiFile.ChangeMidiNotes(midiOptions);
-
-    this.midiFile = midiFile;
-    this.midiOptions = midiOptions;
-
-    this.populateNotes(midiFile, midiOptions, tracks);
+    this.midiFile = new MidiSheetMusic.MidiFile(fileArray, fileName);
+    this.midiOptions = new MidiSheetMusic.MidiOptions.$ctor1(this.midiFile);
+    this.midiOptions.twoStaffs = true;
+    this.populateNotes(this.midiFile, this.midiOptions, this.midiFile.Tracks);
   }
 
   populateNotes(midiFile, midiOptions, tracks) {
@@ -38,27 +33,32 @@ export default class ParsedMidiFile {
     this.totalPulses = midiFile.TotalPulses;
     this.measure = midiFile.Time.Measure;
 
-    let minNote = midiConstants.NOTE_COUNT, maxNote = 0;
- 
-    for (let i=0; i < tracks.Count; i++) {
-      this.tracks.push({name: tracks.getItem(i).InstrumentName});
+    let minNote = midiConstants.NOTE_COUNT,
+      maxNote = 0;
 
-      for (let j=0; j < tracks.getItem(i).Notes.Count; j++) {
-        const note = tracks.getItem(i).Notes.getItem(j);
-        if (note.notenumber > maxNote) {
-          maxNote = note.notenumber;
-        }
-        if (note.notenumber < minNote) {
-          minNote = note.notenumber;
-        }
-        this.notes.push({
-          startTimeMs: note.starttime / this.pulsesPerMsec,
-          durationMs: note.duration / this.pulsesPerMsec,
-          noteNumber: note.notenumber,
-          track: i,
-        });
-      }
-    }
+    this.notes = Array.from(bridgeListToIterable(tracks)).reduce(
+      (acc, track, trackIndex) =>
+        acc.concat(
+          Array.from(bridgeListToIterable(track.Notes)).map(note => {
+            if (note.notenumber > maxNote) {
+              maxNote = note.notenumber;
+            }
+            if (note.notenumber < minNote) {
+              minNote = note.notenumber;
+            }
+            return {
+              startTimeMs: note.starttime / this.pulsesPerMsec,
+              durationMs: note.duration / this.pulsesPerMsec,
+              noteNumber: note.notenumber,
+              staff: 0,
+              channel: note.channel,
+              track: trackIndex,
+              velocity: note.velocity,
+            };
+          }),
+        ),
+      [],
+    );
   }
 
   getPulsesPerMsec() {
@@ -88,11 +88,13 @@ export default class ParsedMidiFile {
 
     return this.notes.filter(n => {
       const endTimeMs = n.startTimeMs + n.durationMs;
-      return fromMs - n.startTimeMs >= 0 && endTimeMs - toMs >=0;
+      return fromMs - n.startTimeMs >= 0 && endTimeMs - toMs >= 0;
     });
   }
 
-  getTracks() {
-    return this.tracks;
+  getStaves() {
+    const tracks = [];
+    this.midiFile.Tracks.forEach(t => tracks.push(t));
+    return tracks.map(t => ({ instrumentName: t.InstrumentName }));
   }
 }

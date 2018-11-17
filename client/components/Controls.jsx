@@ -1,7 +1,7 @@
 import React from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import { faPlay, faPause } from '@fortawesome/fontawesome-free-solid';
-import TrackSettings from './TrackSettings';
+import SongSettings from './SongSettings';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { play, pause, setTempo } from '../actions/playerActions';

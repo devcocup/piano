@@ -31,7 +31,7 @@
     "redux": "^4.0.1",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
-    "soundfont-player": "^0.10.6"
+    "soundfont-player": "^0.11.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
