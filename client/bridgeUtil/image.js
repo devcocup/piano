@@ -5,26 +5,25 @@ import * as images from './images';
   let preloadPromise;
 
   bridgeUtil.image = {
-
-    preloadImages: () => preloadPromise || (
-      preloadPromise = new Promise(resolve => {
+    preloadImages: () =>
+      preloadPromise ||
+      (preloadPromise = new Promise(resolve => {
         let imagesLoadedCount = 0;
         Object.entries(images).forEach(kvp => {
-          const [ name, src ] = kvp;
+          const [name, src] = kvp;
           const img = document.createElement('img');
-          img.src = src
+          img.src = src;
           resourceImages[name] = img;
           img.onload = () => {
             imagesLoadedCount++;
             if (imagesLoadedCount === Object.entries(images).length) {
               resolve();
             }
-          }
+          };
         });
-      })
-    ),
+      })),
     ctor: (image, type, fileName) => {
-      const key = /^Resources\.Images\..*\.png$/.test(fileName) 
+      const key = /^Resources\.Images\..*\.png$/.test(fileName)
         ? fileName.split('.')[2]
         : fileName;
       const img = resourceImages[key];
@@ -37,6 +36,6 @@ import * as images from './images';
     },
     getHeight: image => {
       return image.height;
-    }
-  }
+    },
+  };
 })(window.bridgeUtil || (window.bridgeUtil = {}));

@@ -5,16 +5,10 @@ import Controls from "./components/Controls";
 import IoModuleForm from "./components/IoModuleForm";
 import Player from "./util/Player";
 import * as IoModules from "./components/iomodules";
-import arrayBufferToBase64 from "./util/arrayBufferToBase64";
-import base64ToArrayBuffer from "./util/base64ToArrayBuffer";
-import sampleSong from "./external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid";
 import { setTempo } from "./actions/playerActions";
 import { loadGlobalData } from "./actions/pianoActions";
 
 import "./style/main";
-
-const SAMPLE_SONG_NAME = "Beethoven__Moonlight_Sonata.mid";
-const MAIN_FILE_NAME = "main";
 
 class App extends React.Component {
   constructor(props) {

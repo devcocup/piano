@@ -57,9 +57,34 @@ class SheetMusicOutput extends React.Component {
       this.updateSelectionFromProps();
     }
 
-    if (this.props.trackSettings && this.props.trackSettings !== prevProps.trackSettings) {
+    if (
+      this.trackSettingsDisplayChanged(
+        this.props.trackSettings,
+        prevProps.trackSettings,
+      )
+    ) {
       this.initSheetMusic();
     }
+  }
+
+  trackSettingsDisplayChanged(trackSettings, prevTrackSettings) {
+    if (!trackSettings) {
+      return false;
+    }
+    if (!prevTrackSettings) {
+      return true;
+    }
+    return (
+      trackSettings.length !== prevTrackSettings.length ||
+      trackSettings.some(
+        (_, i) => 
+        trackSettings[i].display !== prevTrackSettings[i].display
+      )
+    );
+  }
+
+  init() {
+    return window.bridgeUtil.image.preloadImages();
   }
 
   click(evt) {
@@ -104,22 +129,26 @@ class SheetMusicOutput extends React.Component {
   }
 
   initSheetMusic() {
-    this.sheetMusic = new MidiSheetMusic.SheetMusic(
-      this.props.parsedMidiFile.getMidiFile(),
-      this.props.parsedMidiFile.getMidiOptions(),
-    );
-    this.sheetMusic.SetZoom(1.4);
-    this.initSheetMusicCanvas();
-    this.updateSelectionFromProps();
+    this.init().then(() => {
+      if (!this.props.parsedMidiFile) {
+        return;
+      }
+
+      this.sheetMusic = new MidiSheetMusic.SheetMusic(
+        this.props.parsedMidiFile.getMidiFile(),
+        this.props.parsedMidiFile.getMidiOptions(),
+      );
+      this.sheetMusic.SetZoom(1.4);
+      this.initSheetMusicCanvas();
+      this.updateSelectionFromProps();
+    });
   }
 
   loadMidiFile() {
-    window.bridgeUtil.image.preloadImages().then(() => {
-      this.pulsesPerMs = this.props.parsedMidiFile.getPulsesPerMsec();
-      this.totalPulses = this.props.parsedMidiFile.getTotalPulses();
-      this.measure = this.props.parsedMidiFile.getMeasure();
-      this.initSheetMusic();
-    });
+    this.pulsesPerMs = this.props.parsedMidiFile.getPulsesPerMsec();
+    this.totalPulses = this.props.parsedMidiFile.getTotalPulses();
+    this.measure = this.props.parsedMidiFile.getMeasure();
+    this.initSheetMusic();
   }
 
   clearShadeNotes() {

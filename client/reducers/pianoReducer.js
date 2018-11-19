@@ -8,8 +8,9 @@ import {
 const initialState = {};
 
 const applyTrackSettingsChange = (trackSettings, trackIndex, value, prop) => {
-  trackSettings[trackIndex] = { ...trackSettings[trackIndex], [prop]: value };
-  return [...trackSettings];
+  const updated = [...trackSettings];
+  updated[trackIndex] = { ...updated[trackIndex], [prop]: value };
+  return updated;
 };
 
 export default (state = initialState, action) => {
