@@ -11,23 +11,45 @@ class SongSettings extends React.Component {
     this.updateTrack = this.updateTrack.bind(this);
     this.updateTrackAll = this.updateTrackAll.bind(this);
     this.updateTrackPlayAndDisplay = this.updateTrackPlayAndDisplay.bind(this);
+    this.updateTrackAllPlayAndDisplay = this.updateTrackAllPlayAndDisplay.bind(
+      this,
+    );
+    this.getTracksToUpdate = this.getTracksToUpdate.bind(this);
   }
 
-  updateTrackAll(propName) {
-    return () => {
-      //don't include Percussion tracks in display by default
-      const tracksToUpdate = this.props.trackSettings
+  updateTrackAllPlayAndDisplay() {
+    const updatedValue =
+      !this.getTracksToUpdate('Play').some(t => t.track.play) &&
+      !this.getTracksToUpdate('Display').some(t => t.track.display);
+
+    this.updateTrackAll('Play', updatedValue)();
+    this.updateTrackAll('Display', updatedValue)();
+}
+
+  getTracksToUpdate(propName) {
+    return this.props.trackSettings
       .map((track, index) => ({
         track,
         index,
       }))
-      .filter(t => propName ==='Play' || t.track.name !== 'Percussion');
-      
+      .filter(t => propName === 'Play' || t.track.name !== 'Percussion');
+  }
+
+  updateTrackAll(propName, value) {
+    return () => {
+      //don't include Percussion tracks in display by default
+      const tracksToUpdate = this.getTracksToUpdate(propName);
+
+      const updatedValue =
+        value === undefined
+          ? !tracksToUpdate.some(
+              t => t.track[propName === 'Display' ? 'display' : 'play'],
+            )
+          : value;
+
       this.props[`updateTrack${propName}`](
-        tracksToUpdate.map(t=>t.index),
-        !tracksToUpdate.some(
-          t => t.track[propName === 'Display' ? 'display' : 'play'],
-        ),
+        tracksToUpdate.map(t => t.index),
+        updatedValue,
       );
     };
   }
@@ -39,7 +61,9 @@ class SongSettings extends React.Component {
 
   updateTrackPlayAndDisplay(trackIndex) {
     return () => {
-      const newState = !this.props.trackSettings[trackIndex].display && !this.props.trackSettings[trackIndex].play;
+      const newState =
+        !this.props.trackSettings[trackIndex].display &&
+        !this.props.trackSettings[trackIndex].play;
       this.props.updateTrackPlay(trackIndex, newState);
       this.props.updateTrackDisplay(trackIndex, newState);
     };
@@ -62,10 +86,13 @@ class SongSettings extends React.Component {
               </button>
             </th>
             <th className="display-play">
-              <button type="button">
+              <button type="button" onClick={this.updateTrackAllPlayAndDisplay}>
                 <FontAwesomeIcon icon="eye" className="top-left-icon" />
                 <span className="slash">/</span>
-                <FontAwesomeIcon icon="volume-up" className="bottom-right-icon" />
+                <FontAwesomeIcon
+                  icon="volume-up"
+                  className="bottom-right-icon"
+                />
               </button>
             </th>
           </tr>
