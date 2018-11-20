@@ -1,44 +1,32 @@
 import {
   LOAD_FILE_SUCCESS,
   LOAD_FILE_DATA_SUCCESS,
-  TRACK_DISPLAY_UPDATE,
-  TRACK_PLAY_UPDATE,
 } from '../constants/actionTypes';
+
+import {
+  PLAYER,
+  SHEET_MUSIC_OUTPUT,
+} from '../constants/reducerNames';
 
 const initialState = {};
 
-const applyTrackSettingsChange = (trackSettings, trackIndex, value, prop) => {
-  const updated = [...trackSettings];
-  updated[trackIndex] = { ...updated[trackIndex], [prop]: value };
-  return updated;
-};
+
 
 export default (state = initialState, action) => {
   switch (action.type) {
     case LOAD_FILE_SUCCESS:
-      return { ...state, ...action.payload };
+      return { 
+        ...state, 
+        parsedMidiFile: action.payload.parsedMidiFile,
+        midiArrayBuffer: action.payload.midiArrayBuffer,
+        midiFileName: action.payload.midiFileName,
+      };
     case LOAD_FILE_DATA_SUCCESS:
-      return { ...state, ...action.payload };
-    case TRACK_DISPLAY_UPDATE:
-      return {
-        ...state,
-        trackSettings: applyTrackSettingsChange(
-          state.trackSettings,
-          action.payload.trackIndex,
-          action.payload.display,
-          'display',
-        ),
+      return { ...state, 
+        [PLAYER]: action.payload.moduleData[PLAYER],
+        [SHEET_MUSIC_OUTPUT]: action.payload.moduleData[SHEET_MUSIC_OUTPUT] 
       };
-    case TRACK_PLAY_UPDATE:
-      return {
-        ...state,
-        trackSettings: applyTrackSettingsChange(
-          state.trackSettings,
-          action.payload.trackIndex,
-          action.payload.play,
-          'play',
-        ),
-      };
+    
   }
   return { ...state };
 };

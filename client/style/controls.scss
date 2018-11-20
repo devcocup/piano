@@ -1,6 +1,6 @@
 .controls {
   $hover-color: #fff;
-  $text-color: rgba(255,255,255,0.75);
+  $text-color: rgba(255, 255, 255, 0.75);
 
   background-color: #24292e;
   width: 100%;
@@ -9,7 +9,8 @@
   color: $text-color;
 
   .track-name-container {
-    margin-bottom: 6px;
+    font-size: 20px;
+    margin: 8px 0 5px 0;
     cursor: pointer;
 
     > .track-name-icon {
@@ -31,7 +32,7 @@
 
     .track-name {
       margin-right: 5px;
-    }  
+    }
   }
 
   label {
@@ -56,11 +57,25 @@
     background: transparent;
     border: none;
     font-size: 18px;
-    margin-right: 20px;
-    color: rgba(255,255,255,0.75);
+    color: rgba(255, 255, 255, 0.75);
 
     &:hover {
       color: $hover-color;
+    }
+  }
+
+  .song-settings {
+    transition-property: all;
+    transition-duration: 0.5s;
+    transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+    overflow: auto;
+
+    .song-tracks {
+      margin: 2px 0 8px 8px;
+
+      .td-checkbox {
+        text-align: center;
+      }
     }
   }
 }

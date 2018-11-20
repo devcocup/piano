@@ -31,13 +31,12 @@ class Controls extends React.Component {
 
   handleSettingsClick(evt) {
     evt.stopPropagation();
-    this.setState({ showSettings: !this.state.showSettings })
+    this.setState({ showSettings: !this.state.showSettings });
+    window.setTimeout(() => window.dispatchEvent(new Event('resize')), 1000);
   }
 
   handlePlayPauseClick() {
-    this.props.isPlaying 
-      ? this.props.pause()
-      : this.props.play();
+    this.props.isPlaying ? this.props.pause() : this.props.play();
   }
 
   handleTempoChange(evt) {
@@ -48,39 +47,50 @@ class Controls extends React.Component {
     return (
       <div className="controls">
         <div className="piano-content">
-          <span className="track-name-container" onClick={ this.handleLoadClick }>
-            <span className="track-name">{ this.props.midiFileName }</span>
+          <div className="track-name-container" onClick={this.handleLoadClick}>
+            <span className="track-name">{this.props.midiFileName}</span>
             <span className="track-name-icon">
               <FontAwesomeIcon icon="upload" />
             </span>
-            <input 
-              type="file" 
-              ref={input => this.midiFileInput = input} 
-              style={ {display: 'none'} } 
-              onChange={ this.handleLoadFile } 
+            <input
+              type="file"
+              ref={input => (this.midiFileInput = input)}
+              style={{ display: 'none' }}
+              onChange={this.handleLoadFile}
               accept=".mid"
             />
-            <button type="button" className="track-name-icon" onClick={ this.handleSettingsClick }>
+            <button
+              type="button"
+              className="track-name-icon"
+              onClick={this.handleSettingsClick}
+            >
               <FontAwesomeIcon icon="cogs" />
             </button>
-          </span>
-          <div className={this.state.showSettings ? '' : 'hidden'}>
+          </div>
+          <div
+            className="song-settings"
+            style={{
+              maxHeight: this.state.showSettings ? '500px' : '0',
+              overflow: this.state.showSettings ? 'auto' : 'hidden',
+            }}
+          >
             <SongSettings />
           </div>
           <div>
-            <button type="button" onClick={ this.handlePlayPauseClick }>
-              <FontAwesomeIcon icon={ this.props.isPlaying ? faPause : faPlay} />
+            <button type="button" onClick={this.handlePlayPauseClick}>
+              <FontAwesomeIcon icon={this.props.isPlaying ? faPause : faPlay} />
             </button>
             <label>
               <span className="label">Tempo</span>
-              <input 
+              <input
                 type="number"
-                value={ this.props.tempo }
-                onChange={ this.handleTempoChange }
+                value={this.props.tempo}
+                onChange={this.handleTempoChange}
                 className="tempo"
                 step="10"
                 min="0"
-                max="1000" />
+                max="1000"
+              />
             </label>
           </div>
         </div>
@@ -105,7 +115,10 @@ const mapDispatchToProps = dispatch => ({
   play: () => dispatch(play()),
   pause: () => dispatch(pause()),
   setTempo: tempo => dispatch(setTempo(tempo)),
-  loadFile: file => dispatch(loadFile(file))
+  loadFile: file => dispatch(loadFile(file)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Controls);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Controls);

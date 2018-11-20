@@ -1,32 +1,61 @@
 import React from 'react';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { updateTrackDisplay, updateTrackPlay } from '../actions/pianoActions';
+import { updateTrackDisplay, updateTrackPlay } from '../actions/playerActions';
 
 class SongSettings extends React.Component {
   constructor(props) {
     super(props);
 
-    this.updateTrackDisplay = this.updateTrackDisplay.bind(this);
-    this.updateTrackPlay = this.updateTrackPlay.bind(this);
+    this.updateTrack = this.updateTrack.bind(this);
+    this.updateTrackAll = this.updateTrackAll.bind(this);
   }
 
-  updateTrackDisplay(trackIndex) {
-    return evt => this.props.updateTrackDisplay(trackIndex, evt.target.checked);
+  updateTrackAll(propName) {
+    return () => {
+      //don't include Percussion tracks in display by default
+      const indexes =
+        propName === 'Display'
+          ? this.props.trackSettings
+              .map((track, index) => ({
+                track,
+                index,
+              }))
+              .filter(t => t.track.name !== 'Percussion')
+              .map(t => t.index)
+          : [...Array(this.props.trackSettings.length).keys()];
+
+      this.props[`updateTrack${propName}`](
+        indexes,
+        !this.props.trackSettings.some(
+          t => t[propName === 'Display' ? 'display' : 'play'],
+        ),
+      );
+    };
   }
 
-  updateTrackPlay(trackIndex) {
-    return evt => this.props.updateTrackPlay(trackIndex, evt.target.checked);
+  updateTrack(trackIndexes, propName) {
+    return evt =>
+      this.props[`updateTrack${propName}`](trackIndexes, evt.target.checked);
   }
 
   render() {
     return (
-      <table>
+      <table className="song-tracks">
         <thead>
           <tr>
-            <th>Track</th>
-            <th>Display</th>
-            <th>Play</th>
+            <th>&nbsp;</th>
+            <th>
+              <button type="button" onClick={this.updateTrackAll('Display')}>
+                <FontAwesomeIcon icon="eye" />
+              </button>
+            </th>
+            <th>
+              <button type="button" onClick={this.updateTrackAll('Play')}>
+                <FontAwesomeIcon icon="volume-up" />
+              </button>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -34,18 +63,18 @@ class SongSettings extends React.Component {
             this.props.trackSettings.map((track, index) => (
               <tr key={index}>
                 <td>{track.name}</td>
-                <td>
+                <td className="td-checkbox">
                   <input
                     type="checkbox"
                     checked={track.display}
-                    onChange={this.updateTrackDisplay(index)}
+                    onChange={this.updateTrack([index], 'Display')}
                   />
                 </td>
-                <td>
+                <td className="td-checkbox">
                   <input
                     type="checkbox"
                     checked={track.play}
-                    onChange={this.updateTrackPlay(index)}
+                    onChange={this.updateTrack([index], 'Play')}
                   />
                 </td>
               </tr>
@@ -63,12 +92,17 @@ SongSettings.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  trackSettings: state.trackSettings,
+  trackSettings: state.player.trackSettings,
 });
 
 const mapDispatchToProps = dispatch => ({
-  updateTrackPlay: (trackIndex, prop, play) => dispatch(updateTrackPlay(trackIndex, prop, play)),
-  updateTrackDisplay: (trackIndex, prop, show) => dispatch(updateTrackDisplay(trackIndex, prop, show))
+  updateTrackPlay: (trackIndex, prop, play) =>
+    dispatch(updateTrackPlay(trackIndex, prop, play)),
+  updateTrackDisplay: (trackIndex, prop, show) =>
+    dispatch(updateTrackDisplay(trackIndex, prop, show)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(SongSettings);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(SongSettings);

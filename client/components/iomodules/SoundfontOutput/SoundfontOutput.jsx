@@ -97,7 +97,7 @@ class SoundFontOutput extends React.Component {
 
 const mapStateToProps = state => ({
   parsedMidiFile: state.parsedMidiFile,
-  trackSettings: state.trackSettings,
+  trackSettings: state.player.trackSettings,
 });
 
 SoundFontOutput.propTypes = {

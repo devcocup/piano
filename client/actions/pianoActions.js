@@ -3,13 +3,11 @@ import base64ToArrayBuffer from '../util/base64ToArrayBuffer';
 import arrayBufferToBase64 from '../util/arrayBufferToBase64';
 import sampleSong from '../external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
 import ParsedMidiFile from '../util/ParsedMidiFile';
-import songSettingsUtil from '../util/songSettingsUtil';
+import { initPlayer } from './playerActions';
 
 import {
   LOAD_FILE_SUCCESS,
   LOAD_FILE_DATA_SUCCESS,
-  TRACK_DISPLAY_UPDATE,
-  TRACK_PLAY_UPDATE,
 } from '../constants/actionTypes';
 
 const SAMPLE_SONG_NAME = 'Beethoven__Moonlight_Sonata.mid';
@@ -39,19 +37,22 @@ const fileLoaded = (arrayBuffer, filename) => {
       parsedMidiFile,
       midiArrayBuffer: arrayBufferToBase64(arrayBuffer),
       midiFileName: filename,
-      trackSettings: songSettingsUtil.loadTrackSettingsFromParsedMidiFile(
-        parsedMidiFile,
-      ),
     },
   };
 };
 
-const fileDataLoaded = data => ({
-  type: LOAD_FILE_DATA_SUCCESS,
-  payload: {
-    ...data,
-  },
-});
+const fileDataLoaded = data => dispatch => {
+  dispatch({
+    type: LOAD_FILE_DATA_SUCCESS,
+    payload: {
+      moduleData: {
+        ...data,
+      },
+    },
+  });
+
+  dispatch(initPlayer());
+};
 
 export const loadFile = file => (dispatch, getState) =>
   readFile(file, file.name)
@@ -81,34 +82,4 @@ export const loadGlobalData = () => dispatch =>
 export const loadFileData = filename => dispatch =>
   storage
     .loadFileData(filename)
-    .then(result => dispatch(fileDataLoaded(result)));
-
-export const updateTrackDisplay = (trackIndex, display) => (
-  dispatch,
-  getState,
-) => {
-  dispatch({
-    type: TRACK_DISPLAY_UPDATE,
-    payload: {
-      trackIndex,
-      display,
-    },
-  });
-
-  const parsedMidiFile = getState().parsedMidiFile;
-  parsedMidiFile &&
-    songSettingsUtil.applyTrackSettings(
-      parsedMidiFile.getMidiOptions(),
-      getState().trackSettings,
-    );
-};
-
-export const updateTrackPlay = (trackIndex, play) => {
-  return {
-    type: TRACK_PLAY_UPDATE,
-    payload: {
-      trackIndex,
-      play,
-    },
-  };
-};
+    .then(result => dispatch(fileDataLoaded(result || {})));

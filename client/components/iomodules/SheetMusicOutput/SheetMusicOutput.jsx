@@ -140,7 +140,6 @@ class SheetMusicOutput extends React.Component {
       );
       this.sheetMusic.SetZoom(1.4);
       this.initSheetMusicCanvas();
-      this.updateSelectionFromProps();
     });
   }
 
@@ -367,7 +366,7 @@ SheetMusicOutput.propTypes = {
 
 const mapStateToProps = state => ({
   parsedMidiFile: state.parsedMidiFile,
-  trackSettings: state.trackSettings,
+  trackSettings: state.player.trackSettings,
   ...state.sheetMusicOutput,
 });
 
