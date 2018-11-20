@@ -10,26 +10,23 @@ class SongSettings extends React.Component {
 
     this.updateTrack = this.updateTrack.bind(this);
     this.updateTrackAll = this.updateTrackAll.bind(this);
+    this.updateTrackPlayAndDisplay = this.updateTrackPlayAndDisplay.bind(this);
   }
 
   updateTrackAll(propName) {
     return () => {
       //don't include Percussion tracks in display by default
-      const indexes =
-        propName === 'Display'
-          ? this.props.trackSettings
-              .map((track, index) => ({
-                track,
-                index,
-              }))
-              .filter(t => t.track.name !== 'Percussion')
-              .map(t => t.index)
-          : [...Array(this.props.trackSettings.length).keys()];
-
+      const tracksToUpdate = this.props.trackSettings
+      .map((track, index) => ({
+        track,
+        index,
+      }))
+      .filter(t => propName ==='Play' || t.track.name !== 'Percussion');
+      
       this.props[`updateTrack${propName}`](
-        indexes,
-        !this.props.trackSettings.some(
-          t => t[propName === 'Display' ? 'display' : 'play'],
+        tracksToUpdate.map(t=>t.index),
+        !tracksToUpdate.some(
+          t => t.track[propName === 'Display' ? 'display' : 'play'],
         ),
       );
     };
@@ -38,6 +35,14 @@ class SongSettings extends React.Component {
   updateTrack(trackIndexes, propName) {
     return evt =>
       this.props[`updateTrack${propName}`](trackIndexes, evt.target.checked);
+  }
+
+  updateTrackPlayAndDisplay(trackIndex) {
+    return () => {
+      const newState = !this.props.trackSettings[trackIndex].display && !this.props.trackSettings[trackIndex].play;
+      this.props.updateTrackPlay(trackIndex, newState);
+      this.props.updateTrackDisplay(trackIndex, newState);
+    };
   }
 
   render() {
@@ -54,6 +59,13 @@ class SongSettings extends React.Component {
             <th>
               <button type="button" onClick={this.updateTrackAll('Play')}>
                 <FontAwesomeIcon icon="volume-up" />
+              </button>
+            </th>
+            <th className="display-play">
+              <button type="button">
+                <FontAwesomeIcon icon="eye" className="top-left-icon" />
+                <span className="slash">/</span>
+                <FontAwesomeIcon icon="volume-up" className="bottom-right-icon" />
               </button>
             </th>
           </tr>
@@ -75,6 +87,13 @@ class SongSettings extends React.Component {
                     type="checkbox"
                     checked={track.play}
                     onChange={this.updateTrack([index], 'Play')}
+                  />
+                </td>
+                <td className="td-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={track.play || track.display}
+                    onChange={this.updateTrackPlayAndDisplay([index])}
                   />
                 </td>
               </tr>

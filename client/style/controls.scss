@@ -76,6 +76,29 @@
       .td-checkbox {
         text-align: center;
       }
+
+      .display-play {
+        position: relative;
+        width: 25px;
+        .slash {
+          font-size: 21px;
+        }
+        > button {
+          font-size: 12px;
+          width: 25px;
+          height: 22px;
+          .top-left-icon {
+            position: absolute;
+            top: 0;
+            left: 0;
+          }
+          .bottom-right-icon {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+          }
+        }
+      }
     }
   }
 }
