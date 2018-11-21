@@ -2,7 +2,7 @@ import React from 'react';
 import midiConstants from '../../../util/midiConstants';
 import MidiDeviceSelection from '../../MidiDeviceSelection';
 
-export default class LedStripOutput extends React.Component {
+export default class MidiOutput extends React.Component {
   constructor(props) {
     super(props);
 

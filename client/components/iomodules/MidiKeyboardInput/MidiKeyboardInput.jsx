@@ -1,6 +1,6 @@
 import React from 'react';
-import midiIo from '../../../util/midiIo';
 import midiConstants from '../../../util/midiConstants';
+import MidiDeviceSelection from '../../MidiDeviceSelection';
 
 export default class MidiKeyboardInput extends React.Component {
   constructor(props) {
@@ -13,13 +13,11 @@ export default class MidiKeyboardInput extends React.Component {
       {staff: -1, name: 'Both'}];
 
     this.state = {
-      availableMidiInputs: {},
       notesPressed: [],
       staff: this.hands[this.hands.length-1].staff,
       waitForInput: false,
     };
 
-    this.init = this.init.bind(this);
     this.onMidiMessage = this.onMidiMessage.bind(this);
     this.setActiveMidiInput = this.setActiveMidiInput.bind(this);
     this.animate = this.animate.bind(this);
@@ -28,30 +26,13 @@ export default class MidiKeyboardInput extends React.Component {
     this.checkInput = this.checkInput.bind(this);
     this.clearNotesRequired = this.clearNotesRequired.bind(this);
     this.currentMsChanged = this.currentMsChanged.bind(this);
-    this.handleChangeInput = this.handleChangeInput.bind(this);
+    this.handleChangePort = this.handleChangePort.bind(this);
     this.handleChangeStaff = this.handleChangeStaff.bind(this);
     this.loadData = this.loadData.bind(this);
     this.saveData = this.saveData.bind(this);
     
     this.keyBuffer = [];
     this.notesRequired = [];
-
-    this.init();
-  }
-
-  init() {
-    midiIo.get().then(midi => {
-      const availableMidiInputs = {};
-      midi.inputs.forEach(input => {
-        availableMidiInputs[input.id] = input;
-        if (!this.activeMidiInput) {
-          this.setActiveMidiInput(input);
-        }
-      });
-      this.setState({
-        availableMidiInputs,
-      });
-    });
   }
 
   noteFoundInKeyBuffer(noteNumber) {
@@ -140,8 +121,8 @@ export default class MidiKeyboardInput extends React.Component {
     this.clearNotesRequired();
   }
 
-  handleChangeInput(evt) {
-    this.setActiveMidiInput(this.state.availableMidiInputs[evt.target.value]);
+  handleChangePort(portId, port) {
+    this.setActiveMidiInput(port);
   }
 
   handleChangeStaff(evt) {
@@ -168,11 +149,11 @@ export default class MidiKeyboardInput extends React.Component {
        <div>
         <label className="section">
           <span className="label">MIDI input device</span>
-          <select onChange={this.handleChangeInput}>
-            { Object.values(this.state.availableMidiInputs).map(input =>
-              <option key={input.id} value={input.id}>{input.name}</option>
-            ) }
-          </select>
+          <MidiDeviceSelection
+            input={true}
+            changePort={this.handleChangePort}
+            selectedPortId={this.selectedPortId}
+          />
         </label>
         <label className="section">
           <input type="checkbox" checked={this.state.waitForInput} onClick={this.handleToggleWaitForInput} /> Wait for correct input

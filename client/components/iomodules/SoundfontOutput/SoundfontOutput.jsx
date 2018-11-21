@@ -30,6 +30,7 @@ class SoundFontOutput extends React.Component {
 
   formatInstrumentName(name) {
     return name
+      .replace(/([A-Z]+)/g, ' $1').replace(/^ /, '')
       .toLowerCase()
       .replace(/ /g, '_')
       .replace(/\W/g, '');
