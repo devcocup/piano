@@ -90,14 +90,6 @@ namespace MidiSheetMusic
             init(file, options);
         }
 
-        /** Create a new SheetMusic control, using the given midi filename.
-         *  The options can be null.
-         */
-        //public SheetMusic(string filename, MidiOptions options) {
-        //    MidiFile file = new MidiFile(filename);
-        //    init(file, options); 
-        //}
-
         /** Create a new SheetMusic control, using the given raw midi byte[] data.
          *  The options can be null.
          */

@@ -54,12 +54,8 @@ export default class Player {
     this.events = flatten(
       this.notes.map(n => {
         const note = {
-          noteNumber: n.noteNumber,
           noteName: midiKeyNumberToName(n.noteNumber),
-          velocity: midiConstants.DEFAULT_VELOCITY,
-          duration: n.duration,
-          staff: n.staff,
-          channel: n.channel,
+          ...n,
         };
         const noteOnTime =
           (n.startTimeMs - this.currentTimeMs) / this.getTempoPercentage();

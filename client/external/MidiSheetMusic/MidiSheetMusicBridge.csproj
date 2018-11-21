@@ -83,10 +83,12 @@
     <Compile Include="Classes\MusicSymbol.cs" />
     <Compile Include="Classes\Piano.cs" />
     <Compile Include="Classes\RestSymbol.cs" />
+    <Compile Include="Classes\RiffParser.cs" />
     <Compile Include="Classes\SheetMusic.cs" />
     <Compile Include="Classes\Staff.cs" />
     <Compile Include="Classes\Stem.cs" />
     <Compile Include="Classes\SymbolWidths.cs" />
+    <Compile Include="Classes\Text\ASCII.cs" />
     <Compile Include="Classes\Text\Encoding.cs" />
     <Compile Include="Classes\TimeSignature.cs" />
     <Compile Include="Classes\TimeSigSymbol.cs" />
