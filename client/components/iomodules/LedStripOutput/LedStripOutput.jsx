@@ -72,7 +72,7 @@ export default class LedStripOutput extends React.Component {
     return (
       <div>
         <label>
-          <span className="label">MIDI output device</span>
+          <span className="label">LED strip MIDI output device</span>
           <MidiDeviceSelection
             input={false}
             changePort={this.handleChangePort}

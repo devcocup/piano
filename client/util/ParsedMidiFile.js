@@ -6,6 +6,7 @@ import bridgeListToIterable from './bridgeListToIterable';
 export default class ParsedMidiFile {
   constructor(file, fileName) {
     this.notes = [];
+    this.displayTracks = [];
 
     this.parseFile = this.parseFile.bind(this);
     this.populateNotes = this.populateNotes.bind(this);
@@ -16,8 +17,32 @@ export default class ParsedMidiFile {
     this.getMidiFile = this.getMidiFile.bind(this);
     this.getMidiOptions = this.getMidiOptions.bind(this);
     this.getStaves = this.getStaves.bind(this);
+    this.getDisplayTracks = this.getDisplayTracks.bind(this);
+    this.populateNoteStaffs = this.populateNoteStaffs.bind(this);
 
     this.parseFile(file, fileName);
+  }
+
+  generateDisplayNotesMap(displayTracks) {
+    const displayNotesMap = new Map();
+    Array.from(bridgeListToIterable(displayTracks)).forEach((track, trackIndex) => {
+      Array.from(bridgeListToIterable(track.Notes)).forEach(note => {
+        displayNotesMap.set(note.id, trackIndex);
+      });
+    });
+    return displayNotesMap;
+  }
+
+  generateNewDisplayTracks() {
+    this.displayTracks = this.midiFile.ChangeMidiNotes(this.midiOptions);
+    this.populateNoteStaffs(this.generateDisplayNotesMap(this.displayTracks));
+  }
+
+  populateNoteStaffs(displayNotesMap) {
+    this.notes.forEach(note => {
+      const displayNoteStaff = displayNotesMap.get(note.id);
+      note.staff = displayNoteStaff === undefined ? -1 : displayNoteStaff;
+    });
   }
 
   parseFile(file, fileName) {
@@ -26,6 +51,7 @@ export default class ParsedMidiFile {
     this.midiOptions = new MidiSheetMusic.MidiOptions.$ctor1(this.midiFile);
     this.midiOptions.twoStaffs = true;
     this.populateNotes(this.midiFile, this.midiOptions, this.midiFile.Tracks);
+    this.generateNewDisplayTracks();
   }
 
   populateNotes(midiFile, midiOptions, tracks) {
@@ -47,10 +73,11 @@ export default class ParsedMidiFile {
               minNote = note.notenumber;
             }
             return {
+              id: note.id,
               startTimeMs: note.starttime / this.pulsesPerMsec,
               durationMs: note.duration / this.pulsesPerMsec,
               noteNumber: note.notenumber,
-              staff: 0,
+              staff: -1,
               channel: note.channel,
               track: trackIndex,
               velocity: note.velocity,
@@ -96,5 +123,9 @@ export default class ParsedMidiFile {
     const tracks = [];
     this.midiFile.Tracks.forEach(t => tracks.push(t));
     return tracks.map(t => ({ instrumentName: t.InstrumentName }));
+  }
+
+  getDisplayTracks() {
+    return this.displayTracks;
   }
 }

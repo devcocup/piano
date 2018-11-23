@@ -90,6 +90,11 @@ namespace MidiSheetMusic
             init(file, options);
         }
 
+        public SheetMusic(MidiFile file, MidiOptions options, List<MidiTrack> tracks)
+        {
+            init(file, options, tracks);
+        }
+
         /** Create a new SheetMusic control, using the given raw midi byte[] data.
          *  The options can be null.
          */
@@ -99,30 +104,14 @@ namespace MidiSheetMusic
             init(file, options);
         }
 
-
-        /** Create a new SheetMusic control.
-         * MidiFile is the parsed midi file to display.
-         * SheetMusic Options are the menu options that were selected.
-         *
-         * - Apply all the Menu Options to the MidiFile tracks.
-         * - Calculate the key signature
-         * - For each track, create a list of MusicSymbols (notes, rests, bars, etc)
-         * - Vertically align the music symbols in all the tracks
-         * - Partition the music notes into horizontal staffs
-         */
-        public void init(MidiFile file, MidiOptions options)
+        public void init(MidiFile file, MidiOptions options, List<MidiTrack> tracks)
         {
-            if (options == null)
-            {
-                options = new MidiOptions(file);
-            }
             zoom = 1.0f;
             filename = file.FileName;
 
             SetColors(options.colors, options.shadeColor, options.shade2Color);
             pen = new Pen(Color.Black, 1);
 
-            List<MidiTrack> tracks = file.ChangeMidiNotes(options);
             SetNoteSize(options.largeNoteSize);
             scrollVert = options.scrollVert;
             showNoteLetters = options.showNoteLetters;
@@ -187,6 +176,27 @@ namespace MidiSheetMusic
             BackColor = Color.White;
 
             SetZoom(1.0f);
+        }
+
+        /** Create a new SheetMusic control.
+         * MidiFile is the parsed midi file to display.
+         * SheetMusic Options are the menu options that were selected.
+         *
+         * - Apply all the Menu Options to the MidiFile tracks.
+         * - Calculate the key signature
+         * - For each track, create a list of MusicSymbols (notes, rests, bars, etc)
+         * - Vertically align the music symbols in all the tracks
+         * - Partition the music notes into horizontal staffs
+         */
+        public void init(MidiFile file, MidiOptions options)
+        {
+            if (options == null)
+            {
+                options = new MidiOptions(file);
+            }
+            List<MidiTrack> tracks = file.ChangeMidiNotes(options);
+            init(file, options, tracks);
+
         }
 
 

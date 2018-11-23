@@ -19,8 +19,8 @@ class SongSettings extends React.Component {
 
   updateTrackAllPlayAndDisplay() {
     const updatedValue =
-      !this.getTracksToUpdate('Play').some(t => t.track.play) &&
-      !this.getTracksToUpdate('Display').some(t => t.track.display);
+      this.getTracksToUpdate('Play').some(t => t.track.play) ||
+      this.getTracksToUpdate('Display').some(t => t.track.display);
 
     this.updateTrackAll('Play', updatedValue)();
     this.updateTrackAll('Display', updatedValue)();
@@ -76,17 +76,17 @@ class SongSettings extends React.Component {
           <tr>
             <th>&nbsp;</th>
             <th>
-              <button type="button" onClick={this.updateTrackAll('Display')}>
+              <button type="button" onClick={this.updateTrackAll('Display')} title="Display/Hide all tracks">
                 <FontAwesomeIcon icon="eye" />
               </button>
             </th>
             <th>
-              <button type="button" onClick={this.updateTrackAll('Play')}>
+              <button type="button" onClick={this.updateTrackAll('Play')} title="Play/Mute all tracks">
                 <FontAwesomeIcon icon="volume-up" />
               </button>
             </th>
             <th className="display-play">
-              <button type="button" onClick={this.updateTrackAllPlayAndDisplay}>
+              <button type="button" onClick={this.updateTrackAllPlayAndDisplay} title="Toggle all tracks">
                 <FontAwesomeIcon icon="eye" className="top-left-icon" />
                 <span className="slash">/</span>
                 <FontAwesomeIcon
@@ -119,7 +119,7 @@ class SongSettings extends React.Component {
                 <td className="td-checkbox">
                   <input
                     type="checkbox"
-                    checked={track.play || track.display}
+                    checked={track.play && track.display}
                     onChange={this.updateTrackPlayAndDisplay([index])}
                   />
                 </td>

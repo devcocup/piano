@@ -30,10 +30,11 @@ class SoundFontOutput extends React.Component {
 
   formatInstrumentName(name) {
     return name
-      .replace(/([A-Z]+)/g, ' $1').replace(/^ /, '')
+      .replace(/([A-Z]+)/g, ' $1') //camelCase to spaces
+      .replace(/^ /, '') //remove leading space
       .toLowerCase()
-      .replace(/ /g, '_')
-      .replace(/\W/g, '');
+      .replace(/ +/g, '_') //replace all spaces with _
+      .replace(/\W/g, ''); //remove all non word chars
   }
 
   initInstruments() {

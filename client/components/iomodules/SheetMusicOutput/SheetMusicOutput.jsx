@@ -134,9 +134,10 @@ class SheetMusicOutput extends React.Component {
         return;
       }
 
-      this.sheetMusic = new MidiSheetMusic.SheetMusic(
+      this.sheetMusic = new MidiSheetMusic.SheetMusic.$ctor1(
         this.props.parsedMidiFile.getMidiFile(),
         this.props.parsedMidiFile.getMidiOptions(),
+        this.props.parsedMidiFile.getDisplayTracks(),
       );
       this.sheetMusic.SetZoom(1.4);
       this.initSheetMusicCanvas();

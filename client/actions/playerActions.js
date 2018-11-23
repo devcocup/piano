@@ -41,11 +41,15 @@ const applyExistingTrackSettingsIfValid = (
 
 const applyTrackSettings = state => {
   const parsedMidiFile = state.parsedMidiFile;
-  parsedMidiFile &&
-    songSettingsUtil.applyTrackSettings(
-      parsedMidiFile.getMidiOptions(),
-      state.player.trackSettings,
-    );
+  if (!parsedMidiFile) {
+    return;
+  }
+
+  songSettingsUtil.applyTrackSettings(
+    parsedMidiFile.getMidiOptions(),
+    state.player.trackSettings,
+  );
+  parsedMidiFile.generateNewDisplayTracks();
 }
 
 export const play = () => ({

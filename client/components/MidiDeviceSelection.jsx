@@ -17,25 +17,30 @@ export default class MidiDeviceSelection extends React.Component {
 
   init() {
     midiIo.registerDevicesChanged(midi => {
+      const availableMidiPorts = [
+        ...(this.props.input ? midi.inputs : midi.outputs),
+      ];
       this.setState({
-        availableMidiPorts: [
-          ...(this.props.input ? midi.inputs : midi.outputs),
-        ],
+        availableMidiPorts,
       });
+
+      if (!availableMidiPorts.find(port => port.id === this.props.selectedPortId)) {
+        this.changePort('');
+      }
     });
   }
 
-  changePort(evt) {
+  changePort(id) {
     const activePort = this.state.availableMidiPorts.find(
-      p => p.id === evt.target.value,
+      p => p.id === id,
     );
-    this.props.changePort(evt.target.value, activePort);
+    this.props.changePort(id, activePort);
   }
 
   render() {
     return (
       <select
-        onChange={this.changePort}
+        onChange={evt => this.changePort(evt.target.value)}
         value={this.props.selectedPortId}
       >
         <option key="" value="">
