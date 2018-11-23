@@ -27,7 +27,7 @@ export default class ParsedMidiFile {
     const displayNotesMap = new Map();
     Array.from(bridgeListToIterable(displayTracks)).forEach((track, trackIndex) => {
       Array.from(bridgeListToIterable(track.Notes)).forEach(note => {
-        displayNotesMap.set(note.id, trackIndex);
+        displayNotesMap.set(note.id, trackIndex + 1);
       });
     });
     return displayNotesMap;
@@ -41,7 +41,7 @@ export default class ParsedMidiFile {
   populateNoteStaffs(displayNotesMap) {
     this.notes.forEach(note => {
       const displayNoteStaff = displayNotesMap.get(note.id);
-      note.staff = displayNoteStaff === undefined ? -1 : displayNoteStaff;
+      note.staff = displayNoteStaff === undefined ? 0 : displayNoteStaff;
     });
   }
 
@@ -77,7 +77,7 @@ export default class ParsedMidiFile {
               startTimeMs: note.starttime / this.pulsesPerMsec,
               durationMs: note.duration / this.pulsesPerMsec,
               noteNumber: note.notenumber,
-              staff: -1,
+              staff: 0,
               channel: note.channel,
               track: trackIndex,
               velocity: note.velocity,

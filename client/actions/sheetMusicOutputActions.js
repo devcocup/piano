@@ -1,4 +1,4 @@
-import storage from '../util/storage';
+  import storage from '../util/storage';
 
 import {
   SHEET_MUSIC_SELECTION_CHANGED,

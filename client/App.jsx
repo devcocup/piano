@@ -135,7 +135,6 @@ App.propTypes = {
   parsedMidiFile: PropTypes.object,
   setTempo: PropTypes.func,
   loadGlobalData: PropTypes.func,
-  loadFileData: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
@@ -148,7 +147,6 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   setTempo: tempo => dispatch(setTempo(tempo)),
   loadGlobalData: () => dispatch(loadGlobalData()),
-  loadFileData: () => dispatch(loadFileData()),
 });
 
 export default connect(

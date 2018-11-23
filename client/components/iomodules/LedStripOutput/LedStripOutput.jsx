@@ -6,6 +6,8 @@ export default class LedStripOutput extends React.Component {
   constructor(props) {
     super(props);
 
+    this.LED_STRIP_CHANNEL = 0; //LED strip only listens to one channel
+
     this.handleChangePort = this.handleChangePort.bind(this);
     this.noteOn = this.noteOn.bind(this);
     this.noteOff = this.noteOff.bind(this);
@@ -30,7 +32,7 @@ export default class LedStripOutput extends React.Component {
   noteOn(note) {
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([
-        midiConstants.NOTE_ON + note.channel,
+        midiConstants.NOTE_ON + this.LED_STRIP_CHANNEL,
         note.noteNumber,
         note.velocity,
       ]);
@@ -42,7 +44,7 @@ export default class LedStripOutput extends React.Component {
     this.activeMidiNotes[note.noteNumber].delete(note.staff);
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([
-        midiConstants.NOTE_OFF + note.channel,
+        midiConstants.NOTE_OFF + this.LED_STRIP_CHANNEL,
         note.noteNumber,
         note.velocity,
       ]);

@@ -19,8 +19,8 @@ class SongSettings extends React.Component {
 
   updateTrackAllPlayAndDisplay() {
     const updatedValue =
-      this.getTracksToUpdate('Play').some(t => t.track.play) ||
-      this.getTracksToUpdate('Display').some(t => t.track.display);
+      !(this.getTracksToUpdate('Play').some(t => t.track.play) ||
+      this.getTracksToUpdate('Display').some(t => t.track.display));
 
     this.updateTrackAll('Play', updatedValue)();
     this.updateTrackAll('Display', updatedValue)();

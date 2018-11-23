@@ -24,7 +24,11 @@ export default class MidiDeviceSelection extends React.Component {
         availableMidiPorts,
       });
 
-      if (!availableMidiPorts.find(port => port.id === this.props.selectedPortId)) {
+      const selectedMidiPort = availableMidiPorts
+        .find(port => port.id === this.props.selectedPortId); 
+      if (selectedMidiPort) {
+        this.changePort(this.props.selectedPortId);
+      } else {
         this.changePort('');
       }
     });
