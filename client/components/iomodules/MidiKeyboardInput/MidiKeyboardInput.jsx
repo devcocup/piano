@@ -3,7 +3,10 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import midiConstants from '../../../util/midiConstants';
 import MidiDeviceSelection from '../../MidiDeviceSelection';
-import {setWaitForInput, setInputStaffs} from '../../../actions/midiKeyboardInputActions';
+import {
+  setWaitForInput,
+  setInputStaffs,
+} from '../../../actions/midiKeyboardInputActions';
 
 class MidiKeyboardInput extends React.Component {
   constructor(props) {
@@ -132,7 +135,7 @@ class MidiKeyboardInput extends React.Component {
   }
 
   handleChangeStaff(evt) {
-    this.props.setInputStaffs(parseInt(evt.target.value, 10))
+    this.props.setInputStaffs(parseInt(evt.target.value, 10));
   }
 
   render() {

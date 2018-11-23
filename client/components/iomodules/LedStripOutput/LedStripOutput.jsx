@@ -1,8 +1,10 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import midiConstants from '../../../util/midiConstants';
 import MidiDeviceSelection from '../../MidiDeviceSelection';
 
-export default class LedStripOutput extends React.Component {
+class LedStripOutput extends React.Component {
   constructor(props) {
     super(props);
 
@@ -12,6 +14,7 @@ export default class LedStripOutput extends React.Component {
     this.noteOn = this.noteOn.bind(this);
     this.noteOff = this.noteOff.bind(this);
     this.sendMidiMessage = this.sendMidiMessage.bind(this);
+    this.shouldDisplayNote = this.shouldDisplayNote.bind(this);
 
     this.state = {
       selectedPortId: '',
@@ -29,7 +32,17 @@ export default class LedStripOutput extends React.Component {
       this.activeMidiOutput.send(msg);
   }
 
+  shouldDisplayNote(note) {
+    return this.props.trackSettings && 
+      this.props.trackSettings[note.track].display &&
+      (this.props.inputStaffs & note.staff) > 0;
+  }
+
   noteOn(note) {
+    if (!this.shouldDisplayNote(note)) {
+      return;
+    }
+
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([
         midiConstants.NOTE_ON + this.LED_STRIP_CHANNEL,
@@ -41,6 +54,10 @@ export default class LedStripOutput extends React.Component {
   }
 
   noteOff(note) {
+    if (!this.shouldDisplayNote(note)) {
+      return;
+    }
+    
     this.activeMidiNotes[note.noteNumber].delete(note.staff);
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([
@@ -85,3 +102,16 @@ export default class LedStripOutput extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  trackSettings: state.player.trackSettings,
+  inputStaffs: state.midiKeyboardInput.inputStaffs,
+});
+
+export default connect(
+  mapStateToProps,
+  null,
+  null,
+  { withRef: true },
+  LedStripOutput,
+);
