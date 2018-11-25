@@ -437,7 +437,8 @@ namespace MidiSheetMusic
 
         }
 
-        /** If a selection has been specified, shade all areas that aren't in the selection
+        /** 
+         * If a selection has been specified, shade all areas that aren't in the selection
         */
         private void ShadeSelectionBackground(Graphics g, Rectangle clip, int selectionStartPulse, int selectionEndPulse, Brush deselectedBrush)
         {

@@ -7,6 +7,12 @@ body {
 .piano-content {
   margin: 2px auto 7px auto;
   width: 1160px;
+
+  button {
+    cursor: pointer;
+    background: transparent;
+    border: none;
+  }
 }
 
 .hidden {

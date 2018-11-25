@@ -1,4 +1,6 @@
 .sheet-music-output {
+  $border-color: #e1e4e8;
+
   position: relative;
   .sheet-music-controls {
     text-align: right;
@@ -20,10 +22,22 @@
     position: absolute;
     overflow-y: auto;
     z-index: 1;
-    border: 1px solid #e1e4e8;
+    border: 1px solid $border-color;
 
     .selection-controls {
       position: absolute;
+      border: 1px solid $border-color;
+      background-color: #fff;
+      border-radius: 3px;
+      padding: 3px 4px;
+      &.select-start-end {
+        margin-left: -70px;
+      }
+
+      button {
+        margin: 5px 2px;
+        font-size: 20px;
+      }
     }
   }
 }

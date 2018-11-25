@@ -19,6 +19,9 @@ class SheetMusicOutput extends React.Component {
   constructor(props) {
     super(props);
 
+    this.SELECT_CONTROL_OFFSET_LEFT = 20;
+    this.SELECT_CONTROL_OFFSET_TOP = 10;
+
     this.initSheetMusic = this.initSheetMusic.bind(this);
     this.initSheetMusicCanvas = this.initSheetMusicCanvas.bind(this);
     this.paintSheetMusic = this.paintSheetMusic.bind(this);
@@ -49,7 +52,7 @@ class SheetMusicOutput extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (this.props.parsedMidiFile !== prevProps.parsedMidiFile) {
-      this.loadMidiFile();
+      this.loadMidiFile().then(() => this.updateSelectionFromProps());
     }
 
     if (
@@ -101,9 +104,19 @@ class SheetMusicOutput extends React.Component {
 
     const lastClickMs = this.currentPulseTime / this.pulsesPerMs;
     this.props.callbacks.setCurrentMs(lastClickMs);
-    this.shadeNotes(this.currentPulseTime, this.prevPulseTime);
+    const shadeRect = this.shadeNotes(
+      this.currentPulseTime,
+      this.prevPulseTime,
+    );
+
+    if (!shadeRect) {
+      return;
+    }
     this.setState({
-      selectionControlPosition: { left: evt.offsetX + 10, top: evt.offsetY + 10 },
+      selectionControlPosition: {
+        left: shadeRect.X + this.SELECT_CONTROL_OFFSET_LEFT,
+        top: shadeRect.Y + shadeRect.Height + this.SELECT_CONTROL_OFFSET_TOP,
+      },
       lastClickMs,
       lastClickPulse: this.currentPulseTime,
     });
@@ -130,7 +143,7 @@ class SheetMusicOutput extends React.Component {
   }
 
   initSheetMusic() {
-    this.init().then(() => {
+    return this.init().then(() => {
       if (!this.props.parsedMidiFile) {
         return;
       }
@@ -149,7 +162,7 @@ class SheetMusicOutput extends React.Component {
     this.pulsesPerMs = this.props.parsedMidiFile.getPulsesPerMsec();
     this.totalPulses = this.props.parsedMidiFile.getTotalPulses();
     this.measure = this.props.parsedMidiFile.getMeasure();
-    this.initSheetMusic();
+    return this.initSheetMusic();
   }
 
   clearShadeNotes() {
@@ -214,13 +227,14 @@ class SheetMusicOutput extends React.Component {
     const offset = this.getScrollOffset();
     const ctx = this.canvasShadeNotes.getContext('2d');
     ctx.translate(0, -offset);
-    const scrollPos = this.sheetMusic.ShadeNotes(
+    const shadeRect = this.sheetMusic.ShadeNotes(
       currentPulseTime,
       prevPulseTime,
       true,
     );
-    this.scrollTo(scrollPos);
+    this.scrollTo(shadeRect.Y);
     ctx.translate(0, offset);
+    return shadeRect;
   }
 
   scrollTo(scrollPos) {
@@ -270,6 +284,10 @@ class SheetMusicOutput extends React.Component {
       }
 
       this.props.setSelection(currentSelection);
+
+      this.setState({
+        selectionControlPosition: null,
+      });
     };
   }
 
@@ -279,6 +297,22 @@ class SheetMusicOutput extends React.Component {
     this.sheetMusic.SelectionStartPulse = this.props.selectionStartPulse;
     this.sheetMusic.SelectionEndPulse = this.props.selectionEndPulse;
     this.props.callbacks.setCurrentMs(this.props.selectionStartMs);
+
+    const endSelectionRect = this.sheetMusic.ShadeNotes(
+      this.sheetMusic.SelectionEndPulse,
+      0,
+      true,
+    );
+
+    this.setState({
+      removeSelectionPosition: {
+        left: endSelectionRect.X + this.SELECT_CONTROL_OFFSET_LEFT,
+        top:
+          endSelectionRect.Y +
+          endSelectionRect.Height +
+          this.SELECT_CONTROL_OFFSET_TOP,
+      },
+    });
 
     this.paintSheetMusic();
   }
@@ -292,13 +326,6 @@ class SheetMusicOutput extends React.Component {
     return (
       <div className="sheet-music-output">
         <div className="sheet-music-controls">
-          {!!(
-            this.props.selectionStartPulse || this.props.selectionEndPulse
-          ) && (
-            <button type="button" onClick={this.setSelection(null)}>
-              Clear selection
-            </button>
-          )}
           <label>
             <input
               type="checkbox"
@@ -330,23 +357,41 @@ class SheetMusicOutput extends React.Component {
 
             {this.state.selectionControlPosition && (
               <span
-                className="selection-controls"
+                className="selection-controls select-start-end"
                 style={this.state.selectionControlPosition}
               >
                 <button
                   type="button"
                   onClick={this.setSelection('selectionStart')}
+                  title="Start selection"
                 >
                   <FontAwesomeIcon icon="quote-left" />
                 </button>
                 <button
                   type="button"
                   onClick={this.setSelection('selectionEnd')}
+                  title="End selection"
                 >
                   <FontAwesomeIcon icon="quote-right" />
                 </button>
               </span>
             )}
+            {this.props.selectionStartPulse &&
+              this.props.selectionEndPulse &&
+              this.state.removeSelectionPosition && (
+                <span
+                  className="selection-controls"
+                  style={this.state.removeSelectionPosition}
+                >
+                  <button
+                    type="button"
+                    onClick={this.setSelection(null)}
+                    title="Clear selection"
+                  >
+                    <FontAwesomeIcon icon="times" />
+                  </button>
+                </span>
+              )}
           </div>
           <canvas
             style={{ zIndex: 1, pointerEvents: 'none' }}

@@ -11,7 +11,7 @@
  */
 
 using System;
-using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
@@ -1106,7 +1106,7 @@ namespace MidiSheetMusic
          *  If scrollGradually is true, scroll gradually (smooth scrolling)
          *  to the shaded notes. Returns the minimum y-coordinate of the shaded chord (for scrolling purposes)
          */
-        public int ShadeNotes(int currentPulseTime, int prevPulseTime, bool scrollGradually)
+        public Rectangle ShadeNotes(int currentPulseTime, int prevPulseTime, bool scrollGradually)
         {
             Graphics g = CreateGraphics("shadeNotes");
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -1115,21 +1115,22 @@ namespace MidiSheetMusic
 
             int x_shade = 0;
             int y_shade = 0;
+            int height = 0;
 
-            int shadedYPos = -1;
             foreach (Staff staff in staffs)
             {
                 g.TranslateTransform(0, ypos);
-                if (staff.ShadeNotes(g, shadeBrush, pen,
-                                 currentPulseTime, prevPulseTime, ref x_shade))
-                {
-                    shadedYPos = shadedYPos == -1 ? ypos : shadedYPos;
-                }
+                staff.ShadeNotes(g, shadeBrush, pen,
+                                 currentPulseTime, prevPulseTime, ref x_shade);
                 g.TranslateTransform(0, -ypos);
                 ypos += staff.Height;
                 if (currentPulseTime >= staff.EndTime)
                 {
                     y_shade += staff.Height;
+                }
+                if (currentPulseTime >= staff.StartTime && currentPulseTime <= staff.EndTime)
+                {
+                    height += staff.Height;
                 }
             }
             g.ScaleTransform(1.0f / zoom, 1.0f / zoom);
@@ -1141,7 +1142,7 @@ namespace MidiSheetMusic
             {
                 ScrollToShadedNotes(x_shade, y_shade, scrollGradually);
             }
-            return shadedYPos == -1 ? -1 : (int)(shadedYPos * zoom);
+            return new Rectangle(x_shade, y_shade, 0, (int)(height * zoom));
         }
 
         /** Scroll the sheet music so that the shaded notes are visible.
