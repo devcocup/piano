@@ -26,17 +26,26 @@
 
     .selection-controls {
       position: absolute;
-      border: 1px solid $border-color;
-      background-color: #fff;
-      border-radius: 3px;
-      padding: 3px 4px;
+      transform: translateX(-50%);
+      opacity: .4;
+      &:hover {
+        opacity: 1;
+      }
+
       &.select-start-end {
-        margin-left: -70px;
+        //margin-left: -70px;
       }
 
       button {
-        margin: 5px 2px;
+        margin: 5px 0;
         font-size: 20px;
+      }
+
+      .material-icons {
+        background-color: #696969; 
+        color: #fff;
+        border-radius: 50px;
+        font-size: 36px;
       }
     }
   }

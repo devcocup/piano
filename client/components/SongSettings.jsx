@@ -100,7 +100,7 @@ class SongSettings extends React.Component {
                 title="Toggle all tracks"
               >
                 <i className="material-icons top-left-icon">remove_red_eye</i>
-                <i className="material-icons slash">remove</i>
+                <span className="slash">|</span>
                 <i className="material-icons bottom-right-icon">volume_up</i>
               </button>
             </th>

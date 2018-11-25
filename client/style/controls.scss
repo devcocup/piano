@@ -83,6 +83,8 @@
         width: 25px;
         .slash {
           font-size: 21px;
+          transform: rotate(62deg);
+          display: inline-block;
         }
         > button {
           width: 25px;
@@ -95,7 +97,8 @@
             right: 0;
             bottom: 0;
           }
-          .top-left-icon,.bottom-right-icon {
+          .top-left-icon,
+          .bottom-right-icon {
             font-size: 18px;
             position: absolute;
           }

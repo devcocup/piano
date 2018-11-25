@@ -18,8 +18,8 @@ class SheetMusicOutput extends React.Component {
   constructor(props) {
     super(props);
 
-    this.SELECT_CONTROL_OFFSET_LEFT = 20;
-    this.SELECT_CONTROL_OFFSET_TOP = 10;
+    this.SELECT_CONTROL_OFFSET_LEFT = 10;
+    this.SELECT_CONTROL_OFFSET_TOP = 5;
 
     this.initSheetMusic = this.initSheetMusic.bind(this);
     this.initSheetMusicCanvas = this.initSheetMusicCanvas.bind(this);
@@ -308,7 +308,6 @@ class SheetMusicOutput extends React.Component {
         left: endSelectionRect.X + this.SELECT_CONTROL_OFFSET_LEFT,
         top:
           endSelectionRect.Y +
-          endSelectionRect.Height +
           this.SELECT_CONTROL_OFFSET_TOP,
       },
     });
