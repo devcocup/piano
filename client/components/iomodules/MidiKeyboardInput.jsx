@@ -1,13 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import midiConstants from '../../../util/midiConstants';
-import MidiDeviceSelection from '../../MidiDeviceSelection';
+import midiConstants from '../../util/midiConstants';
+import MidiDeviceSelection from '../MidiDeviceSelection';
 import {
   setWaitForInput,
   setInputStaffs,
-} from '../../../actions/midiKeyboardInputActions';
-import { play, pause } from '../../../actions/playerActions';
+} from '../../actions/midiKeyboardInputActions';
+import { play, pause } from '../../actions/playerActions';
 
 class MidiKeyboardInput extends React.Component {
   constructor(props) {
@@ -21,7 +21,7 @@ class MidiKeyboardInput extends React.Component {
       { staff: 1, name: 'Right hand' },
     ];
 
-    this.state = {
+    this.input = {
       notesPressed: [],
       keyBuffer: [],
       notesRequired: [],
@@ -44,8 +44,8 @@ class MidiKeyboardInput extends React.Component {
   }
 
   noteFoundInKeyBuffer(noteNumber) {
-    for (let i = 0; i < this.state.keyBuffer.length; i++) {
-      let key = this.state.keyBuffer[this.state.keyBuffer.length - i - 1];
+    for (let i = 0; i < this.input.keyBuffer.length; i++) {
+      let key = this.input.keyBuffer[this.input.keyBuffer.length - i - 1];
       if (
         key.alreadyMatched ||
         this.globalTimestamp - key.globalTimestamp > this.LIMIT_MS 
@@ -60,15 +60,13 @@ class MidiKeyboardInput extends React.Component {
   }
 
   clearNotesRequired() {
-    this.setState({
-      notesRequired: [],
-    });
+    this.input.notesRequired = [];
     clearTimeout(this.waitingTimeout);
     this.waitingTimeout = null;
   }
 
   checkInput() {
-    const notesFoundInKeyBuffer = this.state.notesRequired.map(
+    const notesFoundInKeyBuffer = this.input.notesRequired.map(
       noteRequired => this.noteFoundInKeyBuffer(noteRequired.noteNumber)
     );
 
@@ -80,7 +78,7 @@ class MidiKeyboardInput extends React.Component {
   }
 
   getTrackOfNoteToPlay() {
-    const latestNoteRequired = this.state.notesRequired[this.state.notesRequired.length-1];
+    const latestNoteRequired = this.input.notesRequired[this.input.notesRequired.length-1];
     if (latestNoteRequired) {
       return latestNoteRequired.track;
     }
@@ -97,7 +95,7 @@ class MidiKeyboardInput extends React.Component {
           channel: 0,
         });
       }
-      updatedNotes = this.state.notesPressed.filter(n => n !== noteNumber);
+      updatedNotes = this.input.notesPressed.filter(n => n !== noteNumber);
     } else if (message === midiConstants.NOTE_ON) {
       this.props.callbacks.noteOnUserInput({
         noteNumber,
@@ -107,25 +105,18 @@ class MidiKeyboardInput extends React.Component {
       });
       this.notesPlaying.add(noteNumber);
 
-      if (!this.state.notesPressed.includes(noteNumber)) {
-        updatedNotes = [...this.state.notesPressed, noteNumber];
+      if (!this.input.notesPressed.includes(noteNumber)) {
+        updatedNotes = [...this.input.notesPressed, noteNumber];
       }
-      const keyBuffer = this.state.keyBuffer;
-      this.setState({
-        keyBuffer: [
-          ...keyBuffer,
-          {
-            key: noteNumber,
-            globalTimestamp: this.globalTimestamp,
-            playerTimeMillis: this.playerTimeMillis,
-          },
-        ],
+
+      this.input.keyBuffer.push({
+        key: noteNumber,
+        globalTimestamp: this.globalTimestamp,
+        playerTimeMillis: this.playerTimeMillis,
       });
     }
     if (updatedNotes) {
-      this.setState({
-        notesPressed: updatedNotes,
-      });
+      this.input.notesPressed = updatedNotes;
     }
 
     if (this.props.waitForInput) {
@@ -139,7 +130,7 @@ class MidiKeyboardInput extends React.Component {
 
     if (
       this.props.waitForInput &&
-      this.state.notesRequired.length &&
+      this.input.notesRequired.length &&
       !this.waitingTimeout &&
       this.props.isPlaying
     ) {
@@ -156,9 +147,7 @@ class MidiKeyboardInput extends React.Component {
 
   onNoteOn(note) {
     if (this.props.waitForInput && (this.props.inputStaffs & note.staff) > 0) {
-      this.setState({
-        notesRequired: [...this.state.notesRequired, { noteNumber: note.noteNumber, track: note.track }],
-      });
+      this.input.notesRequired.push({ noteNumber: note.noteNumber, track: note.track });
     }
   }
 
@@ -213,11 +202,6 @@ class MidiKeyboardInput extends React.Component {
             </label>
           ))}
         </span>
-        <br />
-        pressed: {this.state.notesPressed.join(',')},
-        <br />
-        required: {this.state.notesRequired.map(n=>n.noteNumber).join(',')},
-        <br />
       </div>
     );
   }

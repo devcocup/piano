@@ -1,20 +1,15 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import midiConstants from '../../../util/midiConstants';
-import MidiDeviceSelection from '../../MidiDeviceSelection';
+import midiConstants from '../../util/midiConstants';
+import MidiDeviceSelection from '../MidiDeviceSelection';
 
-class LedStripOutput extends React.Component {
+export default class MidiOutput extends React.Component {
   constructor(props) {
     super(props);
-
-    this.LED_STRIP_CHANNEL = 0; //LED strip only listens to one channel
 
     this.handleChangePort = this.handleChangePort.bind(this);
     this.onNoteOn = this.onNoteOn.bind(this);
     this.onNoteOff = this.onNoteOff.bind(this);
     this.sendMidiMessage = this.sendMidiMessage.bind(this);
-    this.shouldDisplayNote = this.shouldDisplayNote.bind(this);
 
     this.state = {
       selectedPortId: '',
@@ -32,20 +27,10 @@ class LedStripOutput extends React.Component {
       this.activeMidiOutput.send(msg);
   }
 
-  shouldDisplayNote(note) {
-    return this.props.trackSettings && 
-      this.props.trackSettings[note.track].display &&
-      (this.props.inputStaffs & note.staff) > 0;
-  }
-
   onNoteOn(note) {
-    if (!this.shouldDisplayNote(note)) {
-      return;
-    }
-
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([
-        midiConstants.NOTE_ON + this.LED_STRIP_CHANNEL,
+        midiConstants.NOTE_ON + note.channel,
         note.noteNumber,
         note.velocity,
       ]);
@@ -54,14 +39,10 @@ class LedStripOutput extends React.Component {
   }
 
   onNoteOff(note) {
-    if (!this.shouldDisplayNote(note)) {
-      return;
-    }
-
     this.activeMidiNotes[note.noteNumber].delete(note.staff);
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([
-        midiConstants.NOTE_OFF + this.LED_STRIP_CHANNEL,
+        midiConstants.NOTE_OFF + note.channel,
         note.noteNumber,
         note.velocity,
       ]);
@@ -91,7 +72,7 @@ class LedStripOutput extends React.Component {
     return (
       <div>
         <label>
-          <span className="label">LED strip MIDI output device</span>
+          <span className="label">MIDI output device</span>
           <MidiDeviceSelection
             input={false}
             changePort={this.handleChangePort}
@@ -102,15 +83,3 @@ class LedStripOutput extends React.Component {
     );
   }
 }
-
-const mapStateToProps = state => ({
-  trackSettings: state.player.trackSettings,
-  inputStaffs: state.midiKeyboardInput.inputStaffs,
-});
-
-export default connect(
-  mapStateToProps,
-  null,
-  null,
-  { withRef: true }, 
-)(LedStripOutput);

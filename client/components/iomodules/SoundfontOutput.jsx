@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Soundfont from 'soundfont-player';
-import midiKeyNumberToName from '../../../util/midiKeyNumberToName';
+import midiKeyNumberToName from '../../util/midiKeyNumberToName';
 
 class SoundFontOutput extends React.Component {
   constructor(props) {
@@ -16,6 +16,7 @@ class SoundFontOutput extends React.Component {
     this.onNoteOffUserInput = this.onNoteOffUserInput.bind(this);
     this.handleToggleMute = this.handleToggleMute.bind(this);
     this.initInstruments = this.initInstruments.bind(this);
+    this.playNote = this.playNote.bind(this);
 
     this.state = {};
     this.instruments = null;
@@ -61,24 +62,40 @@ class SoundFontOutput extends React.Component {
     return `${noteNumber}_${noteChannel}`;
   }
 
-  onNoteOn(note) {
-    const mute =
+  playNote(note) {
+    if (
       this.state.mute ||
-      (this.props.trackSettings &&
-        !this.props.trackSettings[note.track].play);
-    
-    if (!mute && this.instruments && this.instruments[note.track]) {
-      this.activeNotes[this.noteObjectKey(note.noteNumber, note.channel)] = this.instruments[
-        note.track
-      ].play(midiKeyNumberToName(note.noteNumber), 0, {
+      (this.props.trackSettings && !this.props.trackSettings[note.track].play)
+    ) {
+      return;
+    }
+
+    if (!this.instruments || !this.instruments[note.track]) {
+      return;
+    }
+
+    this.activeNotes[
+      this.noteObjectKey(note.noteNumber, note.channel)
+    ] = this.instruments[note.track].play(
+      midiKeyNumberToName(note.noteNumber),
+      0,
+      {
         duration: note.durationMs / 1000,
         gain: note.velocity / 127,
-      });
+      },
+    );
+  }
+
+  onNoteOn(note) {
+    if (this.props.waitForInput && (this.props.inputStaffs & note.staff) > 0) {
+      return;
     }
+
+    this.playNote(note);
   }
 
   onNoteOnUserInput(note) {
-    this.onNoteOn(note);
+    this.playNote(note);
   }
 
   onNoteOff(note) {
@@ -116,6 +133,8 @@ class SoundFontOutput extends React.Component {
 const mapStateToProps = state => ({
   parsedMidiFile: state.parsedMidiFile,
   trackSettings: state.player.trackSettings,
+  inputStaffs: state.midiKeyboardInput.inputStaffs,
+  waitForInput: state.midiKeyboardInput.waitForInput,
 });
 
 SoundFontOutput.propTypes = {

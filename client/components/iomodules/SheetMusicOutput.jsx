@@ -1,18 +1,18 @@
 import React from 'react';
-import '../../../external/MidiSheetMusic/build/bridge';
-import '../../../external/MidiSheetMusic/build/MidiSheetMusicBridge';
+import '../../external/MidiSheetMusic/build/bridge';
+import '../../external/MidiSheetMusic/build/MidiSheetMusicBridge';
 import debounce from 'lodash/debounce';
-import '../../../bridgeUtil';
+import '../../bridgeUtil';
 import Easing from 'easing';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import lerp from '../../../util/lerp';
+import lerp from '../../util/lerp';
 import {
   setSelection,
   setAutoScroll,
-} from '../../../actions/sheetMusicOutputActions';
+} from '../../actions/sheetMusicOutputActions';
 
-import '../../../style/iomodules/sheet-music-output';
+import '../../style/iomodules/sheet-music-output';
 
 class SheetMusicOutput extends React.Component {
   constructor(props) {
