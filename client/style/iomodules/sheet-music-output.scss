@@ -20,6 +20,10 @@
     position: absolute;
     overflow-y: auto;
     z-index: 1;
-    border: 1px solid #e1e4e8
+    border: 1px solid #e1e4e8;
+
+    .selection-controls {
+      position: absolute;
+    }
   }
 }

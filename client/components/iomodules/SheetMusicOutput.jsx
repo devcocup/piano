@@ -6,6 +6,7 @@ import '../../bridgeUtil';
 import Easing from 'easing';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import lerp from '../../util/lerp';
 import {
   setSelection,
@@ -37,7 +38,7 @@ class SheetMusicOutput extends React.Component {
     this.prevPlayerTimeMillis = 0;
     this.lastScrollPos = -1;
 
-    this.state = { isSelecting: false };
+    this.state = { selectionControlPosition: null };
   }
 
   componentDidMount() {
@@ -78,8 +79,7 @@ class SheetMusicOutput extends React.Component {
     return (
       trackSettings.length !== prevTrackSettings.length ||
       trackSettings.some(
-        (_, i) => 
-        trackSettings[i].display !== prevTrackSettings[i].display
+        (_, i) => trackSettings[i].display !== prevTrackSettings[i].display,
       )
     );
   }
@@ -103,7 +103,7 @@ class SheetMusicOutput extends React.Component {
     this.props.callbacks.setCurrentMs(lastClickMs);
     this.shadeNotes(this.currentPulseTime, this.prevPulseTime);
     this.setState({
-      isSelecting: true,
+      selectionControlPosition: { left: evt.offsetX + 10, top: evt.offsetY + 10 },
       lastClickMs,
       lastClickPulse: this.currentPulseTime,
     });
@@ -299,19 +299,6 @@ class SheetMusicOutput extends React.Component {
               Clear selection
             </button>
           )}
-          {this.state.isSelecting && (
-            <span>
-              <button
-                type="button"
-                onClick={this.setSelection('selectionStart')}
-              >
-                Selection start
-              </button>
-              <button type="button" onClick={this.setSelection('selectionEnd')}>
-                Selection end
-              </button>
-            </span>
-          )}
           <label>
             <input
               type="checkbox"
@@ -340,6 +327,26 @@ class SheetMusicOutput extends React.Component {
                 {...defaultCanvasSize}
               />
             </div>
+
+            {this.state.selectionControlPosition && (
+              <span
+                className="selection-controls"
+                style={this.state.selectionControlPosition}
+              >
+                <button
+                  type="button"
+                  onClick={this.setSelection('selectionStart')}
+                >
+                  <FontAwesomeIcon icon="quote-left" />
+                </button>
+                <button
+                  type="button"
+                  onClick={this.setSelection('selectionEnd')}
+                >
+                  <FontAwesomeIcon icon="quote-right" />
+                </button>
+              </span>
+            )}
           </div>
           <canvas
             style={{ zIndex: 1, pointerEvents: 'none' }}
