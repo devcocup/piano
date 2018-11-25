@@ -32,6 +32,7 @@ class SheetMusicOutput extends React.Component {
     this.handleAutoScrollClick = this.handleAutoScrollClick.bind(this);
     this.scrollTo = this.scrollTo.bind(this);
     this.updateSelectionFromProps = this.updateSelectionFromProps.bind(this);
+    this.onNoteOff = this.onNoteOff.bind(this);
 
     this.prevPlayerTimeMillis = 0;
     this.lastScrollPos = -1;
@@ -244,7 +245,7 @@ class SheetMusicOutput extends React.Component {
     this.prevPulseTime = this.currentPulseTime;
   }
 
-  noteOff() {
+  onNoteOff() {
     if (this.props.selectionStartMs >= 0 && this.props.selectionEndMs >= 0) {
       if (
         this.currentPulseTime / this.pulsesPerMs >

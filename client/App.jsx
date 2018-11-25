@@ -22,6 +22,8 @@ class App extends React.Component {
     this.setPlaying = this.setPlaying.bind(this);
     this.setTempo = this.setTempo.bind(this);
     this.setIoModuleInstance = this.setIoModuleInstance.bind(this);
+    this.handleNoteOnUserInput = this.handleNoteOnUserInput.bind(this);
+    this.handleNoteOffUserInput = this.handleNoteOffUserInput.bind(this);
 
     this.ioModuleInstances = [];
 
@@ -41,6 +43,8 @@ class App extends React.Component {
 
     this.ioModuleCallbacks = {
       setCurrentMs: this.handleSetCurrentMs,
+      noteOnUserInput: this.handleNoteOnUserInput,
+      noteOffUserInput: this.handleNoteOffUserInput
     };
   }
 
@@ -88,11 +92,19 @@ class App extends React.Component {
   }
 
   noteOn(note) {
-    this.callIoModulesChildMethod("noteOn", note);
+    this.callIoModulesChildMethod("onNoteOn", note);
   }
 
   noteOff(note) {
-    this.callIoModulesChildMethod("noteOff", note);
+    this.callIoModulesChildMethod("onNoteOff", note);
+  }
+
+  handleNoteOnUserInput(note) {
+    this.callIoModulesChildMethod("onNoteOnUserInput", note);
+  }
+
+  handleNoteOffUserInput(note) {
+    this.callIoModulesChildMethod("onNoteOffUserInput", note);
   }
 
   fileLoaded(parsedMidiFile) {

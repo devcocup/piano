@@ -11,8 +11,8 @@ class LedStripOutput extends React.Component {
     this.LED_STRIP_CHANNEL = 0; //LED strip only listens to one channel
 
     this.handleChangePort = this.handleChangePort.bind(this);
-    this.noteOn = this.noteOn.bind(this);
-    this.noteOff = this.noteOff.bind(this);
+    this.onNoteOn = this.onNoteOn.bind(this);
+    this.onNoteOff = this.onNoteOff.bind(this);
     this.sendMidiMessage = this.sendMidiMessage.bind(this);
     this.shouldDisplayNote = this.shouldDisplayNote.bind(this);
 
@@ -38,7 +38,7 @@ class LedStripOutput extends React.Component {
       (this.props.inputStaffs & note.staff) > 0;
   }
 
-  noteOn(note) {
+  onNoteOn(note) {
     if (!this.shouldDisplayNote(note)) {
       return;
     }
@@ -53,11 +53,11 @@ class LedStripOutput extends React.Component {
     this.activeMidiNotes[note.noteNumber].add(note.staff);
   }
 
-  noteOff(note) {
+  onNoteOff(note) {
     if (!this.shouldDisplayNote(note)) {
       return;
     }
-    
+
     this.activeMidiNotes[note.noteNumber].delete(note.staff);
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([
@@ -112,6 +112,5 @@ export default connect(
   mapStateToProps,
   null,
   null,
-  { withRef: true },
-  LedStripOutput,
-);
+  { withRef: true }, 
+)(LedStripOutput);

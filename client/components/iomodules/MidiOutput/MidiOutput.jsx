@@ -7,8 +7,8 @@ export default class MidiOutput extends React.Component {
     super(props);
 
     this.handleChangePort = this.handleChangePort.bind(this);
-    this.noteOn = this.noteOn.bind(this);
-    this.noteOff = this.noteOff.bind(this);
+    this.onNoteOn = this.onNoteOn.bind(this);
+    this.onNoteOff = this.onNoteOff.bind(this);
     this.sendMidiMessage = this.sendMidiMessage.bind(this);
 
     this.state = {
@@ -27,7 +27,7 @@ export default class MidiOutput extends React.Component {
       this.activeMidiOutput.send(msg);
   }
 
-  noteOn(note) {
+  onNoteOn(note) {
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([
         midiConstants.NOTE_ON + note.channel,
@@ -38,7 +38,7 @@ export default class MidiOutput extends React.Component {
     this.activeMidiNotes[note.noteNumber].add(note.staff);
   }
 
-  noteOff(note) {
+  onNoteOff(note) {
     this.activeMidiNotes[note.noteNumber].delete(note.staff);
     if (!this.activeMidiNotes[note.noteNumber].size) {
       this.sendMidiMessage([

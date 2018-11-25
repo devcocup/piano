@@ -1,9 +1,6 @@
-import "./external/MidiSheetMusic/build/bridge";
-import "./external/MidiSheetMusic/build/MidiSheetMusicBridge";
-import midiKeyNumberToName from "./util/midiKeyNumberToName";
-import midiConstants from "./util/midiConstants";
-import flatten from "lodash/flatten";
-import ParsedMidiFile from "./util/ParsedMidiFile";
+import './external/MidiSheetMusic/build/bridge';
+import './external/MidiSheetMusic/build/MidiSheetMusicBridge';
+import flatten from 'lodash/flatten';
 
 export default class Player {
   constructor(config) {
@@ -54,7 +51,6 @@ export default class Player {
     this.events = flatten(
       this.notes.map(n => {
         const note = {
-          noteName: midiKeyNumberToName(n.noteNumber),
           ...n,
         };
         const noteOnTime =

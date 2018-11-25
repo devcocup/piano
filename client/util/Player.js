@@ -55,7 +55,6 @@ export default class Player {
     this.events = flatten(this.notes
       .map(n => {
         const note = { 
-          noteName: midiKeyNumberToName(n.noteNumber), 
           velocity: midiConstants.DEFAULT_VELOCITY,
           ...n,
         };

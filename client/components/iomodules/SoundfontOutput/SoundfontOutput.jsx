@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Soundfont from 'soundfont-player';
+import midiKeyNumberToName from '../../../util/midiKeyNumberToName';
 
 class SoundFontOutput extends React.Component {
   constructor(props) {
@@ -9,8 +10,10 @@ class SoundFontOutput extends React.Component {
 
     this.activeNotes = {};
 
-    this.noteOn = this.noteOn.bind(this);
-    this.noteOff = this.noteOff.bind(this);
+    this.onNoteOn = this.onNoteOn.bind(this);
+    this.onNoteOff = this.onNoteOff.bind(this);
+    this.onNoteOnUserInput = this.onNoteOnUserInput.bind(this);
+    this.onNoteOffUserInput = this.onNoteOffUserInput.bind(this);
     this.handleToggleMute = this.handleToggleMute.bind(this);
     this.initInstruments = this.initInstruments.bind(this);
 
@@ -54,27 +57,40 @@ class SoundFontOutput extends React.Component {
     ).then(instruments => (this.instruments = instruments));
   }
 
-  noteOn(note) {
+  noteObjectKey(noteNumber, noteChannel) {
+    return `${noteNumber}_${noteChannel}`;
+  }
+
+  onNoteOn(note) {
     const mute =
       this.state.mute ||
       (this.props.trackSettings &&
         !this.props.trackSettings[note.track].play);
     
     if (!mute && this.instruments && this.instruments[note.track]) {
-      this.activeNotes[note.noteName + note.channel] = this.instruments[
+      this.activeNotes[this.noteObjectKey(note.noteNumber, note.channel)] = this.instruments[
         note.track
-      ].play(note.noteName, 0, {
+      ].play(midiKeyNumberToName(note.noteNumber), 0, {
         duration: note.durationMs / 1000,
         gain: note.velocity / 127,
       });
     }
   }
 
-  noteOff(note) {
-    if (this.activeNotes[note.noteName + note.channel]) {
-      //this.activeNotes[note.noteName + note.channel].stop();
-      this.activeNotes[note.noteName + note.channel] = null;
+  onNoteOnUserInput(note) {
+    this.onNoteOn(note);
+  }
+
+  onNoteOff(note) {
+    const key = this.noteObjectKey(note.noteNumber, note.channel);
+    if (this.activeNotes[key]) {
+      this.activeNotes[key].stop();
+      this.activeNotes[key] = null;
     }
+  }
+
+  onNoteOffUserInput(note) {
+    this.onNoteOff(note);
   }
 
   handleToggleMute() {
