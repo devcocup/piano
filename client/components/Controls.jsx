@@ -46,10 +46,17 @@ class Controls extends React.Component {
       <div className="controls">
         <div className="piano-content">
           <div className="track-name-container" onClick={this.handleLoadClick}>
+            <button
+              type="button"
+              className="track-name-icon"
+              onClick={this.handleSettingsClick}
+            >
+              <i className="material-icons">
+                {this.state.showSettings ? 'expand_more' : 'chevron_right'}
+              </i>
+            </button>
             <span className="track-name">{this.props.midiFileName}</span>
-            <span className="track-name-icon">
-              <i className="material-icons">unarchive</i>
-            </span>
+            <i className="material-icons">unarchive</i>
             <input
               type="file"
               ref={input => (this.midiFileInput = input)}
@@ -57,13 +64,6 @@ class Controls extends React.Component {
               onChange={this.handleLoadFile}
               accept=".mid"
             />
-            <button
-              type="button"
-              className="track-name-icon"
-              onClick={this.handleSettingsClick}
-            >
-              <i className="material-icons">settings</i>
-            </button>
           </div>
           <div
             className="song-settings"
@@ -74,7 +74,7 @@ class Controls extends React.Component {
           >
             <SongSettings />
           </div>
-          <div>
+          <div className="player-controls">
             <button type="button" onClick={this.handlePlayPauseClick}>
               <i className="material-icons play-pause">
                 {this.props.isPlaying ? 'pause' : 'play_arrow'}

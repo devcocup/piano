@@ -10,23 +10,25 @@
 
   .play-pause {
     font-size: 36px;
+    margin-right: 20px;
+  }
+
+  .player-controls {
+    display: flex;
+    align-items: center;
   }
 
   .track-name-container {
     font-size: 20px;
     margin: 8px 0 5px 0;
     cursor: pointer;
-
-    > .track-name-icon {
-      visibility: hidden;
-      color: $hover-color;
-    }
+    display: flex;
+    align-items: center;
 
     &:hover {
       color: $hover-color;
       > .track-name-icon {
         color: $text-color;
-        visibility: visible;
 
         &:hover {
           color: $hover-color;
@@ -35,7 +37,7 @@
     }
 
     .track-name {
-      margin-right: 5px;
+      margin-right: 20px;
     }
   }
 
