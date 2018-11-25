@@ -6,7 +6,6 @@ import '../../bridgeUtil';
 import Easing from 'easing';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import lerp from '../../util/lerp';
 import {
   setSelection,
@@ -365,14 +364,14 @@ class SheetMusicOutput extends React.Component {
                   onClick={this.setSelection('selectionStart')}
                   title="Start selection"
                 >
-                  <FontAwesomeIcon icon="quote-left" />
+                  <i className="material-icons">last_page</i>
                 </button>
                 <button
                   type="button"
                   onClick={this.setSelection('selectionEnd')}
                   title="End selection"
                 >
-                  <FontAwesomeIcon icon="quote-right" />
+                  <i className="material-icons">first_page</i>
                 </button>
               </span>
             )}
@@ -388,7 +387,7 @@ class SheetMusicOutput extends React.Component {
                     onClick={this.setSelection(null)}
                     title="Clear selection"
                   >
-                    <FontAwesomeIcon icon="times" />
+                    <i className="material-icons">clear</i>
                   </button>
                 </span>
               )}

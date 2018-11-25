@@ -1,6 +1,4 @@
 import React from 'react';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import { faPlay, faPause } from '@fortawesome/fontawesome-free-solid';
 import SongSettings from './SongSettings';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -50,7 +48,7 @@ class Controls extends React.Component {
           <div className="track-name-container" onClick={this.handleLoadClick}>
             <span className="track-name">{this.props.midiFileName}</span>
             <span className="track-name-icon">
-              <FontAwesomeIcon icon="upload" />
+              <i className="material-icons">unarchive</i>
             </span>
             <input
               type="file"
@@ -64,7 +62,7 @@ class Controls extends React.Component {
               className="track-name-icon"
               onClick={this.handleSettingsClick}
             >
-              <FontAwesomeIcon icon="cogs" />
+              <i className="material-icons">settings</i>
             </button>
           </div>
           <div
@@ -78,7 +76,9 @@ class Controls extends React.Component {
           </div>
           <div>
             <button type="button" onClick={this.handlePlayPauseClick}>
-              <FontAwesomeIcon icon={this.props.isPlaying ? faPause : faPlay} />
+              <i className="material-icons play-pause">
+                {this.props.isPlaying ? 'pause' : 'play_arrow'}
+              </i>
             </button>
             <label>
               <span className="label">Tempo</span>

@@ -1,5 +1,4 @@
 import React from 'react';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { updateTrackDisplay, updateTrackPlay } from '../actions/playerActions';
@@ -18,13 +17,14 @@ class SongSettings extends React.Component {
   }
 
   updateTrackAllPlayAndDisplay() {
-    const updatedValue =
-      !(this.getTracksToUpdate('Play').some(t => t.track.play) ||
-      this.getTracksToUpdate('Display').some(t => t.track.display));
+    const updatedValue = !(
+      this.getTracksToUpdate('Play').some(t => t.track.play) ||
+      this.getTracksToUpdate('Display').some(t => t.track.display)
+    );
 
     this.updateTrackAll('Play', updatedValue)();
     this.updateTrackAll('Display', updatedValue)();
-}
+  }
 
   getTracksToUpdate(propName) {
     return this.props.trackSettings
@@ -76,23 +76,32 @@ class SongSettings extends React.Component {
           <tr>
             <th>&nbsp;</th>
             <th>
-              <button type="button" onClick={this.updateTrackAll('Display')} title="Display/Hide all tracks">
-                <FontAwesomeIcon icon="eye" />
+              <button
+                type="button"
+                onClick={this.updateTrackAll('Display')}
+                title="Display/Hide all tracks"
+              >
+                <i className="material-icons">remove_red_eye</i>
               </button>
             </th>
             <th>
-              <button type="button" onClick={this.updateTrackAll('Play')} title="Play/Mute all tracks">
-                <FontAwesomeIcon icon="volume-up" />
+              <button
+                type="button"
+                onClick={this.updateTrackAll('Play')}
+                title="Play/Mute all tracks"
+              >
+                <i className="material-icons">volume_up</i>
               </button>
             </th>
             <th className="display-play">
-              <button type="button" onClick={this.updateTrackAllPlayAndDisplay} title="Toggle all tracks">
-                <FontAwesomeIcon icon="eye" className="top-left-icon" />
-                <span className="slash">/</span>
-                <FontAwesomeIcon
-                  icon="volume-up"
-                  className="bottom-right-icon"
-                />
+              <button
+                type="button"
+                onClick={this.updateTrackAllPlayAndDisplay}
+                title="Toggle all tracks"
+              >
+                <i className="material-icons top-left-icon">remove_red_eye</i>
+                <i className="material-icons slash">remove</i>
+                <i className="material-icons bottom-right-icon">volume_up</i>
               </button>
             </th>
           </tr>

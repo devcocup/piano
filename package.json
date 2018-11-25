@@ -17,9 +17,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fortawesome/fontawesome": "^1.1.0",
-    "@fortawesome/fontawesome-free-solid": "^5.0.2",
-    "@fortawesome/react-fontawesome": "0.0.17",
     "classnames": "^2.2.5",
     "easing": "^1.1.2",
     "lodash": "^4.17.11",
