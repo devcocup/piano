@@ -8,10 +8,13 @@
   align-items: center;
   color: $text-color;
 
-  .play-pause {
-    font-size: 36px;
+  .play-pause-container {
     margin-right: 20px;
+    .play-pause {
+      font-size: 36px;
+    }
   }
+  
 
   .player-controls {
     display: flex;

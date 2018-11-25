@@ -75,7 +75,7 @@ class Controls extends React.Component {
             <SongSettings />
           </div>
           <div className="player-controls">
-            <button type="button" onClick={this.handlePlayPauseClick}>
+            <button className="play-pause-container" type="button" onClick={this.handlePlayPauseClick}>
               <i className="material-icons play-pause">
                 {this.props.isPlaying ? 'pause' : 'play_arrow'}
               </i>
