@@ -1,4 +1,5 @@
 import localStorageDataAccess from './localStorageDataAccess';
+import { PIANO_KEY } from '../constants/storageKeys';
 
 class Storage {
   fileKey(filename) {
@@ -18,11 +19,15 @@ class Storage {
   }
 
   loadGlobalData() {
-    return localStorageDataAccess.load('piano');
+    return localStorageDataAccess.load(PIANO_KEY);
   }
 
-  saveGlobalData(data) {
-    return localStorageDataAccess.save('piano', data);
+  saveGlobalData(key, data) {
+    return this.loadGlobalData().then(result => {
+      const updated = result || {};
+      updated[key] = data;
+      return localStorageDataAccess.save(PIANO_KEY, updated);
+    });
   }
 }
 

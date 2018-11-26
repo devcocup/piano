@@ -54,7 +54,7 @@ export default (state = initialState, action) => {
     case INIT_PLAYER_TRACK_SETTINGS:
       return {
         ...state,
-        trackSettings: [ ...action.payload ],
+        trackSettings: [...action.payload],
       };
   }
   return state;

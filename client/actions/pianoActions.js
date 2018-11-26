@@ -4,7 +4,8 @@ import arrayBufferToBase64 from '../util/arrayBufferToBase64';
 import sampleSong from '../external/MidiSheetMusic/songs/Beethoven__Moonlight_Sonata.mid';
 import ParsedMidiFile from '../util/ParsedMidiFile';
 import { initPlayer } from './playerActions';
-
+import { PIANO_KEY } from '../constants/storageKeys';
+import * as reducerNames from '../constants/reducerNames';
 import {
   LOAD_FILE_SUCCESS,
   LOAD_FILE_DATA_SUCCESS,
@@ -29,7 +30,7 @@ const stateToSave = state => ({
   midiFileName: state.midiFileName,
 });
 
-const fileLoaded = (arrayBuffer, filename) => {
+const fileLoaded = (arrayBuffer, filename, moduleData) => {
   const parsedMidiFile = new ParsedMidiFile(arrayBuffer, filename);
   return {
     type: LOAD_FILE_SUCCESS,
@@ -37,6 +38,7 @@ const fileLoaded = (arrayBuffer, filename) => {
       parsedMidiFile,
       midiArrayBuffer: arrayBufferToBase64(arrayBuffer),
       midiFileName: filename,
+      moduleData,
     },
   };
 };
@@ -56,25 +58,33 @@ const fileDataLoaded = data => dispatch => {
 
 export const loadFile = file => (dispatch, getState) =>
   readFile(file, file.name)
-    .then(result => dispatch(fileLoaded(result.arrayBuffer, result.filename)))
+    .then(result => dispatch(fileLoaded(result.arrayBuffer, result.filename, null)))
     .then(result => dispatch(loadFileData(result.payload.midiFileName)))
-    .then(result => storage.saveGlobalData(stateToSave(getState())));
+    .then(() => storage.saveGlobalData(PIANO_KEY, stateToSave(getState())));
 
 export const loadGlobalData = () => dispatch =>
   storage
     .loadGlobalData()
     .then(data => {
-      if (data && data.midiArrayBuffer) {
+      if (
+        data &&
+        data[PIANO_KEY] &&
+        data[PIANO_KEY].midiArrayBuffer
+      ) {
         return dispatch(
           fileLoaded(
-            base64ToArrayBuffer(data.midiArrayBuffer),
-            data.midiFileName,
+            base64ToArrayBuffer(data[PIANO_KEY].midiArrayBuffer),
+            data[PIANO_KEY].midiFileName,
+            Object.values(reducerNames).reduce((acc, val)=>{
+              data[val] && (acc[val] = data[val]);
+              return acc;
+            }, {})
           ),
         );
       }
 
       return loadSampleData().then(result =>
-        dispatch(fileLoaded(result.arrayBuffer, result.filename)),
+        dispatch(fileLoaded(result.arrayBuffer, result.filename, null)),
       );
     })
     .then(result => dispatch(loadFileData(result.payload.midiFileName)));

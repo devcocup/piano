@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import midiConstants from '../../util/midiConstants';
 import MidiDeviceSelection from '../MidiDeviceSelection';
+import { setPortId } from '../../actions/ledStripOutputActions';
 
 class LedStripOutput extends React.Component {
   constructor(props) {
@@ -68,10 +69,8 @@ class LedStripOutput extends React.Component {
     }
   }
 
-  handleChangePort(portId, port) {
-    this.setState({
-      selectedPortId: portId,
-    });
+  handleChangePort(portId, port, setByUser) {
+    this.props.setPortId(portId, setByUser);
     this.activeMidiOutput = port;
     for (let i = 0; i < this.activeMidiNotes.length; i++) {
       this.sendMidiMessage([midiConstants.NOTE_OFF, i, 0]);
@@ -95,7 +94,7 @@ class LedStripOutput extends React.Component {
           <MidiDeviceSelection
             input={false}
             changePort={this.handleChangePort}
-            selectedPortId={this.selectedPortId}
+            selectedPortId={this.props.portId}
           />
         </label>
       </div>
@@ -108,9 +107,13 @@ const mapStateToProps = state => ({
   inputStaffs: state.midiKeyboardInput.inputStaffs,
 });
 
+const mapDispatchToProps = dispatch => ({
+  setPortId: (portId, setByUser) => dispatch(setPortId(portId, setByUser)),
+});
+
 export default connect(
   mapStateToProps,
-  null,
+  mapDispatchToProps,
   null,
   { withRef: true }, 
 )(LedStripOutput);

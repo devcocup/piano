@@ -19,7 +19,9 @@ export default (state = initialState, action) => {
     case LOAD_FILE_DATA_SUCCESS:
       return Object.values(reducerNames).reduce(
         (acc, val) => {
-          acc[val] = action.payload.moduleData[val];
+          acc[val] = { 
+            ...acc[val],
+            ...action.payload.moduleData[val], };
           return acc;
         },
         { ...state },
