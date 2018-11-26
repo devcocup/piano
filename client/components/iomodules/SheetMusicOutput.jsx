@@ -69,6 +69,10 @@ class SheetMusicOutput extends React.Component {
     ) {
       this.initSheetMusic();
     }
+
+    if (this.props.isPlaying !== prevProps.isPlaying) {
+      this.setState({ selectionControlPosition: null });
+    }
   }
 
   trackSettingsDisplayChanged(trackSettings, prevTrackSettings) {
@@ -153,6 +157,7 @@ class SheetMusicOutput extends React.Component {
         this.props.parsedMidiFile.getDisplayTracks(),
       );
       this.sheetMusic.SetZoom(1.4);
+      this.updateSelectionFromProps();
       this.initSheetMusicCanvas();
     });
   }
@@ -306,9 +311,7 @@ class SheetMusicOutput extends React.Component {
     this.setState({
       removeSelectionPosition: {
         left: endSelectionRect.X + this.SELECT_CONTROL_OFFSET_LEFT,
-        top:
-          endSelectionRect.Y +
-          this.SELECT_CONTROL_OFFSET_TOP,
+        top: endSelectionRect.Y + this.SELECT_CONTROL_OFFSET_TOP,
       },
     });
 
@@ -374,7 +377,8 @@ class SheetMusicOutput extends React.Component {
                 </button>
               </span>
             )}
-            {this.props.selectionStartPulse &&
+            {!this.props.isPlaying &&
+              this.props.selectionStartPulse &&
               this.props.selectionEndPulse &&
               this.state.removeSelectionPosition && (
                 <span
@@ -419,6 +423,7 @@ SheetMusicOutput.propTypes = {
 const mapStateToProps = state => ({
   parsedMidiFile: state.parsedMidiFile,
   trackSettings: state.player.trackSettings,
+  isPlaying: state.player.isPlaying,
   ...state.sheetMusicOutput,
 });
 
