@@ -38,7 +38,7 @@ const fileLoaded = (arrayBuffer, filename, moduleData) => {
       parsedMidiFile,
       midiArrayBuffer: arrayBufferToBase64(arrayBuffer),
       midiFileName: filename,
-      moduleData,
+      moduleData: moduleData || {},
     },
   };
 };

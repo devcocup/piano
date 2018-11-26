@@ -2,10 +2,7 @@ import {
   WAIT_FOR_INPUT_CHANGED,
   INPUT_STAFFS_CHANGED,
   SET_MIDI_KEYBOARD_PORT_ID,
-  LOAD_FILE_SUCCESS,
 } from '../constants/actionTypes';
-
-import { MIDI_KEYBOARD_INPUT } from '../constants/reducerNames';
 
 const initialState = {
   inputStaffs: 1 + 2,
@@ -20,12 +17,6 @@ export default (state = initialState, action) => {
       return { ...state, inputStaffs: action.payload };
     case SET_MIDI_KEYBOARD_PORT_ID:
       return { ...state, portId: action.payload };
-    case LOAD_FILE_SUCCESS:
-      return {
-        ...state,
-        ...(action.payload.moduleData &&
-          action.payload.moduleData[MIDI_KEYBOARD_INPUT]),
-      };
   }
   return state;
 };

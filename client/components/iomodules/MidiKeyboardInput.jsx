@@ -188,8 +188,8 @@ class MidiKeyboardInput extends React.Component {
         <label className="section">
           <input
             type="checkbox"
-            checked={this.props.waitForInput}
-            onClick={this.handleToggleWaitForInput}
+            checked={!!this.props.waitForInput}
+            onChange={this.handleToggleWaitForInput}
           />{' '}
           Wait for correct input
         </label>
