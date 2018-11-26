@@ -82,6 +82,10 @@ class MidiKeyboardInput extends React.Component {
     if (latestNoteRequired) {
       return latestNoteRequired.track;
     }
+    const firstDisplayTrackIndex = this.props.trackSettings.findIndex(t => t.display);
+    if (firstDisplayTrackIndex>=0) {
+      return firstDisplayTrackIndex;
+    }
     return 0;
   }
 
@@ -211,6 +215,7 @@ const mapStateToProps = state => ({
   inputStaffs: state.midiKeyboardInput.inputStaffs,
   waitForInput: state.midiKeyboardInput.waitForInput,
   isPlaying: state.player.isPlaying,
+  trackSettings: state.player.trackSettings,
 });
 
 const mapDispatchToProps = dispatch => ({
