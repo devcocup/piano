@@ -118,14 +118,15 @@ class SoundFontOutput extends React.Component {
 
   render() {
     return (
-      <div>
+      <span />
+      /*<div>
         <input
           type="checkbox"
           value={this.state.mute}
           onClick={this.handleToggleMute}
         />{' '}
         Mute
-      </div>
+      </div>*/
     );
   }
 }
