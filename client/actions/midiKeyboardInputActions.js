@@ -1,5 +1,9 @@
 import storage from '../util/storage';
-import { WAIT_FOR_INPUT_CHANGED, INPUT_STAFFS_CHANGED } from '../constants/actionTypes';
+import {
+  WAIT_FOR_INPUT_CHANGED,
+  INPUT_STAFFS_CHANGED,
+  SET_MIDI_KEYBOARD_PORT_ID,
+} from '../constants/actionTypes';
 import { MIDI_KEYBOARD_INPUT } from '../constants/reducerNames';
 
 const stateToSave = state => {
@@ -20,6 +24,14 @@ const saveFileData = state => {
   return state;
 };
 
+const globalStateToSave = state => ({
+  portId: state[MIDI_KEYBOARD_INPUT].portId,
+});
+
+const saveGlobalData = state => {
+  storage.saveGlobalData(MIDI_KEYBOARD_INPUT, globalStateToSave(state));
+};
+
 export const setWaitForInput = waitForInput => (dispatch, getState) => {
   dispatch({
     type: WAIT_FOR_INPUT_CHANGED,
@@ -36,4 +48,15 @@ export const setInputStaffs = inputStaffs => (dispatch, getState) => {
   });
 
   saveFileData(getState());
+};
+
+export const setPortId = (portId, save) => (dispatch, getState) => {
+  dispatch({
+    type: SET_MIDI_KEYBOARD_PORT_ID,
+    payload: portId,
+  });
+
+  if (save) {
+    saveGlobalData(getState());
+  }
 };

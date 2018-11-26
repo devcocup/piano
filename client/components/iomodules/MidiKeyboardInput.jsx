@@ -6,6 +6,7 @@ import MidiDeviceSelection from '../MidiDeviceSelection';
 import {
   setWaitForInput,
   setInputStaffs,
+  setPortId,
 } from '../../actions/midiKeyboardInputActions';
 import { play, pause } from '../../actions/playerActions';
 
@@ -164,7 +165,8 @@ class MidiKeyboardInput extends React.Component {
     this.clearNotesRequired();
   }
 
-  handleChangePort(portId, port) {
+  handleChangePort(portId, port, setByUser) {
+    this.props.setPortId(portId, setByUser);
     this.setActiveMidiInput(port);
   }
 
@@ -180,7 +182,7 @@ class MidiKeyboardInput extends React.Component {
           <MidiDeviceSelection
             input={true}
             changePort={this.handleChangePort}
-            selectedPortId={this.selectedPortId}
+            selectedPortId={this.props.portId}
           />
         </label>
         <label className="section">
@@ -216,6 +218,7 @@ const mapStateToProps = state => ({
   waitForInput: state.midiKeyboardInput.waitForInput,
   isPlaying: state.player.isPlaying,
   trackSettings: state.player.trackSettings,
+  portId: state.midiKeyboardInput.portId,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -223,6 +226,7 @@ const mapDispatchToProps = dispatch => ({
   pause: () => dispatch(pause()),
   setWaitForInput: waitForInput => dispatch(setWaitForInput(waitForInput)),
   setInputStaffs: inputStaffs => dispatch(setInputStaffs(inputStaffs)),
+  setPortId: (portId, setByUser) => dispatch(setPortId(portId, setByUser)),
 });
 
 export default connect(

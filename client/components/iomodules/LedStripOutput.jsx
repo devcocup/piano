@@ -105,6 +105,7 @@ class LedStripOutput extends React.Component {
 const mapStateToProps = state => ({
   trackSettings: state.player.trackSettings,
   inputStaffs: state.midiKeyboardInput.inputStaffs,
+  portId: state.ledStripOutput.portId,
 });
 
 const mapDispatchToProps = dispatch => ({
