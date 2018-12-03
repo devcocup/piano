@@ -8,6 +8,8 @@ class SoundFontOutput extends React.Component {
   constructor(props) {
     super(props);
 
+    this.PERCUSSION_TRACK_NAME = 'Percussion';
+
     this.activeNotes = {};
 
     this.onNoteOn = this.onNoteOn.bind(this);
@@ -50,7 +52,7 @@ class SoundFontOutput extends React.Component {
           Soundfont.instrument(
             this.audioContext,
             this.formatInstrumentName(t.instrumentName),
-            t.instrumentName === 'Percussion'
+            t.instrumentName === this.PERCUSSION_TRACK_NAME
               ? { soundfont: 'FluidR3_GM' }
               : null,
           ),
@@ -80,7 +82,7 @@ class SoundFontOutput extends React.Component {
       midiKeyNumberToName(note.noteNumber),
       0,
       {
-        duration: note.durationMs / 1000,
+        duration: note.durationMs > 0 ? note.durationMs / 1000 : undefined,
         gain: note.velocity / 127,
       },
     );
@@ -95,13 +97,17 @@ class SoundFontOutput extends React.Component {
   }
 
   onNoteOnUserInput(note) {
-    this.playNote(note);
+    //Don't know how long user will play the note for so use 30 second default.
+    //When user releases the note onNoteOff can be called to stop it instead 
+    this.playNote({ ...note, durationMs: 30000 });
   }
 
   onNoteOff(note) {
     const key = this.noteObjectKey(note.noteNumber, note.channel);
     if (this.activeNotes[key]) {
-      this.activeNotes[key].stop();
+      if (note.durationMs > 0) {
+        this.activeNotes[key].stop();
+      }
       this.activeNotes[key] = null;
     }
   }
