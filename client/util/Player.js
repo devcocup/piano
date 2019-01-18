@@ -1,15 +1,14 @@
 import '../external/MidiSheetMusic/build/bridge';
-import '../external/MidiSheetMusic/build/MidiSheetMusicBridge'; 
-import midiKeyNumberToName from './midiKeyNumberToName'
+import '../external/MidiSheetMusic/build/MidiSheetMusicBridge';
+import generateMetronome from './generateMetronome';
 import midiConstants from './midiConstants';
 import flatten from 'lodash/flatten';
-import ParsedMidiFile from './ParsedMidiFile';
-
 
 export default class Player {
   constructor(config) {
     this.noteOn = config.noteOn;
     this.noteOff = config.noteOff;
+    this.metronomeTick = config.metronomeTick;
 
     this.playing = false;
     this.events = [];
@@ -30,6 +29,8 @@ export default class Player {
   loadParsedMidiFile(parsedMidiFile) {
     this.pulsesPerMs = parsedMidiFile.getPulsesPerMsec();
     this.notes = parsedMidiFile.getNotes();
+    this.beatIntervalMs = parsedMidiFile.getBeatIntervalMs();
+    this.beatsPerMeasure = parsedMidiFile.getBeatsPerMeasure();
   }
 
   isPlaying() {
@@ -52,24 +53,47 @@ export default class Player {
   }
 
   enqueueEvents() {
-    this.events = flatten(this.notes
-      .map(n => {
-        const note = { 
+    let totalTime = 0;
+    
+    let toEnqueue = flatten(
+      this.notes.map(n => {
+        const note = {
           velocity: midiConstants.DEFAULT_VELOCITY,
           ...n,
         };
-        const noteOnTime = (n.startTimeMs - this.currentTimeMs) / this.getTempoPercentage();
-        const noteOffTime = (n.startTimeMs + n.durationMs - this.currentTimeMs) / this.getTempoPercentage();
-        const evts = [];
-        if (noteOnTime>=0) {
-          evts.push(setTimeout(() => this.noteOn(note), noteOnTime));
+
+        if (totalTime < n.startTimeMs) {
+          totalTime = n.startTimeMs;
         }
-        if (noteOffTime>=0) {
-          evts.push(setTimeout(() => this.noteOff(note), noteOffTime));
+        const noteOnTime =
+          (n.startTimeMs - this.currentTimeMs) / this.getTempoPercentage();
+        const noteOffTime =
+          (n.startTimeMs + n.durationMs - this.currentTimeMs) /
+          this.getTempoPercentage();
+        const evts = [];
+        if (noteOnTime >= 0) {
+          evts.push({func: () => this.noteOn(note), time: noteOnTime});
+        }
+        if (noteOffTime >= 0) {
+          evts.push({func: () => this.noteOff(note), time: noteOffTime});
         }
         return evts;
-      })
+      }),
     );
+
+    generateMetronome(
+      this.beatIntervalMs,
+      this.beatsPerMeasure,
+      totalTime,
+    ).forEach(m => {
+      const metronomeTickTime =
+        (m.time - this.currentTimeMs) / this.getTempoPercentage();
+      if (metronomeTickTime >= 0) {
+        toEnqueue.push({func: () => this.metronomeTick(m.start), time: metronomeTickTime });
+      }
+    });
+
+    this.events = toEnqueue.map(e => setTimeout(e.func, e.time));
   }
 
   setIsPlaying(isPlaying) {
@@ -79,7 +103,9 @@ export default class Player {
       this.enqueueEvents();
     } else if (!isPlaying && this.playing) {
       this.playing = false;
-      this.currentTimeMs = this.currentTimeMs + (performance.now() - this.startTimeMs) * this.getTempoPercentage();
+      this.currentTimeMs =
+        this.currentTimeMs +
+        (performance.now() - this.startTimeMs) * this.getTempoPercentage();
       this.clearEvents();
     }
   }
@@ -95,7 +121,10 @@ export default class Player {
 
   getTimeMillis() {
     if (this.playing) {
-      return this.currentTimeMs + (performance.now() - this.startTimeMs) * this.getTempoPercentage();
+      return (
+        this.currentTimeMs +
+        (performance.now() - this.startTimeMs) * this.getTempoPercentage()
+      );
     } else {
       return this.currentTimeMs;
     }

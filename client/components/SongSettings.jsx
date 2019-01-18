@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { updateTrackDisplay, updateTrackPlay } from '../actions/playerActions';
+import { updateTrackDisplay, updateTrackPlay, setMetronomeEnabled } from '../actions/playerActions';
 
 class SongSettings extends React.Component {
   constructor(props) {
@@ -13,6 +13,7 @@ class SongSettings extends React.Component {
     this.updateTrackAllPlayAndDisplay = this.updateTrackAllPlayAndDisplay.bind(
       this,
     );
+    this.updateMetronomeEnabled = this.updateMetronomeEnabled.bind(this);
     this.getTracksToUpdate = this.getTracksToUpdate.bind(this);
   }
 
@@ -69,6 +70,10 @@ class SongSettings extends React.Component {
     };
   }
 
+  updateMetronomeEnabled(evt) {
+    this.props.setMetronomeEnabled(evt.target.checked);
+  }
+
   render() {
     return (
       <table className="song-tracks">
@@ -107,6 +112,18 @@ class SongSettings extends React.Component {
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td>Metronome</td>
+            <td className="td-checkbox">&nbsp;</td>
+            <td className="td-checkbox">
+              <input
+                type="checkbox"
+                checked={!!this.props.metronomeEnabled}
+                onChange={this.updateMetronomeEnabled}
+              />
+            </td>
+            <td className="td-checkbox">&nbsp;</td>
+          </tr>
           {this.props.trackSettings &&
             this.props.trackSettings.map((track, index) => (
               <tr key={index}>
@@ -148,6 +165,7 @@ SongSettings.propTypes = {
 
 const mapStateToProps = state => ({
   trackSettings: state.player.trackSettings,
+  metronomeEnabled: state.player.metronomeEnabled,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -155,6 +173,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(updateTrackPlay(trackIndex, prop, play)),
   updateTrackDisplay: (trackIndex, prop, show) =>
     dispatch(updateTrackDisplay(trackIndex, prop, show)),
+  setMetronomeEnabled: enabled => dispatch(setMetronomeEnabled(enabled)),
 });
 
 export default connect(

@@ -16,6 +16,7 @@ class App extends React.Component {
 
     this.noteOn = this.noteOn.bind(this);
     this.noteOff = this.noteOff.bind(this);
+    this.metronomeTick = this.metronomeTick.bind(this);
     this.animate = this.animate.bind(this);
     this.callIoModulesChildMethod = this.callIoModulesChildMethod.bind(this);
     this.handleSetCurrentMs = this.handleSetCurrentMs.bind(this);
@@ -30,6 +31,7 @@ class App extends React.Component {
     this.player = new Player({
       noteOn: this.noteOn,
       noteOff: this.noteOff,
+      metronomeTick: this.metronomeTick,
     });
 
     this.state = {
@@ -97,6 +99,10 @@ class App extends React.Component {
 
   noteOff(note) {
     this.callIoModulesChildMethod("onNoteOff", note);
+  }
+
+  metronomeTick(start) {
+    this.callIoModulesChildMethod("onMetronomeTick", start);
   }
 
   handleNoteOnUserInput(note) {

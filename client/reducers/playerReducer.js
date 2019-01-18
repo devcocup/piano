@@ -5,6 +5,7 @@ import {
   LOAD_FILE_SUCCESS,
   TRACK_DISPLAY_UPDATE,
   TRACK_PLAY_UPDATE,
+  SET_METRONOME_ENABLED,
   INIT_PLAYER_TRACK_SETTINGS,
 } from '../constants/actionTypes';
 
@@ -50,6 +51,11 @@ export default (state = initialState, action) => {
           action.payload.play,
           'play',
         ),
+      };
+    case SET_METRONOME_ENABLED:
+      return {
+        ...state,
+        metronomeEnabled: action.payload,
       };
     case INIT_PLAYER_TRACK_SETTINGS:
       return {

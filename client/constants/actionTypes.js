@@ -8,6 +8,7 @@ export const TRACK_PLAY_UPDATE = 'TRACK_PLAY_UPDATE';
 export const PLAY = 'PLAY';
 export const PAUSE = 'PAUSE';
 export const SET_TEMPO = 'SET_TEMPO';
+export const SET_METRONOME_ENABLED = 'SET_METRONOME_ENABLED';
 export const INIT_PLAYER_TRACK_SETTINGS = 'INIT_PLAYER_TRACK_SETTINGS';
 
 //sheetMusicOutput

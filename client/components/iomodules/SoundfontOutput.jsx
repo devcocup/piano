@@ -16,12 +16,15 @@ class SoundFontOutput extends React.Component {
     this.onNoteOff = this.onNoteOff.bind(this);
     this.onNoteOnUserInput = this.onNoteOnUserInput.bind(this);
     this.onNoteOffUserInput = this.onNoteOffUserInput.bind(this);
+    this.onMetronomeTick = this.onMetronomeTick.bind(this);
     this.handleToggleMute = this.handleToggleMute.bind(this);
     this.initInstruments = this.initInstruments.bind(this);
     this.playNote = this.playNote.bind(this);
+    this.initMetronomeInstrument = this.initMetronomeInstrument.bind(this);
 
     this.state = {};
     this.instruments = null;
+    this.metronomeInstrument = null;
     this.audioContext = new AudioContext();
   }
 
@@ -31,6 +34,9 @@ class SoundFontOutput extends React.Component {
       this.props.parsedMidiFile !== prevProps.parsedMidiFile
     ) {
       this.initInstruments();
+      if (!this.metronomeInstrument) {
+        this.initMetronomeInstrument();
+      }
     }
   }
 
@@ -60,6 +66,13 @@ class SoundFontOutput extends React.Component {
     ).then(instruments => (this.instruments = instruments));
   }
 
+  initMetronomeInstrument() {
+    Soundfont.instrument(
+      this.audioContext,
+      this.formatInstrumentName('Xylophone'),
+    ).then(instrument => (this.metronomeInstrument = instrument));
+  }
+
   noteObjectKey(noteNumber, noteChannel) {
     return `${noteNumber}_${noteChannel}`;
   }
@@ -76,16 +89,10 @@ class SoundFontOutput extends React.Component {
       return;
     }
 
-    this.activeNotes[
-      this.noteObjectKey(note.noteNumber, note.channel)
-    ] = this.instruments[note.track].play(
-      midiKeyNumberToName(note.noteNumber),
-      0,
-      {
-        duration: note.durationMs > 0 ? note.durationMs / 1000 : undefined,
-        gain: note.velocity / 127,
-      },
-    );
+    this.instruments[note.track].play(midiKeyNumberToName(note.noteNumber), 0, {
+      duration: note.durationMs > 0 ? note.durationMs / 1000 : undefined,
+      gain: note.velocity / 127,
+    });
   }
 
   onNoteOn(note) {
@@ -98,7 +105,7 @@ class SoundFontOutput extends React.Component {
 
   onNoteOnUserInput(note) {
     //Don't know how long user will play the note for so use 30 second default.
-    //When user releases the note onNoteOff can be called to stop it instead 
+    //When user releases the note onNoteOff can be called to stop it instead
     this.playNote({ ...note, durationMs: 30000 });
   }
 
@@ -116,6 +123,18 @@ class SoundFontOutput extends React.Component {
     this.onNoteOff(note);
   }
 
+  onMetronomeTick(start) {
+    if (!this.props.metronomeEnabled) {
+      return;
+    }
+
+    this.metronomeInstrument &&
+      this.metronomeInstrument.play(start ? 'E5' : 'C5', 0, {
+        duration: 100 / 1000,
+        gain: 0.5,
+      });
+  }
+
   handleToggleMute() {
     this.setState({
       mute: !this.state.mute,
@@ -123,23 +142,14 @@ class SoundFontOutput extends React.Component {
   }
 
   render() {
-    return (
-      <span />
-      /*<div>
-        <input
-          type="checkbox"
-          value={this.state.mute}
-          onClick={this.handleToggleMute}
-        />{' '}
-        Mute
-      </div>*/
-    );
+    return <span />;
   }
 }
 
 const mapStateToProps = state => ({
   parsedMidiFile: state.parsedMidiFile,
   trackSettings: state.player.trackSettings,
+  metronomeEnabled: state.player.metronomeEnabled,
   inputStaffs: state.midiKeyboardInput.inputStaffs,
   waitForInput: state.midiKeyboardInput.waitForInput,
 });

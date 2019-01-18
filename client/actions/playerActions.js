@@ -8,12 +8,14 @@ import {
   SET_TEMPO,
   TRACK_DISPLAY_UPDATE,
   TRACK_PLAY_UPDATE,
+  SET_METRONOME_ENABLED,
   INIT_PLAYER_TRACK_SETTINGS,
 } from '../constants/actionTypes';
 
 const playerStateToSave = state => ({
   tempo: state.tempo,
   trackSettings: state.trackSettings,
+  metronomeEnabled: state.metronomeEnabled,
 });
 
 const saveFileData = state => {
@@ -92,6 +94,15 @@ export const updateTrackPlay = (trackIndexes, play) => (dispatch, getState) => {
       trackIndexes,
       play,
     },
+  });
+
+  saveFileData(getState());
+};
+
+export const setMetronomeEnabled = enabled => (dispatch, getState) => {
+  dispatch({
+    type: SET_METRONOME_ENABLED,
+    payload: enabled,
   });
 
   saveFileData(getState());

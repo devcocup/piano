@@ -128,4 +128,14 @@ export default class ParsedMidiFile {
   getDisplayTracks() {
     return this.displayTracks;
   }
+
+  getBeatIntervalMs() {
+    return this.midiOptions.time.Measure / this.pulsesPerMsec;
+  }
+
+  getBeatsPerMeasure() {
+    return this.midiOptions.time.Numerator;
+  }
+
+
 }
