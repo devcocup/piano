@@ -1,18 +1,18 @@
 import storage from '../util/storage';
-import { SET_LED_STRIP_PORT_ID } from '../constants/actionTypes';
-import { LED_STRIP_OUTPUT } from '../constants/reducerNames';
+import { SET_MIDI_OUTPUT_PORT_ID } from '../constants/actionTypes';
+import { MIDI_OUTPUT } from '../constants/reducerNames';
 
 const globalStateToSave = state => ({
-  portId: state[LED_STRIP_OUTPUT].portId,
+  portId: state[MIDI_OUTPUT].portId,
 });
 
 const saveGlobalData = state => {
-  storage.saveGlobalData(LED_STRIP_OUTPUT, globalStateToSave(state));
+  storage.saveGlobalData(MIDI_OUTPUT, globalStateToSave(state));
 };
 
 export const setPortId = (portId, save) => (dispatch, getState) => {
   dispatch({
-    type: SET_LED_STRIP_PORT_ID,
+    type: SET_MIDI_OUTPUT_PORT_ID,
     payload: portId,
   });
 

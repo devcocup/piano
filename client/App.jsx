@@ -36,7 +36,7 @@ class App extends React.Component {
       ioModules: [
         IoModules.SoundfontOutput,
         IoModules.MidiKeyboardInput,
-        IoModules.LedStripOutput,
+        IoModules.MidiOutput,
         IoModules.SheetMusicOutput,
       ],
     };

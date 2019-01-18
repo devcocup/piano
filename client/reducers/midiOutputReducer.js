@@ -1,4 +1,4 @@
-import { SET_LED_STRIP_PORT_ID } from '../constants/actionTypes';
+import { SET_MIDI_OUTPUT_PORT_ID } from '../constants/actionTypes';
 
 const initialState = {
   portId: '',
@@ -6,7 +6,7 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case SET_LED_STRIP_PORT_ID:
+    case SET_MIDI_OUTPUT_PORT_ID:
       return { ...state, portId: action.payload };
   }
   return state;

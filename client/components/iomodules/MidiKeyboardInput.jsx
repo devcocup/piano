@@ -93,7 +93,7 @@ class MidiKeyboardInput extends React.Component {
   onMidiMessage(evt) {
     let updatedNotes = null;
     const [message, noteNumber, velocity] = evt.data;
-    if (message === midiConstants.NOTE_OFF) {
+    if (message === (midiConstants.NOTE_OFF << 4)) {
       if (this.notesPlaying.has(noteNumber)) {
         this.props.callbacks.noteOffUserInput({
           noteNumber,
@@ -101,7 +101,7 @@ class MidiKeyboardInput extends React.Component {
         });
       }
       updatedNotes = this.input.notesPressed.filter(n => n !== noteNumber);
-    } else if (message === midiConstants.NOTE_ON) {
+    } else if (message === (midiConstants.NOTE_ON << 4)) {
       this.props.callbacks.noteOnUserInput({
         noteNumber,
         channel: 0,
