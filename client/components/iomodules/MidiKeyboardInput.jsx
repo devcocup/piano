@@ -28,23 +28,10 @@ class MidiKeyboardInput extends React.Component {
       notesRequired: [],
     };
 
-    this.onMidiMessage = this.onMidiMessage.bind(this);
-    this.setActiveMidiInput = this.setActiveMidiInput.bind(this);
-    this.animate = this.animate.bind(this);
-    this.handleToggleWaitForInput = this.handleToggleWaitForInput.bind(this);
-    this.onNoteOn = this.onNoteOn.bind(this);
-    this.checkInput = this.checkInput.bind(this);
-    this.clearNotesRequired = this.clearNotesRequired.bind(this);
-    this.currentMsChanged = this.currentMsChanged.bind(this);
-    this.handleChangePort = this.handleChangePort.bind(this);
-    this.handleChangeStaff = this.handleChangeStaff.bind(this);
-    this.noteFoundInKeyBuffer = this.noteFoundInKeyBuffer.bind(this);
-    this.getTrackOfNoteToPlay = this.getTrackOfNoteToPlay.bind(this);
-
     this.notesPlaying = new Set();
   }
 
-  noteFoundInKeyBuffer(noteNumber) {
+  noteFoundInKeyBuffer = noteNumber => {
     for (let i = 0; i < this.input.keyBuffer.length; i++) {
       let key = this.input.keyBuffer[this.input.keyBuffer.length - i - 1];
       if (
@@ -60,13 +47,13 @@ class MidiKeyboardInput extends React.Component {
     return null;
   }
 
-  clearNotesRequired() {
+  clearNotesRequired = () => {
     this.input.notesRequired = [];
     clearTimeout(this.waitingTimeout);
     this.waitingTimeout = null;
   }
 
-  checkInput() {
+  checkInput = () => {
     const notesFoundInKeyBuffer = this.input.notesRequired.map(
       noteRequired => this.noteFoundInKeyBuffer(noteRequired.noteNumber)
     );
@@ -78,7 +65,7 @@ class MidiKeyboardInput extends React.Component {
     }
   }
 
-  getTrackOfNoteToPlay() {
+  getTrackOfNoteToPlay = () => {
     const latestNoteRequired = this.input.notesRequired[this.input.notesRequired.length-1];
     if (latestNoteRequired) {
       return latestNoteRequired.track;
@@ -90,7 +77,7 @@ class MidiKeyboardInput extends React.Component {
     return 0;
   }
 
-  onMidiMessage(evt) {
+  onMidiMessage = evt => {
     let updatedNotes = null;
     const [message, noteNumber, velocity] = evt.data;
     if (message === (midiConstants.NOTE_OFF << 4)) {
@@ -129,7 +116,7 @@ class MidiKeyboardInput extends React.Component {
     }
   }
 
-  animate(playerTimeMillis, timestamp) {
+  animate = (playerTimeMillis, timestamp) => {
     this.playerTimeMillis = playerTimeMillis;
     this.globalTimestamp = timestamp;
 
@@ -143,34 +130,34 @@ class MidiKeyboardInput extends React.Component {
     }
   }
 
-  setActiveMidiInput(input) {
+  setActiveMidiInput = input => {
     if (input) {
       input.onmidimessage = this.onMidiMessage;
     }
     this.activeMidiInput = input;
   }
 
-  onNoteOn(note) {
+  onNoteOn = note => {
     if (this.props.waitForInput && (this.props.inputStaffs & note.staff) > 0) {
       this.input.notesRequired.push({ noteNumber: note.noteNumber, track: note.track });
     }
   }
 
-  handleToggleWaitForInput() {
+  handleToggleWaitForInput = () => {
     this.clearNotesRequired();
     this.props.setWaitForInput(!this.props.waitForInput);
   }
 
-  currentMsChanged() {
+  currentMsChanged = () => {
     this.clearNotesRequired();
   }
 
-  handleChangePort(portId, port, setByUser) {
+  handleChangePort = (portId, port, setByUser) => {
     this.props.setPortId(portId, setByUser);
     this.setActiveMidiInput(port);
   }
 
-  handleChangeStaff(evt) {
+  handleChangeStaff = evt => {
     this.props.setInputStaffs(parseInt(evt.target.value, 10));
   }
 

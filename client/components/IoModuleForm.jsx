@@ -8,7 +8,7 @@ class IoModuleForm extends React.Component {
     super(props);
   }
 
-  getModuleInstance(ioModule) {
+  getModuleInstance = ioModule => {
     if (ioModule && ioModule.getWrappedInstance) {
       return ioModule.getWrappedInstance();
     }

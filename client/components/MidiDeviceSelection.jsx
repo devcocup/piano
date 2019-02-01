@@ -9,13 +9,10 @@ export default class MidiDeviceSelection extends React.Component {
       availableMidiPorts: [],
     };
 
-    this.init = this.init.bind(this);
-    this.changePort = this.changePort.bind(this);
-
     this.init();
   }
 
-  init() {
+  init = () => {
     midiIo.registerDevicesChanged(midi => {
       const availableMidiPorts = [
         ...(this.props.input ? midi.inputs : midi.outputs),
@@ -33,7 +30,7 @@ export default class MidiDeviceSelection extends React.Component {
     });
   }
 
-  changePort(id, setByUser) {
+  changePort = (id, setByUser) => {
     const activePort = this.state.availableMidiPorts.find(
       p => p.id === id,
     );

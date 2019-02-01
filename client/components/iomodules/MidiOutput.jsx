@@ -9,12 +9,6 @@ class MidiOutput extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleChangePort = this.handleChangePort.bind(this);
-    this.onNoteOn = this.onNoteOn.bind(this);
-    this.onNoteOff = this.onNoteOff.bind(this);
-    this.sendMidiMessage = this.sendMidiMessage.bind(this);
-    this.shouldDisplayNote = this.shouldDisplayNote.bind(this);
-
     this.state = {
       selectedPortId: '',
     };
@@ -25,19 +19,19 @@ class MidiOutput extends React.Component {
     }
   }
 
-  sendMidiMessage(msg) {
+  sendMidiMessage = msg => {
     this.activeMidiOutput &&
       this.activeMidiOutput.send &&
       this.activeMidiOutput.send(msg);
   }
 
-  shouldDisplayNote(note) {
+  shouldDisplayNote = note => {
     return this.props.trackSettings && 
       this.props.trackSettings[note.track].display &&
       (this.props.inputStaffs & note.staff) > 0;
   }
 
-  onNoteOn(note) {
+  onNoteOn = note => {
     if (!this.shouldDisplayNote(note)) {
       return;
     }
@@ -50,7 +44,7 @@ class MidiOutput extends React.Component {
     this.activeMidiNotes[note.noteNumber].add(note.channel);
   }
 
-  onNoteOff(note) {
+  onNoteOff = note => {
     if (!this.shouldDisplayNote(note)) {
       return;
     }
@@ -63,7 +57,7 @@ class MidiOutput extends React.Component {
     ]);
   }
 
-  sendAllNoteOff() {
+  sendAllNoteOff = () => {
     for (let i = 0; i < this.activeMidiNotes.length; i++) {
       this.activeMidiNotes[i] && this.activeMidiNotes[i].forEach(channel => {
         this.sendMidiMessage([(midiConstants.NOTE_OFF << 4) + channel, i, 0]);
@@ -72,13 +66,13 @@ class MidiOutput extends React.Component {
     }
   }
 
-  handleChangePort(portId, port, setByUser) {
+  handleChangePort = (portId, port, setByUser) => {
     this.props.setPortId(portId, setByUser);
     this.activeMidiOutput = port;
     this.sendAllNoteOff();
   }
 
-  currentMsChanged() {
+  currentMsChanged = () => {
     this.sendAllNoteOff();
   }
 

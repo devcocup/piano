@@ -40,7 +40,7 @@ class SoundFontOutput extends React.Component {
     }
   }
 
-  formatInstrumentName(name) {
+  formatInstrumentName = name => {
     return name
       .replace(/([A-Z]+)/g, ' $1') //camelCase to spaces
       .replace(/^ /, '') //remove leading space
@@ -49,7 +49,7 @@ class SoundFontOutput extends React.Component {
       .replace(/\W/g, ''); //remove all non word chars
   }
 
-  initInstruments() {
+  initInstruments = () => {
     this.instruments = null;
     Promise.all(
       this.props.parsedMidiFile
@@ -66,18 +66,18 @@ class SoundFontOutput extends React.Component {
     ).then(instruments => (this.instruments = instruments));
   }
 
-  initMetronomeInstrument() {
+  initMetronomeInstrument = () => {
     Soundfont.instrument(
       this.audioContext,
       this.formatInstrumentName('Xylophone'),
     ).then(instrument => (this.metronomeInstrument = instrument));
   }
 
-  noteObjectKey(noteNumber, noteChannel) {
+  noteObjectKey = (noteNumber, noteChannel) => {
     return `${noteNumber}_${noteChannel}`;
   }
 
-  playNote(note) {
+  playNote = note => {
     if (
       this.state.mute ||
       (this.props.trackSettings && !this.props.trackSettings[note.track].play)
@@ -95,7 +95,7 @@ class SoundFontOutput extends React.Component {
     });
   }
 
-  onNoteOn(note) {
+  onNoteOn = note => {
     if (this.props.waitForInput && (this.props.inputStaffs & note.staff) > 0) {
       return;
     }
@@ -103,13 +103,13 @@ class SoundFontOutput extends React.Component {
     this.playNote(note);
   }
 
-  onNoteOnUserInput(note) {
+  onNoteOnUserInput = note => {
     //Don't know how long user will play the note for so use 30 second default.
     //When user releases the note onNoteOff can be called to stop it instead
     this.playNote({ ...note, durationMs: 30000 });
   }
 
-  onNoteOff(note) {
+  onNoteOff = note => {
     const key = this.noteObjectKey(note.noteNumber, note.channel);
     if (this.activeNotes[key]) {
       if (note.durationMs > 0) {
@@ -119,11 +119,11 @@ class SoundFontOutput extends React.Component {
     }
   }
 
-  onNoteOffUserInput(note) {
+  onNoteOffUserInput = note => {
     this.onNoteOff(note);
   }
 
-  onMetronomeTick(start) {
+  onMetronomeTick = start => {
     if (!this.props.metronomeEnabled) {
       return;
     }
@@ -135,7 +135,7 @@ class SoundFontOutput extends React.Component {
       });
   }
 
-  handleToggleMute() {
+  handleToggleMute = () => {
     this.setState({
       mute: !this.state.mute,
     });

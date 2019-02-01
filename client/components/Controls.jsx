@@ -12,32 +12,27 @@ class Controls extends React.Component {
     super(props);
 
     this.state = { showSettings: false };
-    this.handleLoadClick = this.handleLoadClick.bind(this);
-    this.handleLoadFile = this.handleLoadFile.bind(this);
-    this.handleSettingsClick = this.handleSettingsClick.bind(this);
-    this.handlePlayPauseClick = this.handlePlayPauseClick.bind(this);
-    this.handleTempoChange = this.handleTempoChange.bind(this);
   }
 
-  handleLoadClick() {
+  handleLoadClick = () => {
     this.midiFileInput.click();
   }
 
-  handleLoadFile(evt) {
+  handleLoadFile = evt => {
     this.props.loadFile(evt.target.files[0]);
   }
 
-  handleSettingsClick(evt) {
+  handleSettingsClick = evt => {
     evt.stopPropagation();
     this.setState({ showSettings: !this.state.showSettings });
     window.setTimeout(() => window.dispatchEvent(new Event('resize')), 1000);
   }
 
-  handlePlayPauseClick() {
+  handlePlayPauseClick = () => {
     this.props.isPlaying ? this.props.pause() : this.props.play();
   }
 
-  handleTempoChange(evt) {
+  handleTempoChange = evt => {
     this.props.setTempo(parseInt(evt.target.value, 10));
   }
 

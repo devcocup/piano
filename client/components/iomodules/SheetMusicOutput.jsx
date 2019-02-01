@@ -240,7 +240,7 @@ class SheetMusicOutput extends React.Component {
     }
   }
 
-  animate(playerTimeMillis) {
+  animate = playerTimeMillis => {
     this.currentPulseTime = playerTimeMillis * this.pulsesPerMs;
     this.shadeNotes(this.currentPulseTime, this.prevPulseTime);
     this.prevPulseTime = this.currentPulseTime;

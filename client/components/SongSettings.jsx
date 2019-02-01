@@ -6,18 +6,9 @@ import { updateTrackDisplay, updateTrackPlay, setMetronomeEnabled } from '../act
 class SongSettings extends React.Component {
   constructor(props) {
     super(props);
-
-    this.updateTrack = this.updateTrack.bind(this);
-    this.updateTrackAll = this.updateTrackAll.bind(this);
-    this.updateTrackPlayAndDisplay = this.updateTrackPlayAndDisplay.bind(this);
-    this.updateTrackAllPlayAndDisplay = this.updateTrackAllPlayAndDisplay.bind(
-      this,
-    );
-    this.updateMetronomeEnabled = this.updateMetronomeEnabled.bind(this);
-    this.getTracksToUpdate = this.getTracksToUpdate.bind(this);
   }
 
-  updateTrackAllPlayAndDisplay() {
+  updateTrackAllPlayAndDisplay = () => {
     const updatedValue = !(
       this.getTracksToUpdate('Play').some(t => t.track.play) ||
       this.getTracksToUpdate('Display').some(t => t.track.display)
@@ -27,7 +18,7 @@ class SongSettings extends React.Component {
     this.updateTrackAll('Display', updatedValue)();
   }
 
-  getTracksToUpdate(propName) {
+  getTracksToUpdate = propName => {
     return this.props.trackSettings
       .map((track, index) => ({
         track,
@@ -36,7 +27,7 @@ class SongSettings extends React.Component {
       .filter(t => propName === 'Play' || t.track.name !== 'Percussion');
   }
 
-  updateTrackAll(propName, value) {
+  updateTrackAll = (propName, value) => {
     return () => {
       //don't include Percussion tracks in display by default
       const tracksToUpdate = this.getTracksToUpdate(propName);
@@ -55,12 +46,12 @@ class SongSettings extends React.Component {
     };
   }
 
-  updateTrack(trackIndexes, propName) {
+  updateTrack = (trackIndexes, propName) => {
     return evt =>
       this.props[`updateTrack${propName}`](trackIndexes, evt.target.checked);
   }
 
-  updateTrackPlayAndDisplay(trackIndex) {
+  updateTrackPlayAndDisplay = trackIndex => {
     return () => {
       const newState =
         !this.props.trackSettings[trackIndex].display &&
@@ -70,7 +61,7 @@ class SongSettings extends React.Component {
     };
   }
 
-  updateMetronomeEnabled(evt) {
+  updateMetronomeEnabled = evt => {
     this.props.setMetronomeEnabled(evt.target.checked);
   }
 
