@@ -4,8 +4,8 @@ import {
 } from '../constants/actionTypes';
 
 const initialState = {
-  selectionStartMs: -1,
-  selectionEndMs: -1,
+  selectionStartMs: 0,
+  selectionEndMs: 0,
   selectionStartPulse: 0,
   selectionEndPulse: 0,
   autoScroll: false,
