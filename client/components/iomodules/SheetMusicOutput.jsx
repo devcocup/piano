@@ -331,7 +331,7 @@ class SheetMusicOutput extends React.Component {
             <input
               type="checkbox"
               checked={!!this.props.autoScroll}
-              onClick={this.handleAutoScrollClick}
+              onChange={this.handleAutoScrollClick}
             />{' '}
             Auto scroll
           </label>
@@ -436,5 +436,5 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
   null,
-  { withRef: true },
+  { forwardRef: true },
 )(SheetMusicOutput);
