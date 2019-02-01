@@ -21,22 +21,6 @@ class SheetMusicOutput extends React.Component {
     this.SELECT_CONTROL_OFFSET_LEFT = 10;
     this.SELECT_CONTROL_OFFSET_TOP = 5;
 
-    this.initSheetMusic = this.initSheetMusic.bind(this);
-    this.initSheetMusicCanvas = this.initSheetMusicCanvas.bind(this);
-    this.paintSheetMusic = this.paintSheetMusic.bind(this);
-    this.clearShadeNotes = this.clearShadeNotes.bind(this);
-    this.getScrollOffset = this.getScrollOffset.bind(this);
-    this.paintSheetMusic = this.paintSheetMusic.bind(this);
-    this.shadeNotes = this.shadeNotes.bind(this);
-    this.loadMidiFile = this.loadMidiFile.bind(this);
-    this.click = this.click.bind(this);
-    this.setSelection = this.setSelection.bind(this);
-    this.scroll = this.scroll.bind(this);
-    this.handleAutoScrollClick = this.handleAutoScrollClick.bind(this);
-    this.scrollTo = this.scrollTo.bind(this);
-    this.updateSelectionFromProps = this.updateSelectionFromProps.bind(this);
-    this.onNoteOff = this.onNoteOff.bind(this);
-
     this.prevPlayerTimeMillis = 0;
     this.lastScrollPos = -1;
 
@@ -75,7 +59,7 @@ class SheetMusicOutput extends React.Component {
     }
   }
 
-  trackSettingsDisplayChanged(trackSettings, prevTrackSettings) {
+  trackSettingsDisplayChanged = (trackSettings, prevTrackSettings) => {
     if (!trackSettings) {
       return false;
     }
@@ -90,11 +74,11 @@ class SheetMusicOutput extends React.Component {
     );
   }
 
-  init() {
+  init = () => {
     return window.bridgeUtil.image.preloadImages();
   }
 
-  click(evt) {
+  click = evt => {
     this.clearShadeNotes();
     this.currentPulseTime = this.sheetMusic.PulseTimeForPoint({
       X: evt.offsetX,
@@ -125,7 +109,7 @@ class SheetMusicOutput extends React.Component {
     });
   }
 
-  initSheetMusicCanvas() {
+  initSheetMusicCanvas = () => {
     if (!this.sheetMusic) {
       return;
     }
@@ -145,7 +129,7 @@ class SheetMusicOutput extends React.Component {
     this.paintSheetMusic();
   }
 
-  initSheetMusic() {
+  initSheetMusic = () => {
     return this.init().then(() => {
       if (!this.props.parsedMidiFile) {
         return;
@@ -162,14 +146,14 @@ class SheetMusicOutput extends React.Component {
     });
   }
 
-  loadMidiFile() {
+  loadMidiFile = () => {
     this.pulsesPerMs = this.props.parsedMidiFile.getPulsesPerMsec();
     this.totalPulses = this.props.parsedMidiFile.getTotalPulses();
     this.measure = this.props.parsedMidiFile.getMeasure();
     return this.initSheetMusic();
   }
 
-  clearShadeNotes() {
+  clearShadeNotes = () => {
     const ctx = this.canvasShadeNotes.getContext('2d');
     ctx.clearRect(
       0,
@@ -179,18 +163,17 @@ class SheetMusicOutput extends React.Component {
     );
   }
 
-  getScrollOffset() {
+  getScrollOffset = () => {
     return this.divCanvasScroll.scrollTop;
   }
 
-  paintSheetMusic(clipRectangle) {
+  paintSheetMusic = () => {
     if (!this.sheetMusic) {
       return;
     }
 
     this.canvasMain.height = this.sheetMusic.Height;
     const args = new MidiSheetMusic.PaintEventArgs();
-    clipRectangle = [0, 0, this.sheetMusic.Width, this.sheetMusic.Height];
     args.ClipRectangle = new MidiSheetMusic.Rectangle(
       0,
       0,
@@ -211,7 +194,7 @@ class SheetMusicOutput extends React.Component {
     );
   }
 
-  scroll() {
+  scroll = () => {
     this.clearShadeNotes();
     this.shadeNotes(
       this.currentPulseTime,
@@ -223,7 +206,7 @@ class SheetMusicOutput extends React.Component {
     this.isProgrammaticScrolling = false;
   }
 
-  shadeNotes(currentPulseTime, prevPulseTime) {
+  shadeNotes = (currentPulseTime, prevPulseTime) => {
     if (!this.sheetMusic) {
       return;
     }
@@ -241,7 +224,7 @@ class SheetMusicOutput extends React.Component {
     return shadeRect;
   }
 
-  scrollTo(scrollPos) {
+  scrollTo = scrollPos => {
     if (
       scrollPos >= 0 &&
       scrollPos !== this.lastScrollPos &&
@@ -263,7 +246,7 @@ class SheetMusicOutput extends React.Component {
     this.prevPulseTime = this.currentPulseTime;
   }
 
-  onNoteOff() {
+  onNoteOff = () => {
     if (this.props.selectionStartMs >= 0 && this.props.selectionEndMs >= 0) {
       if (
         this.currentPulseTime / this.pulsesPerMs >
@@ -274,7 +257,7 @@ class SheetMusicOutput extends React.Component {
     }
   }
 
-  setSelection(prop) {
+  setSelection = prop => {
     return () => {
       const currentSelection = {
         selectionStartMs: prop ? this.props.selectionStartMs : -1,
@@ -295,7 +278,7 @@ class SheetMusicOutput extends React.Component {
     };
   }
 
-  updateSelectionFromProps() {
+  updateSelectionFromProps = () => {
     if (!this.sheetMusic) return;
 
     this.sheetMusic.SelectionStartPulse = this.props.selectionStartPulse;
@@ -318,7 +301,7 @@ class SheetMusicOutput extends React.Component {
     this.paintSheetMusic();
   }
 
-  handleAutoScrollClick(evt) {
+  handleAutoScrollClick = evt => {
     this.props.setAutoScroll(evt.target.checked);
   }
 
