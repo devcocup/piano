@@ -1,18 +1,21 @@
 import React from 'react';
-import '../../external/MidiSheetMusic/build/bridge';
-import '../../external/MidiSheetMusic/build/MidiSheetMusicBridge';
+import '../../../external/MidiSheetMusic/build/bridge';
+import '../../../external/MidiSheetMusic/build/MidiSheetMusicBridge';
 import debounce from 'lodash/debounce';
-import '../../bridgeUtil';
+import '../../../bridgeUtil';
 import Easing from 'easing';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import lerp from '../../util/lerp';
+import lerp from '../../../util/lerp';
+import ShadeNotesCanvas from './ShadeNotesCanvas';
 import {
   setSelection,
   setAutoScroll,
-} from '../../actions/sheetMusicOutputActions';
+} from '../../../actions/sheetMusicOutputActions';
 
-import '../../style/iomodules/sheet-music-output';
+import '../../../style/iomodules/sheet-music-output';
+import { SHADE_NOTE_TYPE_CURRENT, SHADE_NOTE_TYPE_SELECTION } from '../../../constants/shadeNoteTypes';
+
 
 class SheetMusicOutput extends React.Component {
   constructor(props) {
@@ -24,7 +27,7 @@ class SheetMusicOutput extends React.Component {
     this.prevPlayerTimeMillis = 0;
     this.lastScrollPos = -1;
 
-    this.state = { selectionControlPosition: null };
+    this.state = { selectionControlPosition: null, shadedNotes: [] };
   }
 
   componentDidMount() {
@@ -79,7 +82,6 @@ class SheetMusicOutput extends React.Component {
   };
 
   click = evt => {
-    this.clearShadeNotes();
     this.currentPulseTime = this.sheetMusic.PulseTimeForPoint({
       X: evt.offsetX,
       Y: evt.offsetY,
@@ -91,33 +93,32 @@ class SheetMusicOutput extends React.Component {
 
     const lastClickMs = this.currentPulseTime / this.pulsesPerMs;
     this.props.callbacks.setCurrentMs(lastClickMs);
-    const shadeRect = this.shadeNotes(
-      this.currentPulseTime,
-      this.prevPulseTime,
-    );
-
-    if (!shadeRect) {
-      return;
-    }
+    
     this.setState({
-      selectionControlPosition: {
-        left: shadeRect.X + this.SELECT_CONTROL_OFFSET_LEFT,
-        top: shadeRect.Y + shadeRect.Height + this.SELECT_CONTROL_OFFSET_TOP,
-      },
       lastClickMs,
       lastClickPulse: this.currentPulseTime,
+      shadedNotes: this.getShadedNotes(),
     });
   };
+
+  getShadedNotes = () => {
+    const notes = [];
+    if (this.currentPulseTime > 0) {
+      notes.push({
+        pulseTime: this.currentPulseTime,
+        type: SHADE_NOTE_TYPE_CURRENT,
+      });
+    }
+    return notes;
+  }
 
   initSheetMusicCanvas = () => {
     if (!this.sheetMusic) {
       return;
     }
 
-    const canvasHeight =
-      window.innerHeight - this.divCanvasScroll.getBoundingClientRect().top;
-    this.canvasShadeNotes.width = this.sheetMusic.Width;
-    this.canvasShadeNotes.height = canvasHeight;
+    const canvasHeight = window.innerHeight - 
+      this.divCanvasScroll.getBoundingClientRect().top;
 
     this.canvasMain.width = this.sheetMusic.Width;
 
@@ -153,20 +154,6 @@ class SheetMusicOutput extends React.Component {
     return this.initSheetMusic();
   };
 
-  clearShadeNotes = () => {
-    const ctx = this.canvasShadeNotes.getContext('2d');
-    ctx.clearRect(
-      0,
-      0,
-      this.canvasShadeNotes.width,
-      this.canvasShadeNotes.height,
-    );
-  };
-
-  getScrollOffset = () => {
-    return this.divCanvasScroll.scrollTop;
-  };
-
   paintSheetMusic = () => {
     if (!this.sheetMusic) {
       return;
@@ -186,42 +173,13 @@ class SheetMusicOutput extends React.Component {
     ctx.fillRect(0, 0, this.canvasMain.width, this.canvasMain.height);
 
     this.sheetMusic.OnPaint(args);
-
-    this.clearShadeNotes();
-    this.shadeNotes(
-      this.currentPulseTime,
-      this.currentPulseTime - this.measure,
-    );
   };
 
   scroll = () => {
-    this.clearShadeNotes();
-    this.shadeNotes(
-      this.currentPulseTime,
-      this.currentPulseTime - this.measure,
-    );
     if (this.props.autoScroll && !this.isProgrammaticScrolling) {
       this.props.setAutoScroll(false);
     }
     this.isProgrammaticScrolling = false;
-  };
-
-  shadeNotes = (currentPulseTime, prevPulseTime) => {
-    if (!this.sheetMusic) {
-      return;
-    }
-
-    const offset = this.getScrollOffset();
-    const ctx = this.canvasShadeNotes.getContext('2d');
-    ctx.translate(0, -offset);
-    const shadeRect = this.sheetMusic.ShadeNotes(
-      currentPulseTime,
-      prevPulseTime,
-      true,
-    );
-    this.scrollTo(shadeRect.Y);
-    ctx.translate(0, offset);
-    return shadeRect;
   };
 
   scrollTo = scrollPos => {
@@ -242,8 +200,8 @@ class SheetMusicOutput extends React.Component {
 
   animate = playerTimeMillis => {
     this.currentPulseTime = playerTimeMillis * this.pulsesPerMs;
-    this.shadeNotes(this.currentPulseTime, this.prevPulseTime);
     this.prevPulseTime = this.currentPulseTime;
+    this.shadeNotesCanvas && this.shadeNotesCanvas.animate(this.divCanvasScroll.scrollTop);
   };
 
   onNoteOff = () => {
@@ -256,6 +214,12 @@ class SheetMusicOutput extends React.Component {
       }
     }
   };
+
+  onNoteOn = () => {
+    this.setState({
+      shadedNotes: this.getShadedNotes(),
+    });
+  }
 
   setSelection = prop => {
     return () => {
@@ -285,19 +249,6 @@ class SheetMusicOutput extends React.Component {
     this.sheetMusic.SelectionEndPulse = this.props.selectionEndPulse;
     this.props.callbacks.setCurrentMs(this.props.selectionStartMs);
 
-    const endSelectionRect = this.sheetMusic.ShadeNotes(
-      this.sheetMusic.SelectionEndPulse,
-      0,
-      true,
-    );
-
-    this.setState({
-      removeSelectionPosition: {
-        left: endSelectionRect.X + this.SELECT_CONTROL_OFFSET_LEFT,
-        top: endSelectionRect.Y + this.SELECT_CONTROL_OFFSET_TOP,
-      },
-    });
-
     this.paintSheetMusic();
   };
 
@@ -305,8 +256,24 @@ class SheetMusicOutput extends React.Component {
     this.props.setAutoScroll(evt.target.checked);
   };
 
+  handleSetCurrentNotePosition = y => {
+    this.scrollTo(y);
+  };
+
+  handleSetCurrentSelection = rect => {
+    this.setState({
+      selectionControlPosition: {
+        left: rect.X + this.SELECT_CONTROL_OFFSET_LEFT,
+        top: rect.Y + rect.Height + this.SELECT_CONTROL_OFFSET_TOP,
+      },
+      removeSelectionPosition: {
+        left: rect.X + this.SELECT_CONTROL_OFFSET_LEFT,
+        top: rect.Y + this.SELECT_CONTROL_OFFSET_TOP,
+      },
+    });
+  }
+
   render() {
-    const defaultCanvasSize = { width: 1, height: 1 };
     return (
       <div className="sheet-music-output">
         <div className="sheet-music-controls">
@@ -335,7 +302,8 @@ class SheetMusicOutput extends React.Component {
               <canvas
                 className="canvas-main"
                 ref={el => (this.canvasMain = el)}
-                {...defaultCanvasSize}
+                width={1}
+                height={1}
               />
             </div>
 
@@ -377,11 +345,14 @@ class SheetMusicOutput extends React.Component {
                 </span>
               )}
           </div>
-          <canvas
-            style={{ zIndex: 1, pointerEvents: 'none' }}
-            className="canvas-shadeNotes"
-            ref={el => (this.canvasShadeNotes = el)}
-            {...defaultCanvasSize}
+          <ShadeNotesCanvas
+            width={this.sheetMusic ? this.sheetMusic.Width : 0}
+            height={window.innerHeight - (this.divCanvasScroll ? this.divCanvasScroll.getBoundingClientRect().top : 0)}
+            shadedNotes={this.state.shadedNotes}
+            shadeNotesFunc={this.sheetMusic && (pulseTime => this.sheetMusic.ShadeNotes(pulseTime, 0, true))}
+            setCurrentNotePosition={this.handleSetCurrentNotePosition}
+            setCurrentSelection={this.handleSetCurrentSelection}
+            ref={el => this.shadeNotesCanvas = el}
           />
         </div>
       </div>

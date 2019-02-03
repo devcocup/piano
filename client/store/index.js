@@ -6,8 +6,8 @@ import rootReducer from '../reducers/index';
 const store = createStore(
   rootReducer,
   compose(
-    applyMiddleware(thunk),
-    applyMiddleware(logger)
+    applyMiddleware(thunk)
+    //applyMiddleware(logger)
   )
 );
 export default store;

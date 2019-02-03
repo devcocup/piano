@@ -1,0 +1,2 @@
+export const SHADE_NOTE_TYPE_CURRENT = 0;
+export const SHADE_NOTE_TYPE_SELECTION = 1;
