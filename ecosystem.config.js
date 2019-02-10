@@ -7,7 +7,7 @@ module.exports = {
   deploy: {
     production: {
       user: 'ubuntu',
-      host: 'ec2-18-208-161-64.compute-1.amazonaws.com',
+      host: 'ec2-52-73-254-0.compute-1.amazonaws.com',
       key: '~/.ssh/piano_key_pair.pem',
       ref: 'origin/master',
       repo: 'git@github.com:djiaak/piano-web.git',
