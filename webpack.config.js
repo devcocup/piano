@@ -49,7 +49,7 @@ module.exports = {
       {
         include: path.resolve(
           __dirname,
-          'client/external/MidiSheetMusic/build',
+          'client/external/MidiSheetMusic/build'
         ),
         test: /\.js$/,
         parser: { system: false },
