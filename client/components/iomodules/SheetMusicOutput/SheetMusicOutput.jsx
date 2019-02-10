@@ -14,7 +14,12 @@ import {
 } from '../../../actions/sheetMusicOutputActions';
 
 import '../../../style/iomodules/sheet-music-output';
-import { SHADE_NOTE_TYPE_CURRENT, SHADE_NOTE_TYPE_SELECTION } from '../../../constants/shadeNoteTypes';
+import { 
+  SHADE_NOTE_TYPE_CURRENT,
+  SHADE_NOTE_TYPE_SELECTION,
+  SHADE_NOTE_TYPE_HIT,
+  SHADE_NOTE_TYPE_MISS, 
+} from '../../../constants/shadeNoteTypes';
 
 
 class SheetMusicOutput extends React.Component {
@@ -273,6 +278,10 @@ class SheetMusicOutput extends React.Component {
     });
   }
 
+  generateBrush = noteType => {
+    return new MidiSheetMusic.SolidBrush(MidiSheetMusic.Color.FromArgb(128, 0, 128, 200));
+  }
+
   render() {
     return (
       <div className="sheet-music-output">
@@ -349,7 +358,7 @@ class SheetMusicOutput extends React.Component {
             width={this.sheetMusic ? this.sheetMusic.Width : 0}
             height={window.innerHeight - (this.divCanvasScroll ? this.divCanvasScroll.getBoundingClientRect().top : 0)}
             shadedNotes={this.state.shadedNotes}
-            shadeNotesFunc={this.sheetMusic && (pulseTime => this.sheetMusic.ShadeNotes(pulseTime, 0, true))}
+            shadeNotesFunc={this.sheetMusic && ((pulseTime, type) => this.sheetMusic.ShadeNotes(pulseTime, 0, true, this.generateBrush(type)))}
             setCurrentNotePosition={this.handleSetCurrentNotePosition}
             setCurrentSelection={this.handleSetCurrentSelection}
             ref={el => this.shadeNotesCanvas = el}

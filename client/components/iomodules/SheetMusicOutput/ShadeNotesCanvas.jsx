@@ -28,7 +28,7 @@ export default class ShadeNotesCanvas extends React.Component {
     }
     if (this.props.shadedNotes !== prevProps.shadedNotes) {
       this.props.shadedNotes.forEach(n => {
-        const shadeRect = this.props.shadeNotesFunc && this.props.shadeNotesFunc(n.pulseTime);
+        const shadeRect = this.props.shadeNotesFunc && this.props.shadeNotesFunc(n.pulseTime, n.type);
         if (n.type === SHADE_NOTE_TYPE_CURRENT) {
           if (shadeRect) {
             this.props.setCurrentNotePosition && 
@@ -48,7 +48,7 @@ export default class ShadeNotesCanvas extends React.Component {
     this.props.shadedNotes && this.props.shadedNotes.forEach(n => {
       const ctx = this.canvasShadeNotes.getContext('2d');
       ctx.translate(0, -scrollOffset);
-      this.props.shadeNotesFunc && this.props.shadeNotesFunc(n.pulseTime)
+      this.props.shadeNotesFunc && this.props.shadeNotesFunc(n.pulseTime, n.type);
       ctx.translate(0, scrollOffset);
     });
   }

@@ -89,11 +89,11 @@ public class Piano : Control {
                 6*WhiteKeyWidth + BlackKeyWidth/2
            };
         }
-        Color gray1 = Color.FromArgb(16, 16, 16);
-        Color gray2 = Color.FromArgb(90, 90, 90);
-        Color gray3 = Color.FromArgb(200, 200, 200);
-        Color shade1 = Color.FromArgb(210, 205, 220);
-        Color shade2 = Color.FromArgb(150, 200, 220);
+        Color gray1 = Color.FromRgb(16, 16, 16);
+        Color gray2 = Color.FromRgb(90, 90, 90);
+        Color gray3 = Color.FromRgb(200, 200, 200);
+        Color shade1 = Color.FromRgb(210, 205, 220);
+        Color shade2 = Color.FromRgb(150, 200, 220);
 
         gray1Pen = new Pen(gray1, 1);
         gray2Pen = new Pen(gray2, 1);

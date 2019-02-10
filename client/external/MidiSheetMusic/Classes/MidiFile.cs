@@ -606,7 +606,7 @@ namespace MidiSheetMusic
                     starttime += deltatime;
                     peekevent = file.Peek();
                 }
-                catch (MidiFileException e)
+                catch (MidiFileException)
                 {
                     return result;
                 }
@@ -966,7 +966,7 @@ namespace MidiSheetMusic
                 file.Close();
                 return true;
             }
-            catch (IOException e)
+            catch (IOException)
             {
                 return false;
             }
@@ -1100,7 +1100,7 @@ namespace MidiSheetMusic
                 stream.Close();
                 return result;
             }
-            catch (IOException e)
+            catch (IOException)
             {
                 return false;
             }

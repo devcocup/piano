@@ -16,7 +16,7 @@ namespace MidiSheetMusic
             Alpha = 255;
         }
 
-        public static Color FromArgb(int red, int green, int blue) {
+        public static Color FromRgb(int red, int green, int blue) {
             return FromArgb(255, red, green, blue);
         }
 
@@ -33,9 +33,9 @@ namespace MidiSheetMusic
 
         public static Color Black { get { return new Color(); } }
 
-        public static Color White { get { return FromArgb(255,255,255); } }
+        public static Color White { get { return FromRgb(255,255,255); } }
 
-        public static Color LightGray { get { return FromArgb(0xd3,0xd3,0xd3); } }
+        public static Color LightGray { get { return FromRgb(0xd3,0xd3,0xd3); } }
 
         public int R { get { return Red; } }
         public int G { get { return Green; } }

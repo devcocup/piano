@@ -495,8 +495,6 @@ namespace MidiSheetMusic
             int xpos = keysigWidth;
 
             MusicSymbol curr = null;
-            ChordSymbol prevChord = null;
-            int prev_xpos = 0;
 
             /* Loop through the symbols. 
              * Unshade symbols where start <= prevPulseTime < end

@@ -110,7 +110,9 @@
   </Target>
   <PropertyGroup>
     <PostBuildEvent>pushd ..\..
+
 postbuild.cmd
+
 popd</PostBuildEvent>
   </PropertyGroup>
 </Project>

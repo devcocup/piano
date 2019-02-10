@@ -3,6 +3,7 @@ import {
   WAIT_FOR_INPUT_CHANGED,
   INPUT_STAFFS_CHANGED,
   SET_MIDI_KEYBOARD_PORT_ID,
+  SET_INPUT_NOTE_STATE,
 } from '../constants/actionTypes';
 import { MIDI_KEYBOARD_INPUT } from '../constants/reducerNames';
 
@@ -59,4 +60,14 @@ export const setPortId = (portId, save) => (dispatch, getState) => {
   if (save) {
     saveGlobalData(getState());
   }
+};
+
+export const setInputNoteState = (hitNotes, missedNotes) => {
+  return {
+    type: SET_INPUT_NOTE_STATE,
+    payload: {
+      hitNotes,
+      missedNotes,
+    }
+  };
 };

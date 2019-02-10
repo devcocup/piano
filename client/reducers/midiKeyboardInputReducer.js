@@ -2,6 +2,7 @@ import {
   WAIT_FOR_INPUT_CHANGED,
   INPUT_STAFFS_CHANGED,
   SET_MIDI_KEYBOARD_PORT_ID,
+  SET_INPUT_NOTE_STATE,
 } from '../constants/actionTypes';
 
 const initialState = {
@@ -17,6 +18,8 @@ export default (state = initialState, action) => {
       return { ...state, inputStaffs: action.payload };
     case SET_MIDI_KEYBOARD_PORT_ID:
       return { ...state, portId: action.payload };
+    case SET_INPUT_NOTE_STATE:
+      return { ...state, ...action.payload };
   }
   return state;
 };

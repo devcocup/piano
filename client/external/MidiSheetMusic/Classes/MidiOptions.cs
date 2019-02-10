@@ -101,7 +101,7 @@ public class MidiOptions {
         time = midifile.Time;
         colors = null;
         shadeColor = Color.FromArgb(100, 53, 123, 255);
-        shade2Color = Color.FromArgb(80, 100, 250);
+        shade2Color = Color.FromRgb(80, 100, 250);
         combineInterval = 40;
         tempo = midifile.Time.Tempo;
         pauseTime = 0;
