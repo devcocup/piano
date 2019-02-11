@@ -43,6 +43,10 @@ class MidiIo {
     this.callbacks.push(callback);
 
     if (!this.promise) {
+      if (!navigator.requestMIDIAccess) {
+        console.warn('This browser doesn\'t support navigator.requestMIDIAccess (try Chrome)');
+        return;
+      }
       this.promise = navigator.requestMIDIAccess({ sysex: true }).then(midi => {
         const inputs = [];
         midi.inputs.forEach(input => {
