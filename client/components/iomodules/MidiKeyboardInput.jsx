@@ -157,10 +157,6 @@ class MidiKeyboardInput extends React.Component {
   render() {
     return (
       <div>
-        <p>required: {this.state.notesRequired.map(n=>n.noteNumber).join(',')}</p>
-        <p>pressed: {this.state.notesPressed.map(n=>n.noteNumber).join(',')}</p>
-        <p>hit: {this.state.notesHit.map(n=>n.noteNumber).join(',')}</p>
-        <p>missed: {this.state.notesMissed.map(n=>n.noteNumber).join(',')}</p>
         <label className="section">
           <span className="label">MIDI input device</span>
           <MidiDeviceSelection
