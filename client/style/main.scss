@@ -1,7 +1,19 @@
+@import './vars';
+
 body {
-  font-family: sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   overflow: hidden;
+  color: $text-color;
+  background-color: $background-color;
+}
+
+button {
+  color: $text-color; 
+}
+
+input {
+  color: $text-color; 
 }
 
 .piano-content {
@@ -12,6 +24,10 @@ body {
     cursor: pointer;
     background: transparent;
     border: none;
+  }
+
+  .label-input {
+    cursor: pointer;
   }
 }
 

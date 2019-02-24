@@ -1,3 +1,5 @@
+@import '../vars';
+
 .sheet-music-output {
   $border-color: #e1e4e8;
 
@@ -8,6 +10,53 @@
     top: 5px;
     z-index: 100;
     padding: 5px;
+
+    input {
+      cursor: pointer;
+    }
+
+    .auto-scroll {
+      position: relative;
+
+      .auto-scroll-slash {
+        left: 0px;
+        top: -2px;
+        position: absolute;
+        transform: rotate(45deg);
+        border-bottom: 3px solid #3c3c3c;
+        display: none;
+        width: 100%;
+        height: 0px;
+        border-top: 2px solid #fff;
+      }
+
+      &:not(.checked) {
+        .auto-scroll-slash {
+          display: block;
+        }
+      }
+
+      input[type="checkbox"] {
+        display:none;
+      }
+    }
+
+    .clear-selection {
+      position: relative;
+
+      .clear-selection-overlay {
+        position: absolute;
+        right: 4px;
+        top: 7px;
+        background-color: #fff;
+        font-size: 16px;
+        line-height: 12px;
+        display: block;
+        padding-left: 4px;
+      }
+    }
+
+    
   }
 
   .canvas-container {
@@ -30,10 +79,6 @@
       opacity: .4;
       &:hover {
         opacity: 1;
-      }
-
-      &.select-start-end {
-        //margin-left: -70px;
       }
 
       button {

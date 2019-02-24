@@ -75,7 +75,7 @@ class SongSettings extends React.Component {
               <button
                 type="button"
                 onClick={this.updateTrackAll('Display')}
-                title="Display/Hide all tracks"
+                title="Display/Hide"
               >
                 <i className="material-icons">remove_red_eye</i>
               </button>
@@ -84,7 +84,7 @@ class SongSettings extends React.Component {
               <button
                 type="button"
                 onClick={this.updateTrackAll('Play')}
-                title="Play/Mute all tracks"
+                title="Play/Mute"
               >
                 <i className="material-icons">volume_up</i>
               </button>
@@ -93,7 +93,7 @@ class SongSettings extends React.Component {
               <button
                 type="button"
                 onClick={this.updateTrackAllPlayAndDisplay}
-                title="Toggle all tracks"
+                title="Display and mute"
               >
                 <i className="material-icons top-left-icon">remove_red_eye</i>
                 <span className="slash">|</span>

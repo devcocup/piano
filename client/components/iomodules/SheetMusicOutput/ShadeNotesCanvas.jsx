@@ -29,28 +29,35 @@ export default class ShadeNotesCanvas extends React.Component {
     if (this.props.shadedNotes !== prevProps.shadedNotes) {
       this.props.shadedNotes.forEach(n => {
         const shadeRect = this.props.shadeNotesFunc && this.props.shadeNotesFunc(n.pulseTime, n.type);
-        if (n.type === SHADE_NOTE_TYPE_CURRENT) {
+        if (n.type === SHADE_NOTE_TYPE_SELECTION) {
           if (shadeRect) {
-            this.props.setCurrentNotePosition && 
-              this.props.setCurrentNotePosition(shadeRect.Y);
             this.props.setCurrentSelection &&
               this.props.setCurrentSelection(shadeRect);
           }
-          
         } 
       });
     }
 
   }
 
-  animate = scrollOffset => {
+  animate = (scrollOffset, playingPulseTime) => {
     this.clearShadeNotes();
+    const ctx = this.canvasShadeNotes.getContext('2d');
+    ctx.translate(0, -scrollOffset);
+
     this.props.shadedNotes && this.props.shadedNotes.forEach(n => {
-      const ctx = this.canvasShadeNotes.getContext('2d');
-      ctx.translate(0, -scrollOffset);
       this.props.shadeNotesFunc && this.props.shadeNotesFunc(n.pulseTime, n.type);
-      ctx.translate(0, scrollOffset);
     });
+    if (playingPulseTime >= 0) {
+      const shadeRect = this.props.shadeNotesFunc &&
+        this.props.shadeNotesFunc(playingPulseTime, SHADE_NOTE_TYPE_CURRENT);
+
+      if (shadeRect && this.props.setCurrentNotePosition && this.lastNoteY !== shadeRect.Y) {
+        this.props.setCurrentNotePosition(shadeRect.Y);
+      }
+    }
+
+    ctx.translate(0, scrollOffset);
   }
 
   clearShadeNotes = () => {

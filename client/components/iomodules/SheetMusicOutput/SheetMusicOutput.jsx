@@ -14,13 +14,12 @@ import {
 } from '../../../actions/sheetMusicOutputActions';
 
 import '../../../style/iomodules/sheet-music-output';
-import { 
+import {
   SHADE_NOTE_TYPE_CURRENT,
   SHADE_NOTE_TYPE_SELECTION,
   SHADE_NOTE_TYPE_HIT,
-  SHADE_NOTE_TYPE_MISS, 
+  SHADE_NOTE_TYPE_MISS,
 } from '../../../constants/shadeNoteTypes';
-
 
 class SheetMusicOutput extends React.Component {
   constructor(props) {
@@ -63,7 +62,10 @@ class SheetMusicOutput extends React.Component {
     }
 
     if (this.props.isPlaying !== prevProps.isPlaying) {
-      this.setState({ selectionControlPosition: null });
+      this.setState({
+        selectionControlPosition: null,
+        shadedNotes: this.getShadedNotes(),
+      });
     }
   }
 
@@ -98,7 +100,7 @@ class SheetMusicOutput extends React.Component {
 
     const lastClickMs = this.currentPulseTime / this.pulsesPerMs;
     this.props.callbacks.setCurrentMs(lastClickMs);
-    
+
     this.setState({
       lastClickMs,
       lastClickPulse: this.currentPulseTime,
@@ -108,22 +110,22 @@ class SheetMusicOutput extends React.Component {
 
   getShadedNotes = () => {
     const notes = [];
-    if (this.currentPulseTime > 0) {
+    if (this.currentPulseTime >= 0 && !this.props.isPlaying) {
       notes.push({
         pulseTime: this.currentPulseTime,
-        type: SHADE_NOTE_TYPE_CURRENT,
+        type: SHADE_NOTE_TYPE_SELECTION,
       });
     }
     return notes;
-  }
+  };
 
   initSheetMusicCanvas = () => {
     if (!this.sheetMusic) {
       return;
     }
 
-    const canvasHeight = window.innerHeight - 
-      this.divCanvasScroll.getBoundingClientRect().top;
+    const canvasHeight =
+      window.innerHeight - this.divCanvasScroll.getBoundingClientRect().top;
 
     this.canvasMain.width = this.sheetMusic.Width;
 
@@ -206,7 +208,11 @@ class SheetMusicOutput extends React.Component {
   animate = playerTimeMillis => {
     this.currentPulseTime = playerTimeMillis * this.pulsesPerMs;
     this.prevPulseTime = this.currentPulseTime;
-    this.shadeNotesCanvas && this.shadeNotesCanvas.animate(this.divCanvasScroll.scrollTop);
+    this.shadeNotesCanvas &&
+      this.shadeNotesCanvas.animate(
+        this.divCanvasScroll.scrollTop,
+        this.props.isPlaying ? this.currentPulseTime : -1,
+      );
   };
 
   onNoteOff = () => {
@@ -220,19 +226,13 @@ class SheetMusicOutput extends React.Component {
     }
   };
 
-  onNoteOn = () => {
-    this.setState({
-      shadedNotes: this.getShadedNotes(),
-    });
-  }
-
   setSelection = prop => {
     return () => {
       const currentSelection = {
-        selectionStartMs: prop ? this.props.selectionStartMs : 0,
-        selectionEndMs: prop ? this.props.selectionEndMs : 0,
-        selectionStartPulse: prop ? this.props.selectionStartPulse : 0,
-        selectionEndPulse: prop ? this.props.selectionEndPulse : 0,
+        selectionStartMs: prop ? this.props.selectionStartMs : -1,
+        selectionEndMs: prop ? this.props.selectionEndMs : -1,
+        selectionStartPulse: prop ? this.props.selectionStartPulse : -1,
+        selectionEndPulse: prop ? this.props.selectionEndPulse : -1,
       };
       if (prop) {
         currentSelection[`${prop}Ms`] = this.state.lastClickMs;
@@ -251,7 +251,8 @@ class SheetMusicOutput extends React.Component {
     if (!this.sheetMusic) return;
 
     this.sheetMusic.SelectionStartPulse = this.props.selectionStartPulse;
-    this.sheetMusic.SelectionEndPulse = this.props.selectionEndPulse;
+    this.sheetMusic.SelectionEndPulse =
+      this.props.selectionEndPulse === -1 ? 0 : this.props.selectionEndPulse;
     this.props.callbacks.setCurrentMs(this.props.selectionStartMs);
 
     this.paintSheetMusic();
@@ -271,28 +272,58 @@ class SheetMusicOutput extends React.Component {
         left: rect.X + this.SELECT_CONTROL_OFFSET_LEFT,
         top: rect.Y + rect.Height + this.SELECT_CONTROL_OFFSET_TOP,
       },
-      removeSelectionPosition: {
-        left: rect.X + this.SELECT_CONTROL_OFFSET_LEFT,
-        top: rect.Y + this.SELECT_CONTROL_OFFSET_TOP,
-      },
     });
-  }
+  };
 
   generateBrush = noteType => {
-    return new MidiSheetMusic.SolidBrush(MidiSheetMusic.Color.FromArgb(128, 0, 128, 200));
-  }
+    const color =
+      noteType === SHADE_NOTE_TYPE_CURRENT
+        ? MidiSheetMusic.Color.FromArgb(128, 0, 128, 200)
+        : MidiSheetMusic.Color.FromArgb(128, 128, 128, 128);
+    return new MidiSheetMusic.SolidBrush(color);
+  };
+
+  shadeNotesFunc = (pulseTime, type) => {
+    if (!this.sheetMusic) return null;
+    return this.sheetMusic.ShadeNotes(
+      pulseTime,
+      pulseTime - this.measure,
+      true,
+      this.generateBrush(type),
+    );
+  };
 
   render() {
     return (
       <div className="sheet-music-output">
         <div className="sheet-music-controls">
-          <label>
+          {this.props.selectionEndMs >= 0 && (
+            <button
+              type="button"
+              onClick={this.setSelection(null)}
+              title="Clear selection"
+              className="clear-selection"
+            >
+              <i className="material-icons">select_all</i>
+              <i className="material-icons clear-selection-overlay">clear</i>
+            </button>
+          )}
+          <label
+            className={'label-input auto-scroll' + (this.props.autoScroll ? ' checked' : '') }
+          >
             <input
               type="checkbox"
               checked={!!this.props.autoScroll}
               onChange={this.handleAutoScrollClick}
-            />{' '}
-            Auto scroll
+            />
+            <i
+              className="material-icons"
+              style={{ transform: 'rotate(180deg)' }}
+              title="Auto scroll"
+            >
+              publish
+            </i>
+            <span className="auto-scroll-slash" />
           </label>
         </div>
 
@@ -337,31 +368,20 @@ class SheetMusicOutput extends React.Component {
                 </button>
               </span>
             )}
-            {!this.props.isPlaying &&
-              this.props.selectionEndMs &&
-              this.state.removeSelectionPosition && (
-                <span
-                  className="selection-controls"
-                  style={this.state.removeSelectionPosition}
-                >
-                  <button
-                    type="button"
-                    onClick={this.setSelection(null)}
-                    title="Clear selection"
-                  >
-                    <i className="material-icons">clear</i>
-                  </button>
-                </span>
-              )}
           </div>
           <ShadeNotesCanvas
             width={this.sheetMusic ? this.sheetMusic.Width : 0}
-            height={window.innerHeight - (this.divCanvasScroll ? this.divCanvasScroll.getBoundingClientRect().top : 0)}
+            height={
+              window.innerHeight -
+              (this.divCanvasScroll
+                ? this.divCanvasScroll.getBoundingClientRect().top
+                : 0)
+            }
             shadedNotes={this.state.shadedNotes}
-            shadeNotesFunc={this.sheetMusic && ((pulseTime, type) => this.sheetMusic.ShadeNotes(pulseTime, 0, true, this.generateBrush(type)))}
+            shadeNotesFunc={this.shadeNotesFunc}
             setCurrentNotePosition={this.handleSetCurrentNotePosition}
             setCurrentSelection={this.handleSetCurrentSelection}
-            ref={el => this.shadeNotesCanvas = el}
+            ref={el => (this.shadeNotesCanvas = el)}
           />
         </div>
       </div>

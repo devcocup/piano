@@ -1,0 +1,4 @@
+- highlight correct/missed notes
+- save correct/missed notes
+- repeat control
+- handle song end (repeat or stop)
